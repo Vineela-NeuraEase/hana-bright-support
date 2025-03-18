@@ -8,9 +8,10 @@ import { JournalEntryActions } from "./JournalEntryActions";
 interface JournalEntryCardProps {
   entry: JournalEntry;
   onDelete: (id: string) => void;
+  isMobile?: boolean;
 }
 
-export const JournalEntryCard = ({ entry, onDelete }: JournalEntryCardProps) => {
+export const JournalEntryCard = ({ entry, onDelete, isMobile }: JournalEntryCardProps) => {
   const handleDelete = () => {
     if (confirm("Are you sure you want to delete this journal entry?")) {
       onDelete(entry.id);
@@ -31,7 +32,7 @@ export const JournalEntryCard = ({ entry, onDelete }: JournalEntryCardProps) => 
         id={entry.id}
       />
       
-      <JournalEntryActions onDelete={handleDelete} />
+      <JournalEntryActions onDelete={handleDelete} isMobile={isMobile} />
     </Card>
   );
 };
