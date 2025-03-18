@@ -1,4 +1,3 @@
-
 import { useState, useCallback, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Event } from "@/types/event";
@@ -6,7 +5,7 @@ import { useAuth } from "@/components/AuthProvider";
 import { useToast } from "@/hooks/use-toast";
 import { transformDbEventToClient } from "./eventTransformers";
 
-export const useFetchEvents = () => {
+export const useFetchEvents = (specificUserId?: string) => {
   const [events, setEvents] = useState<Event[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { session } = useAuth();
@@ -14,6 +13,10 @@ export const useFetchEvents = () => {
 
   const fetchEvents = useCallback(async () => {
     if (!session?.user) return;
+    
+    // The userId to fetch events for - either the specified user (for caregivers)
+    // or the current logged-in user
+    const userIdToFetch = specificUserId || session.user.id;
     
     try {
       setIsLoading(true);
@@ -28,7 +31,7 @@ export const useFetchEvents = () => {
             priority
           )
         `)
-        .eq("user_id", session.user.id)
+        .eq("user_id", userIdToFetch)
         .order("start_time", { ascending: true });
 
       if (error) {
@@ -48,13 +51,15 @@ export const useFetchEvents = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [session, toast]);
+  }, [session, toast, specificUserId]);
 
   useEffect(() => {
     fetchEvents();
 
     // Set up realtime subscription for events
     if (session?.user) {
+      const userIdToFetch = specificUserId || session.user.id;
+      
       const channel = supabase
         .channel("events-changes")
         .on(
@@ -63,7 +68,7 @@ export const useFetchEvents = () => {
             event: "*",
             schema: "public",
             table: "events",
-            filter: `user_id=eq.${session.user.id}`,
+            filter: `user_id=eq.${userIdToFetch}`,
           },
           () => {
             fetchEvents();
@@ -75,7 +80,7 @@ export const useFetchEvents = () => {
         supabase.removeChannel(channel);
       };
     }
-  }, [session, fetchEvents]);
+  }, [session, fetchEvents, specificUserId]);
 
   return {
     events,

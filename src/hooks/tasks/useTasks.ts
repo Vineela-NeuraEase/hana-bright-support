@@ -3,21 +3,28 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Task, TaskStatus } from "@/types/task";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/components/AuthProvider";
 
-export const useTasks = () => {
+export const useTasks = (specificUserId?: string) => {
   const { toast } = useToast();
+  const { session } = useAuth();
+  const userId = specificUserId || (session?.user?.id ?? "");
   
   const { data: tasks, isLoading, refetch } = useQuery({
-    queryKey: ["tasks"],
+    queryKey: ["tasks", userId],
     queryFn: async () => {
+      if (!userId) return [];
+      
       const { data, error } = await supabase
         .from("tasks")
         .select("*")
+        .eq("user_id", userId)
         .order("created_at", { ascending: false });
 
       if (error) throw error;
       return data as Task[];
     },
+    enabled: !!userId,
   });
 
   const updateTaskStatus = async (taskId: string, newStatus: TaskStatus) => {
