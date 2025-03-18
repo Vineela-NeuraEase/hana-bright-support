@@ -1,15 +1,12 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { 
   LinkedUser, 
   FetchLinkedUsersResult,
   LinkUserResult,
-  UnlinkUserResult,
-  SimplifiedSession
+  UnlinkUserResult
 } from "./types";
 import { Session } from "@supabase/supabase-js";
-
-// Export SimplifiedSession type for use in hooks
-export type { SimplifiedSession };
 
 // Fetch all users linked to the caregiver
 export const fetchLinkedUsers = async (

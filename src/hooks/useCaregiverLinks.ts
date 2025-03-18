@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useAuth } from "@/components/AuthProvider";
 import { useToast } from "@/hooks/use-toast";
@@ -6,7 +7,7 @@ import {
   linkUserWithCode,
   unlinkUser
 } from "@/services/caregiverLinks/caregiverLinksService";
-import { LinkedUser, SimplifiedSession } from "@/services/caregiverLinks/types";
+import { LinkedUser } from "@/services/caregiverLinks/types";
 
 export type { LinkedUser };
 
@@ -26,7 +27,7 @@ export const useCaregiverLinks = () => {
 
       try {
         setLoading(true);
-        const result = await fetchLinkedUsers(session as SimplifiedSession);
+        const result = await fetchLinkedUsers(session);
         setLinkedUsers(result.linkedUsers);
       } catch (error) {
         console.error("Error fetching linked users:", error);
@@ -50,7 +51,7 @@ export const useCaregiverLinks = () => {
     try {
       setIsLinking(true);
 
-      const result = await linkUserWithCode(linkCode, session as SimplifiedSession);
+      const result = await linkUserWithCode(linkCode, session);
 
       toast({
         title: result.success ? "Success" : "Error",
@@ -91,7 +92,7 @@ export const useCaregiverLinks = () => {
     }
 
     try {
-      const result = await unlinkUser(linkId, session as SimplifiedSession);
+      const result = await unlinkUser(linkId, session);
 
       if (result.success) {
         const userToRemove = linkedUsers.find(user => user.linkId === linkId);

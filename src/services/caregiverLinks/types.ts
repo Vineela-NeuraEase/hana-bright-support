@@ -32,6 +32,3 @@ export type UnlinkUserResult = {
   success: boolean;
   message: string;
 };
-
-// Add the missing SimplifiedSession type
-export type SimplifiedSession = Pick<Session, 'user'>;
