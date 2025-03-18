@@ -25,7 +25,6 @@ export const TopNavigationBar = ({ session, navigationItems, onSignOut }: TopNav
       <div className="flex h-14 items-center px-4 gap-4 justify-between">
         <div className="flex items-center gap-4">
           <MobileSidebar navigationItems={navigationItems} onSignOut={onSignOut} />
-          <h2 className="text-lg font-semibold">Hana</h2>
         </div>
 
         {/* Profile Menu */}

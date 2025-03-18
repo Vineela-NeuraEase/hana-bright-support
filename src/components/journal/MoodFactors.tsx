@@ -15,7 +15,7 @@ const COMMON_FACTORS = [
   "Relaxing day",
   "Social interaction",
   "Social conflict",
-  "Physical exercise",
+  "Exercise",
   "Pain/discomfort",
   "Weather",
   "Food/Nutrition",
@@ -68,24 +68,25 @@ export const MoodFactors = () => {
       toast.success("Mood factors saved!");
     } catch (error) {
       console.error("Error creating journal entry:", error);
+      toast.error("Failed to save mood factors");
     }
   };
 
   return (
-    <Card>
+    <div>
       <form onSubmit={handleSubmit}>
-        <CardHeader>
+        <CardHeader className="px-0 pt-0">
           <CardTitle className="text-xl mb-2">What factors are affecting your mood?</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="space-y-2">
+        <CardContent className="space-y-6 p-0">
+          <div className="space-y-4">
             <div className="flex flex-wrap gap-2">
               {COMMON_FACTORS.map((factor) => (
                 <Button
                   key={factor}
                   type="button"
                   variant={selectedFactors.includes(factor) ? "default" : "outline"}
-                  className="rounded-full text-sm"
+                  className="rounded-full text-xs px-3 py-1 h-auto"
                   onClick={() => handleFactorToggle(factor)}
                 >
                   {factor}
@@ -107,7 +108,7 @@ export const MoodFactors = () => {
             />
           </div>
         </CardContent>
-        <CardFooter>
+        <CardFooter className="px-0 pt-4">
           <Button 
             type="submit" 
             className="w-full" 
@@ -117,6 +118,6 @@ export const MoodFactors = () => {
           </Button>
         </CardFooter>
       </form>
-    </Card>
+    </div>
   );
 };

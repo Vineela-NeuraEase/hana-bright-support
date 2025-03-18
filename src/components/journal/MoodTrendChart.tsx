@@ -45,7 +45,15 @@ export const MoodTrendChart = ({ entries }: MoodTrendChartProps) => {
   }, [filteredEntries]);
 
   if (entries.length === 0) {
-    return null;
+    return (
+      <Card className="mt-6">
+        <CardContent className="p-6">
+          <div className="text-center text-muted-foreground py-8">
+            No journal entries found. Create your first entry to see mood trends.
+          </div>
+        </CardContent>
+      </Card>
+    );
   }
 
   return (
@@ -86,9 +94,9 @@ export const MoodTrendChart = ({ entries }: MoodTrendChartProps) => {
                 data={chartData}
                 margin={{
                   top: 5,
-                  right: 30,
-                  left: 10,
-                  bottom: 30,
+                  right: 20,
+                  left: 20,
+                  bottom: 60,
                 }}
               >
                 <CartesianGrid strokeDasharray="3 3" />
@@ -98,6 +106,7 @@ export const MoodTrendChart = ({ entries }: MoodTrendChartProps) => {
                   angle={-45}
                   textAnchor="end"
                   height={60}
+                  dy={10}
                 />
                 <YAxis domain={[1, 10]} />
                 <Tooltip />
