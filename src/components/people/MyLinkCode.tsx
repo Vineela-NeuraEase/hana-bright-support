@@ -19,9 +19,6 @@ export const MyLinkCode = ({ profile }: MyLinkCodeProps) => {
   console.log("MyLinkCode role:", profile.role);
   console.log("MyLinkCode link_code:", profile.link_code);
   
-  // Show for all users, or specifically for autistic users
-  // if (profile.role !== 'autistic') return null;
-  
   const copyToClipboard = () => {
     if (profile.link_code) {
       navigator.clipboard.writeText(profile.link_code);

@@ -49,6 +49,8 @@ export const useProfile = (session: Session | null) => {
           .eq('user_id', session.user.id)
           .maybeSingle();
         
+        console.log("Link data from Supabase:", linkData);
+        
         if (linkError && linkError.code !== 'PGRST116') {
           // PGRST116 is "No rows returned" which is fine, user might not have a link code yet
           console.error('Error fetching link code:', linkError);
@@ -56,15 +58,20 @@ export const useProfile = (session: Session | null) => {
         
         // Combine the data
         if (profileData) {
-          setProfile({
+          const combinedProfile = {
             ...profileData,
             link_code: linkData?.link_code || undefined
-          });
+          };
+          
+          console.log("Combined profile:", combinedProfile);
+          setProfile(combinedProfile);
 
           // If the user is a caregiver, fetch linked users
           if (profileData.role === 'caregiver') {
             fetchLinkedUsers(session.user.id);
           }
+        } else {
+          console.log("No profile data found for user:", session.user.id);
         }
       } catch (error) {
         console.error('Unexpected error fetching profile:', error);
