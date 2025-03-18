@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
 import Tasks from "./pages/Tasks";
 import Dashboard from "./pages/Dashboard";
+import Schedule from "./pages/Schedule";
 import Auth from "./pages/Auth"; 
 import ToolsDirectory from "./pages/tools/Index";
 import FormalizerPage from "./pages/tools/Formalizer";
@@ -23,6 +24,7 @@ const App = () => {
             <Route path="/" element={<Home />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/tasks" element={<Tasks />} />
+            <Route path="/schedule" element={<Schedule />} />
             <Route path="/dashboard/*" element={<Dashboard />} />
             <Route path="/tools" element={<ToolsDirectory />} />
             <Route path="/tools/formalizer" element={<FormalizerPage />} />

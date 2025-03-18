@@ -97,6 +97,16 @@ const MobileNav = () => {
       </Link>
       
       <Link
+        to="/schedule"
+        className={`flex flex-col items-center space-y-1 ${
+          location.pathname === "/schedule" ? "text-primary" : "text-gray-500"
+        }`}
+      >
+        <Calendar size={20} />
+        <span className="text-xs">Schedule</span>
+      </Link>
+      
+      <Link
         to="/journal"
         className={`flex flex-col items-center space-y-1 ${
           location.pathname === "/journal" ? "text-primary" : "text-gray-500"
