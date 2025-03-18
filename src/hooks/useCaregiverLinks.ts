@@ -5,7 +5,8 @@ import { useToast } from "@/hooks/use-toast";
 import { 
   fetchLinkedUsers,
   linkUserWithCode,
-  unlinkUser
+  unlinkUser,
+  SimplifiedSession
 } from "@/services/caregiverLinks/caregiverLinksService";
 import { LinkedUser } from "@/services/caregiverLinks/types";
 
@@ -27,7 +28,7 @@ export const useCaregiverLinks = () => {
 
       try {
         setLoading(true);
-        const result = await fetchLinkedUsers(session);
+        const result = await fetchLinkedUsers(session as SimplifiedSession);
         setLinkedUsers(result.linkedUsers);
       } catch (error) {
         console.error("Error fetching linked users:", error);
@@ -51,7 +52,7 @@ export const useCaregiverLinks = () => {
     try {
       setIsLinking(true);
 
-      const result = await linkUserWithCode(linkCode, session);
+      const result = await linkUserWithCode(linkCode, session as SimplifiedSession);
 
       toast({
         title: result.success ? "Success" : "Error",
@@ -92,7 +93,7 @@ export const useCaregiverLinks = () => {
     }
 
     try {
-      const result = await unlinkUser(linkId, session);
+      const result = await unlinkUser(linkId, session as SimplifiedSession);
 
       if (result.success) {
         const userToRemove = linkedUsers.find(user => user.linkId === linkId);

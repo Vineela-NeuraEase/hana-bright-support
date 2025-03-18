@@ -13,7 +13,7 @@ interface DashboardContentProps {
 
 export const DashboardContent = ({ welcomeMessage }: DashboardContentProps) => {
   const { session } = useAuth();
-  const { profile } = useProfile(session);
+  const { profile } = useProfile();
   const location = useLocation();
 
   // Only show dashboard home on the root dashboard path
