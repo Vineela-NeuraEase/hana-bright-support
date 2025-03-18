@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { useCreateJournalEntry } from "@/hooks/useJournal";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { useAuth } from "@/components/AuthProvider";
@@ -75,11 +75,11 @@ export const MoodFactors = () => {
   return (
     <div>
       <form onSubmit={handleSubmit}>
-        <CardHeader className="px-0 pt-0">
-          <CardTitle className="text-xl mb-2">What factors are affecting your mood?</CardTitle>
-        </CardHeader>
         <CardContent className="space-y-6 p-0">
           <div className="space-y-4">
+            <label className="text-md font-medium block mb-1">
+              What factors are affecting your mood?
+            </label>
             <div className="flex flex-wrap gap-2">
               {COMMON_FACTORS.map((factor) => (
                 <Button

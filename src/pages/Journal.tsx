@@ -53,7 +53,7 @@ const Journal = () => {
   const renderCarouselDots = () => {
     if (!carouselApi) return null;
     
-    const slides = [0, 1, 2, 3]; // Four slides (added back "How You're Feeling")
+    const slides = [0, 1, 2, 3]; // Four slides
     return (
       <div className="flex justify-center gap-2 mt-4">
         {slides.map((index) => (
@@ -121,6 +121,7 @@ const Journal = () => {
               {showForm ? (
                 <Card>
                   <CardContent className="p-4">
+                    <h2 className="text-xl font-semibold mb-4">How are you feeling today?</h2>
                     <MoodInput />
                   </CardContent>
                 </Card>
@@ -131,7 +132,7 @@ const Journal = () => {
               )}
             </CarouselItem>
 
-            {/* Page 2: Mood Factors */}
+            {/* Page 2: Mood Factors - Without title */}
             <CarouselItem className="basis-full">
               {showForm ? (
                 <Card>
@@ -155,7 +156,7 @@ const Journal = () => {
               </Card>
             </CarouselItem>
 
-            {/* Page 4: Journal Entries List */}
+            {/* Page 4: Journal Entries List - Already has its own title */}
             <CarouselItem className="basis-full">
               <Card className="border-0 shadow-none">
                 <CardContent className="p-1">
