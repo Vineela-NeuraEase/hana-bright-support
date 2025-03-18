@@ -10,13 +10,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useAuth } from "@/components/FirebaseAuthProvider";
+import { useAuth } from "@/hooks/useAuth";
 import { useFirebaseProfile } from "@/hooks/useFirebaseProfile";
 import { MobileNavigation } from "./MobileNavigation";
 import { LogOut } from "lucide-react";
 
 export const MainNavBar = () => {
-  const { user, signOut } = useAuth();
+  const { session, signOut } = useAuth();
   const { profile } = useFirebaseProfile();
   
   // Handle sign out
@@ -26,8 +26,8 @@ export const MainNavBar = () => {
   
   // Get user initials for avatar
   const getUserInitials = () => {
-    if (user?.email) {
-      return user.email.charAt(0).toUpperCase();
+    if (session?.user?.email) {
+      return session.user.email.charAt(0).toUpperCase();
     }
     return "U";
   };
@@ -36,7 +36,7 @@ export const MainNavBar = () => {
     <nav className="sticky top-0 z-10 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="flex h-14 items-center px-4 gap-4 justify-between">
         <div className="flex items-center gap-4">
-          {/* Mobile Navigation with Hamburger Menu */}
+          {/* Mobile Navigation with Hamburger Menu - always visible on mobile */}
           <MobileNavigation />
           
           {/* Hana title, visible on both mobile and desktop */}
@@ -58,7 +58,7 @@ export const MainNavBar = () => {
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>
-              {user ? user.email : "User"}
+              {session ? session.user?.email : "User"}
               {profile?.role && <p className="text-xs text-muted-foreground">{profile.role}</p>}
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
@@ -81,7 +81,7 @@ export const MainNavBar = () => {
               <Link to="/settings">Settings</Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            {user ? (
+            {session ? (
               <DropdownMenuItem onClick={handleSignOut} className="text-red-500">
                 <LogOut className="h-4 w-4 mr-2" />
                 Sign Out

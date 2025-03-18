@@ -30,7 +30,7 @@ export const MobileNavigation = () => {
     <div className="block md:hidden">
       <Sheet open={isMenuOpen} onOpenChange={setIsMenuOpen}>
         <SheetTrigger asChild>
-          <Button variant="ghost" size="icon" aria-label="Menu" className="block md:hidden">
+          <Button variant="ghost" size="icon" aria-label="Menu">
             <Menu className="h-5 w-5" />
           </Button>
         </SheetTrigger>
