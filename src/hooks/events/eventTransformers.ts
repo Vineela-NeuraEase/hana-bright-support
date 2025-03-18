@@ -1,5 +1,6 @@
 
 import { Event } from "@/types/event";
+import { AddEventParams, UpdateEventParams } from "./types";
 
 // Transform database event to client format
 export const transformDbEventToClient = (event: any): Event => ({

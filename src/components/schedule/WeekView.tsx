@@ -1,20 +1,20 @@
 
 import React from "react";
 import {
-  format,
   startOfWeek,
   endOfWeek,
   eachDayOfInterval,
-  isSameDay,
   parseISO,
-  addHours,
   isBefore,
   isAfter,
-  isSameHour,
+  isSameDay,
   getHours,
 } from "date-fns";
 import { Event } from "@/types/event";
 import { Skeleton } from "@/components/ui/skeleton";
+import { WeekHeader } from "./week/WeekHeader";
+import { HourCell } from "./week/HourCell";
+import { TimeColumn } from "./week/TimeColumn";
 
 interface WeekViewProps {
   events: Event[];
@@ -73,70 +73,27 @@ export const WeekView = ({
 
   return (
     <div className="border rounded-lg overflow-hidden">
-      <div className="grid grid-cols-8 bg-muted">
-        {/* Empty cell for time column */}
-        <div className="py-2 text-center font-medium text-sm border-r"></div>
-        
-        {/* Day headers */}
-        {days.map((day, i) => (
-          <div 
-            key={i} 
-            className={`py-2 text-center font-medium text-sm cursor-pointer
-              ${isSameDay(day, selectedDate) ? "bg-primary/10" : ""}
-            `}
-            onClick={() => onDateSelect(day)}
-          >
-            <div>{format(day, "EEE")}</div>
-            <div className={`text-lg ${isSameDay(day, selectedDate) ? "font-bold" : ""}`}>
-              {format(day, "d")}
-            </div>
-          </div>
-        ))}
-      </div>
+      <WeekHeader days={days} selectedDate={selectedDate} onDateSelect={onDateSelect} />
       
       {/* Time grid */}
       <div className="grid grid-cols-8 divide-x divide-y">
         {hours.map((hour) => (
           <React.Fragment key={hour}>
             {/* Time column */}
-            <div className="p-1 text-xs text-right pr-2 bg-muted/20">
-              {format(addHours(new Date().setHours(hour, 0, 0, 0), 0), "h a")}
-            </div>
+            <TimeColumn hour={hour} />
             
             {/* Event cells for each day */}
             {days.map((day, dayIndex) => {
               const hourEvents = getEventsForHourAndDay(day, hour);
+              const dateWithHour = new Date(day);
+              dateWithHour.setHours(hour);
               
               return (
-                <div 
+                <HourCell 
                   key={dayIndex} 
-                  className="p-1 h-16 overflow-y-auto relative"
-                  onClick={() => {
-                    const dateWithHour = new Date(day);
-                    dateWithHour.setHours(hour);
-                    onAddEvent(dateWithHour);
-                  }}
-                >
-                  {hourEvents.map((event) => (
-                    <div
-                      key={event.id}
-                      className={`text-xs p-1 mb-1 rounded truncate ${
-                        event.linkedTaskId
-                          ? "bg-blue-100 text-blue-800"
-                          : "bg-green-100 text-green-800"
-                      }`}
-                      title={event.title}
-                    >
-                      {format(
-                        typeof event.startTime === "string"
-                          ? parseISO(event.startTime)
-                          : event.startTime,
-                        "h:mm a"
-                      )}{" "}
-                      {event.title}
-                    </div>
-                  ))}
-                </div>
+                  events={hourEvents}
+                  onAddEvent={() => onAddEvent(dateWithHour)}
+                />
               );
             })}
           </React.Fragment>
