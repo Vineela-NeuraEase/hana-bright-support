@@ -1,66 +1,73 @@
 
-import { Home, CheckSquare, Calendar, BookText, RadioTower, Cog, UserCircle } from "lucide-react";
+import { Settings, Home, PieChart, User, UserCog } from "lucide-react";
 
-export type NavigationItem = {
+interface NavigationItem {
   title: string;
-  icon: React.ComponentType<{ className?: string }>;
   url: string;
-};
+  icon: React.ElementType;
+}
 
-// Main navigation for the sidebar/hamburger menu
-export const useNavigation = (role: string | undefined) => {
-  const commonItems: NavigationItem[] = [
-    { title: "Home", icon: Home, url: "/dashboard" },
-    { title: "Settings", icon: Cog, url: "/settings" },
+export const useNavigation = (role?: string): NavigationItem[] => {
+  const defaultItems = [
+    {
+      title: "Dashboard",
+      url: "/dashboard",
+      icon: Home,
+    },
   ];
 
-  if (!role) return commonItems;
-
+  // Add role-specific navigation items
   switch (role) {
-    case 'autistic':
+    case "autistic":
       return [
-        ...commonItems,
+        ...defaultItems,
+        {
+          title: "Settings",
+          url: "/settings",
+          icon: Settings,
+        }
       ];
-    case 'caregiver':
+    case "caregiver":
       return [
-        ...commonItems,
-        { title: "Care Dashboard", icon: UserCircle, url: "/care" },
+        ...defaultItems,
+        {
+          title: "Patient Management",
+          url: "/patients",
+          icon: User,
+        },
+        {
+          title: "Settings",
+          url: "/settings",
+          icon: Settings,
+        }
       ];
-    case 'clinician':
+    case "clinician":
       return [
-        ...commonItems,
-        { title: "Clinician Portal", icon: UserCircle, url: "/portal" },
+        ...defaultItems,
+        {
+          title: "Patient Analytics",
+          url: "/analytics",
+          icon: PieChart,
+        },
+        {
+          title: "Patient Management",
+          url: "/patients",
+          icon: UserCog,
+        },
+        {
+          title: "Settings",
+          url: "/settings",
+          icon: Settings,
+        }
       ];
     default:
-      return commonItems;
-  }
-};
-
-// Get the tools for each role (for the dashboard home page)
-export const useTools = (role: string | undefined) => {
-  if (!role) return [];
-
-  switch (role) {
-    case 'autistic':
       return [
-        { title: "Tasks", icon: CheckSquare, url: "/tasks", description: "Manage and organize your tasks" },
-        { title: "Schedule", icon: Calendar, url: "/schedule", description: "View and update your daily schedule" },
-        { title: "Journal", icon: BookText, url: "/journal", description: "Record your thoughts and feelings" },
-        { title: "Communication Tools", icon: RadioTower, url: "/dashboard/tools", description: "Access tools for communication support" }
-      ];
-    case 'caregiver':
-      return [
-        { title: "Care Dashboard", icon: UserCircle, url: "/care", description: "Monitor care routines and schedules" },
-        { title: "Communication Tools", icon: RadioTower, url: "/dashboard/tools", description: "Access tools for communication support" }
-      ];
-    case 'clinician':
-      return [
-        { title: "Clinician Portal", icon: UserCircle, url: "/portal", description: "Manage patient information and progress" },
-        { title: "Communication Tools", icon: RadioTower, url: "/dashboard/tools", description: "Access tools for communication support" }
-      ];
-    default:
-      return [
-        { title: "Communication Tools", icon: RadioTower, url: "/dashboard/tools", description: "Access tools for communication support" }
+        ...defaultItems,
+        {
+          title: "Settings",
+          url: "/settings",
+          icon: Settings,
+        }
       ];
   }
 };

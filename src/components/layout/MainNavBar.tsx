@@ -1,6 +1,6 @@
 
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { Home, Menu, Calendar, CheckSquare, RadioTower } from "lucide-react";
+import { Home, Menu, Calendar, CheckSquare, RadioTower, Settings } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -94,6 +94,14 @@ export const MainNavBar = ({ onSignOut }: MainNavBarProps) => {
                   <RadioTower className="h-5 w-5" />
                   <span>Tools</span>
                 </Link>
+                <Link
+                  to="/settings"
+                  className="flex items-center gap-3 px-4 py-2 hover:bg-accent"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  <Settings className="h-5 w-5" />
+                  <span>Settings</span>
+                </Link>
               </div>
             </SheetContent>
           </Sheet>
@@ -128,6 +136,9 @@ export const MainNavBar = ({ onSignOut }: MainNavBarProps) => {
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
                 <Link to="/tools">Tools</Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link to="/settings">Settings</Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={handleSignOut}>

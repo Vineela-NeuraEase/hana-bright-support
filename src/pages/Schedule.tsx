@@ -12,6 +12,7 @@ import { WeekView } from "@/components/schedule/WeekView";
 import { DayView } from "@/components/schedule/DayView";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { AgendaView } from "@/components/schedule/AgendaView";
+import { NotificationService } from "@/services/NotificationService";
 
 const Schedule = () => {
   const [selectedDate, setSelectedDate] = useState<Date>(startOfToday());
@@ -20,6 +21,18 @@ const Schedule = () => {
   const { session } = useAuth();
   const isMobile = useIsMobile();
   const { events, isLoading, addEvent, updateEvent, deleteEvent } = useEvents();
+
+  // Initialize notifications when component mounts
+  useEffect(() => {
+    NotificationService.initialize();
+  }, []);
+
+  // Update notifications when events change
+  useEffect(() => {
+    if (events && events.length > 0 && !isLoading) {
+      NotificationService.updateAllEventNotifications(events);
+    }
+  }, [events, isLoading]);
 
   const todaysEvents = events?.filter(event => {
     if (!event.startTime) return false;

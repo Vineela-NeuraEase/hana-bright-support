@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Event } from "@/types/event";
 import { useTasks } from "@/hooks/tasks/useTasks";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -7,6 +7,7 @@ import { EventFormValues } from "./EventForm";
 import { useTaskCreation } from "@/hooks/events/useTaskCreation";
 import { MobileEventDialog } from "./event-dialog/MobileEventDialog";
 import { DesktopEventDialog } from "./event-dialog/DesktopEventDialog";
+import { NotificationService } from "@/services/NotificationService";
 
 interface EventDialogProps {
   isOpen: boolean;
@@ -31,6 +32,15 @@ export function EventDialog({
   const { tasks, refetch: refetchTasks } = useTasks();
   const isMobile = useIsMobile();
   const { createTask } = useTaskCreation(refetchTasks);
+  
+  // Initialize notifications when the component mounts
+  useEffect(() => {
+    NotificationService.initialize().then(granted => {
+      if (!granted) {
+        console.warn('Notifications permission not granted');
+      }
+    });
+  }, []);
   
   const handleSubmit = async (values: EventFormValues) => {
     setIsSubmitting(true);
@@ -70,10 +80,17 @@ export function EventDialog({
 
       console.log("Event data being submitted:", eventData);
 
+      let updatedEvent: Event | null = null;
+      
       if (event) {
-        await onUpdateEvent(event.id, eventData);
+        updatedEvent = await onUpdateEvent(event.id, eventData);
       } else {
-        await onAddEvent(eventData);
+        updatedEvent = await onAddEvent(eventData);
+      }
+      
+      // Schedule notifications if the event was successfully created/updated
+      if (updatedEvent && values.reminders.length > 0) {
+        await NotificationService.scheduleEventReminders(updatedEvent);
       }
 
       onClose();
@@ -89,6 +106,9 @@ export function EventDialog({
     
     setIsSubmitting(true);
     try {
+      // Cancel any existing notifications for this event first
+      await NotificationService.cancelEventNotifications(event.id);
+      
       const success = await onDeleteEvent(event.id);
       if (success) {
         onClose();
