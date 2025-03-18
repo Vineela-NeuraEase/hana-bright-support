@@ -13,7 +13,7 @@ import { MobileSidebar } from "./MobileSidebar";
 import { Session } from "@supabase/supabase-js";
 import { NavigationItem } from "@/types/navigation";
 import { useProfile } from "@/hooks/useProfile";
-import { clipboard, Copy } from "lucide-react";
+import { Copy } from "lucide-react"; // Fixed import - removed 'clipboard'
 import { toast } from "sonner";
 
 interface TopNavigationBarProps {

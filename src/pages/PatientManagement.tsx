@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/components/AuthProvider";
@@ -10,11 +9,13 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 
-type LinkedUser = {
+// Define a more specific type for LinkedUser to avoid excessive type instantiation
+interface LinkedUser {
   id: string;
   role: string;
   link_code?: string;
-};
+  // Add other properties as needed, but keep it simple
+}
 
 const PatientManagement = () => {
   const navigate = useNavigate();
