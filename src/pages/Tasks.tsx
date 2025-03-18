@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import TaskForm from "@/components/tasks/TaskForm";
 import TasksList from "@/components/tasks/TasksList";
 import { useTasks } from "@/hooks/tasks/useTasks";
@@ -9,8 +9,15 @@ import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 
 const Tasks = () => {
-  const { tasks, isLoading, refetch, updateTaskStatus } = useTasks();
+  const { tasks, isLoading, refetch, updateTaskStatus, calculateTaskStatus, updateTasksBasedOnSubtasks } = useTasks();
   const { toast } = useToast();
+  
+  // Update task status based on subtask completion whenever tasks change
+  useEffect(() => {
+    if (tasks && tasks.length > 0) {
+      updateTasksBasedOnSubtasks();
+    }
+  }, [tasks]);
   
   // Filter tasks by status
   const pendingTasks = tasks?.filter(task => task.status === "pending") || [];

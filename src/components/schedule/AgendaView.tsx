@@ -41,6 +41,7 @@ export const AgendaView = ({
   // Group events by date
   const eventsByDate = visibleDays.map(day => {
     const dayEvents = events.filter(event => {
+      if (!event.startTime) return false;
       const eventDate = typeof event.startTime === 'string'
         ? parseISO(event.startTime)
         : event.startTime;
@@ -111,42 +112,42 @@ export const AgendaView = ({
               <p className="text-sm text-muted-foreground p-2">No events scheduled</p>
             ) : (
               <div className="space-y-2">
-                {events.map((event) => (
-                  <div
-                    key={event.id}
-                    className={cn(
-                      "p-2 rounded-md",
-                      event.linkedTaskId ? "bg-blue-50" : "bg-green-50"
-                    )}
-                  >
-                    <div className="flex justify-between items-start">
-                      <h4 className="font-medium">{event.title}</h4>
-                      <span className="text-xs text-muted-foreground">
-                        {format(
-                          typeof event.startTime === "string"
-                            ? parseISO(event.startTime)
-                            : event.startTime,
-                          "h:mm a"
-                        )}
-                        {" - "}
-                        {format(
-                          typeof event.endTime === "string"
-                            ? parseISO(event.endTime)
-                            : event.endTime,
-                          "h:mm a"
-                        )}
-                      </span>
-                    </div>
-                    {event.description && (
-                      <p className="text-sm mt-1">{event.description}</p>
-                    )}
-                    {event.linkedTaskId && (
-                      <div className="text-xs mt-1 text-blue-600">
-                        Linked to task
+                {events.map((event) => {
+                  const startTime = typeof event.startTime === "string"
+                    ? parseISO(event.startTime)
+                    : event.startTime;
+                    
+                  const endTime = typeof event.endTime === "string"
+                    ? parseISO(event.endTime)
+                    : event.endTime;
+                    
+                  return (
+                    <div
+                      key={event.id}
+                      className={cn(
+                        "p-2 rounded-md",
+                        event.linkedTaskId ? "bg-blue-50" : "bg-green-50"
+                      )}
+                    >
+                      <div className="flex justify-between items-start">
+                        <h4 className="font-medium">{event.title}</h4>
+                        <span className="text-xs text-muted-foreground">
+                          {format(startTime, "h:mm a")}
+                          {" - "}
+                          {format(endTime, "h:mm a")}
+                        </span>
                       </div>
-                    )}
-                  </div>
-                ))}
+                      {event.description && (
+                        <p className="text-sm mt-1">{event.description}</p>
+                      )}
+                      {event.linkedTaskId && (
+                        <div className="text-xs mt-1 text-blue-600">
+                          Linked to task
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             )}
           </div>

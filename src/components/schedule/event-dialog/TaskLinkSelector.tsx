@@ -29,7 +29,7 @@ export const TaskLinkSelector = ({ tasks, form }: TaskLinkSelectorProps) => {
       name="linkedTaskId"
       render={({ field }) => (
         <FormItem>
-          <FormLabel>Link to Task (Optional)</FormLabel>
+          <FormLabel>Link to Existing Task (Optional)</FormLabel>
           <Select
             onValueChange={(value) => {
               field.onChange(value === "no-task" ? "" : value);

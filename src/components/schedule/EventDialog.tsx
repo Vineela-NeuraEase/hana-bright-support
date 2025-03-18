@@ -3,6 +3,8 @@ import { useState, useEffect } from "react";
 import { Event } from "@/types/event";
 import { useTasks } from "@/hooks/tasks/useTasks";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 import {
   Dialog,
@@ -19,6 +21,7 @@ import {
   DrawerTitle,
 } from "@/components/ui/drawer";
 import { EventForm, EventFormValues } from "./EventForm";
+import { Task } from "@/types/task";
 
 interface EventDialogProps {
   isOpen: boolean;
@@ -40,8 +43,36 @@ export function EventDialog({
   onDeleteEvent,
 }: EventDialogProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { tasks } = useTasks();
+  const { tasks, refetch: refetchTasks } = useTasks();
   const isMobile = useIsMobile();
+  const { toast } = useToast();
+  
+  const createTask = async (title: string, description: string, dueDate: Date) => {
+    try {
+      const { data, error } = await supabase
+        .from("tasks")
+        .insert({
+          title,
+          description,
+          status: "pending",
+          priority: "medium",
+          due_date: dueDate.toISOString(),
+        })
+        .select()
+        .single();
+        
+      if (error) throw error;
+      return data.id;
+    } catch (error) {
+      console.error("Error creating task:", error);
+      toast({
+        variant: "destructive",
+        title: "Error creating task",
+        description: "Failed to create a task from this event."
+      });
+      return null;
+    }
+  };
   
   const handleSubmit = async (values: EventFormValues) => {
     setIsSubmitting(true);
@@ -54,10 +85,25 @@ export function EventDialog({
       const [endHours, endMinutes] = values.endTime.split(":").map(Number);
       endDateTime.setHours(endHours, endMinutes);
       
-      // Handle linkedTaskId properly - use empty string for no task
-      const linkedTaskId = values.linkedTaskId && values.linkedTaskId.trim() !== "" 
-        ? values.linkedTaskId 
-        : undefined;
+      // If creating new task was selected
+      let linkedTaskId = values.linkedTaskId;
+      if (values.createNewTask) {
+        const newTaskId = await createTask(
+          values.title, 
+          values.description || "", 
+          startDateTime
+        );
+        if (newTaskId) {
+          linkedTaskId = newTaskId;
+          refetchTasks();
+          toast({
+            title: "Task created",
+            description: "A new task has been created from this event."
+          });
+        }
+      } else if (linkedTaskId && linkedTaskId.trim() === "") {
+        linkedTaskId = undefined;
+      }
       
       const eventData = {
         title: values.title,

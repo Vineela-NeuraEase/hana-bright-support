@@ -1,4 +1,5 @@
-import React from "react";
+
+import React, { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -24,6 +25,7 @@ import { DateTimeInputs } from "./event-dialog/DateTimeInputs";
 import { TaskLinkSelector } from "./event-dialog/TaskLinkSelector";
 import { ReminderSelector } from "./event-dialog/ReminderSelector";
 import { Task } from "@/types/task";
+import { Checkbox } from "@/components/ui/checkbox";
 
 // Form schema for event creation/editing
 const formSchema = z.object({
@@ -39,6 +41,7 @@ const formSchema = z.object({
   endTime: z.string().min(1, "End time is required"),
   linkedTaskId: z.string().optional(),
   reminders: z.array(z.number()).default([]),
+  createNewTask: z.boolean().default(false),
 });
 
 export type EventFormValues = z.infer<typeof formSchema>;
@@ -62,6 +65,8 @@ export const EventForm = ({
   onDelete,
   onClose,
 }: EventFormProps) => {
+  const [createNewTask, setCreateNewTask] = useState(false);
+
   // Get default times from the selectedDate
   const defaultStartTime = React.useMemo(() => {
     return format(selectedDate, "HH:mm");
@@ -82,6 +87,7 @@ export const EventForm = ({
       endTime: event ? format(new Date(event.endTime), "HH:mm") : defaultEndTime,
       linkedTaskId: event?.linkedTaskId || "",
       reminders: event?.reminders || [],
+      createNewTask: false,
     },
   });
 
@@ -100,7 +106,9 @@ export const EventForm = ({
         endTime: format(endDate, "HH:mm"),
         linkedTaskId: event.linkedTaskId || "",
         reminders: event.reminders || [],
+        createNewTask: false,
       });
+      setCreateNewTask(false);
     } else {
       form.reset({
         title: "",
@@ -111,7 +119,9 @@ export const EventForm = ({
         endTime: defaultEndTime,
         linkedTaskId: "",
         reminders: [],
+        createNewTask: false,
       });
+      setCreateNewTask(false);
     }
   }, [event, selectedDate, form, defaultStartTime, defaultEndTime]);
 
@@ -119,9 +129,21 @@ export const EventForm = ({
     // Empty string means no linked task
     const modifiedValues = {
       ...values,
-      linkedTaskId: values.linkedTaskId === "" ? undefined : values.linkedTaskId
+      linkedTaskId: values.linkedTaskId === "" ? undefined : values.linkedTaskId,
+      createNewTask: values.createNewTask
     };
     await onSubmit(modifiedValues);
+  };
+
+  // Handle the checkbox change
+  const handleCreateNewTaskChange = (checked: boolean) => {
+    setCreateNewTask(checked);
+    form.setValue("createNewTask", checked);
+    
+    // Clear linked task selection if creating a new task
+    if (checked) {
+      form.setValue("linkedTaskId", "");
+    }
   };
 
   return (
@@ -157,7 +179,31 @@ export const EventForm = ({
 
         <DateTimeInputs form={form} />
 
-        <TaskLinkSelector tasks={tasks} form={form} />
+        <div className="space-y-4">
+          <FormField
+            control={form.control}
+            name="createNewTask"
+            render={({ field }) => (
+              <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-3">
+                <FormControl>
+                  <Checkbox
+                    checked={createNewTask}
+                    onCheckedChange={handleCreateNewTaskChange}
+                  />
+                </FormControl>
+                <div className="space-y-1 leading-none">
+                  <FormLabel>
+                    Create a new task for this event
+                  </FormLabel>
+                </div>
+              </FormItem>
+            )}
+          />
+
+          {!createNewTask && (
+            <TaskLinkSelector tasks={tasks} form={form} />
+          )}
+        </div>
 
         <ReminderSelector form={form} />
 

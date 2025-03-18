@@ -20,19 +20,20 @@ export const useTasks = () => {
     },
   });
 
-  const updateTaskStatus = async (taskId: string, currentStatus: TaskStatus) => {
-    const statusOrder: TaskStatus[] = ["pending", "in-progress", "done"];
-    const currentIndex = statusOrder.indexOf(currentStatus);
-    const nextStatus = statusOrder[(currentIndex + 1) % statusOrder.length];
-
+  const updateTaskStatus = async (taskId: string, newStatus: TaskStatus) => {
     try {
       const { error } = await supabase
         .from("tasks")
-        .update({ status: nextStatus })
+        .update({ status: newStatus })
         .eq("id", taskId);
 
       if (error) throw error;
       refetch();
+      
+      toast({
+        title: "Task updated",
+        description: `Task has been moved to ${newStatus}.`,
+      });
     } catch (error) {
       toast({
         variant: "destructive",
@@ -42,10 +43,56 @@ export const useTasks = () => {
     }
   };
 
+  const calculateTaskStatus = (task: Task): TaskStatus => {
+    // If no subtasks, leave status as is
+    if (!task.subtasks || task.subtasks.length === 0) {
+      return task.status;
+    }
+
+    // Count completed subtasks
+    const completedSubtasks = task.subtasks.filter(subtask => subtask.completed).length;
+    const totalSubtasks = task.subtasks.length;
+
+    // If all subtasks are completed, task is done
+    if (completedSubtasks === totalSubtasks && totalSubtasks > 0) {
+      return "done";
+    }
+    // If some subtasks are completed, task is in progress
+    else if (completedSubtasks > 0) {
+      return "in-progress";
+    }
+    // If no subtasks are completed, task is pending
+    else {
+      return "pending";
+    }
+  };
+
+  const updateTasksBasedOnSubtasks = async () => {
+    if (!tasks) return;
+    
+    try {
+      const updatedTasks = tasks.map(task => {
+        const calculatedStatus = calculateTaskStatus(task);
+        return { ...task, calculatedStatus };
+      }).filter(task => task.status !== task.calculatedStatus);
+      
+      if (updatedTasks.length === 0) return;
+      
+      // Update each task that needs status change
+      for (const task of updatedTasks) {
+        await updateTaskStatus(task.id, task.calculatedStatus as TaskStatus);
+      }
+    } catch (error) {
+      console.error("Error updating tasks based on subtasks:", error);
+    }
+  };
+
   return {
     tasks,
     isLoading,
     refetch,
-    updateTaskStatus
+    updateTaskStatus,
+    calculateTaskStatus,
+    updateTasksBasedOnSubtasks
   };
 };

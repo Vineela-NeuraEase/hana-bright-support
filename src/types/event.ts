@@ -25,4 +25,5 @@ export interface EventFormValues {
   endTime: string;
   reminders: number[];
   linkedTaskId?: string;
+  createNewTask?: boolean;
 }
