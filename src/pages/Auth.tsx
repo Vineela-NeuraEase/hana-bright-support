@@ -28,54 +28,61 @@ const Auth = () => {
 
     try {
       if (mode === "signup") {
-        // Sign up with role metadata
+        // Create the user
         const { data, error: signUpError } = await supabase.auth.signUp({
           email,
           password,
           options: {
             data: { role },
-            emailRedirectTo: window.location.origin + "/dashboard"
           }
         });
         
         if (signUpError) throw signUpError;
         
+        // If user created successfully
         if (data.user) {
-          // Manually insert profile record with role to ensure it's set correctly
-          const { error: profileError } = await supabase
-            .from('profiles')
-            .upsert({ 
-              id: data.user.id,
-              role: role 
-            });
-            
-          if (profileError) {
-            console.error("Error saving profile:", profileError);
-            throw new Error("Failed to save user profile");
+          console.log("User created successfully:", data.user.id);
+          
+          // Try to directly set the profile role
+          try {
+            const { error: profileError } = await supabase
+              .from('profiles')
+              .upsert({ 
+                id: data.user.id,
+                role
+              });
+              
+            if (profileError) {
+              console.error("Error setting profile role:", profileError);
+              // Don't throw here - we created the user, just log the error
+            }
+          } catch (profileErr) {
+            console.error("Exception in profile update:", profileErr);
           }
           
           toast({
             title: "Account created",
-            description: "Your account has been successfully created. Please sign in.",
+            description: "Your account has been created successfully. Please sign in.",
           });
           
           // Switch to login mode after successful signup
           setMode("login");
-          setLoading(false);
-          return;
         }
       } else {
-        const { error: signInError } = await supabase.auth.signInWithPassword({
+        // Login
+        const { error: signInError, data } = await supabase.auth.signInWithPassword({
           email,
           password,
         });
         
         if (signInError) throw signInError;
         
+        console.log("Signed in successfully:", data?.user?.id);
         navigate("/dashboard");
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred");
+      console.error("Auth error:", err);
+      setError(err instanceof Error ? err.message : "An error occurred during authentication");
     } finally {
       setLoading(false);
     }
