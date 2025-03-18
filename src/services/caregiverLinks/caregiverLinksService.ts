@@ -32,7 +32,7 @@ export const fetchLinkedUsers = async (
           .from("profiles")
           .select("id")
           .eq("id", link.user_id)
-          .single();
+          .maybeSingle();
 
         return {
           id: link.user_id,
@@ -67,9 +67,16 @@ export const linkUserWithCode = async (
       .from("user_links")
       .select("user_id")
       .eq("link_code", linkCode)
-      .single();
+      .maybeSingle();
 
     if (userError) {
+      return {
+        success: false,
+        message: "The link code you entered is invalid or doesn't exist"
+      };
+    }
+
+    if (!userData) {
       return {
         success: false,
         message: "The link code you entered is invalid or doesn't exist"
@@ -106,7 +113,7 @@ export const linkUserWithCode = async (
       .select("id, user_id")
       .eq("caregiver_id", session.user.id)
       .eq("user_id", userData.user_id)
-      .single();
+      .maybeSingle();
 
     return {
       success: true,
