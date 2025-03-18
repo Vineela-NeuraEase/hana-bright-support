@@ -3,14 +3,22 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { JournalEntry, JournalFormData } from "@/types/journal";
 import { toast } from "sonner";
+import { useAuth } from "@/components/AuthProvider";
 
 export const useJournalEntries = () => {
+  const { session } = useAuth();
+
   return useQuery({
     queryKey: ['journalEntries'],
     queryFn: async (): Promise<JournalEntry[]> => {
+      if (!session?.user?.id) {
+        return [];
+      }
+
       const { data, error } = await supabase
         .from('journal_entries')
         .select('*')
+        .eq('user_id', session.user.id)
         .order('timestamp', { ascending: false });
 
       if (error) {
@@ -19,21 +27,25 @@ export const useJournalEntries = () => {
       }
 
       return data || [];
-    }
+    },
+    enabled: !!session?.user?.id
   });
 };
 
 export const useJournalEntry = (id?: string) => {
+  const { session } = useAuth();
+
   return useQuery({
     queryKey: ['journalEntry', id],
     queryFn: async (): Promise<JournalEntry | null> => {
-      if (!id) return null;
+      if (!id || !session?.user?.id) return null;
 
       const { data, error } = await supabase
         .from('journal_entries')
         .select('*')
         .eq('id', id)
-        .single();
+        .eq('user_id', session.user.id)
+        .maybeSingle();
 
       if (error) {
         toast.error("Failed to load journal entry");
@@ -42,26 +54,55 @@ export const useJournalEntry = (id?: string) => {
 
       return data;
     },
-    enabled: !!id
+    enabled: !!id && !!session?.user?.id
   });
 };
 
 export const useCreateJournalEntry = () => {
   const queryClient = useQueryClient();
+  const { session } = useAuth();
 
   return useMutation({
     mutationFn: async (journalData: JournalFormData) => {
-      // Analyze sentiment (implement in a real app)
-      const sentiment = determineSentiment(journalData.journal_text);
+      if (!session?.user?.id) {
+        throw new Error("User not authenticated");
+      }
+
+      // Call the Supabase Edge Function to analyze sentiment
+      let sentiment = 'neutral';
+      if (journalData.journal_text) {
+        try {
+          const response = await fetch(`${supabase.supabaseUrl}/functions/v1/analyze-sentiment`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${supabase.supabaseKey}`
+            },
+            body: JSON.stringify({ 
+              text: journalData.journal_text 
+            })
+          });
+          
+          if (response.ok) {
+            const result = await response.json();
+            sentiment = result.sentiment;
+          }
+        } catch (error) {
+          console.error('Error analyzing sentiment:', error);
+          // Fallback to determineSentiment if the edge function fails
+          sentiment = determineSentiment(journalData.journal_text);
+        }
+      }
 
       const { data, error } = await supabase
         .from('journal_entries')
-        .insert([
-          {
-            ...journalData,
-            sentiment,
-          },
-        ])
+        .insert({
+          mood_rating: journalData.mood_rating,
+          journal_text: journalData.journal_text,
+          factors: journalData.factors,
+          sentiment: sentiment,
+          user_id: session.user.id
+        })
         .select()
         .single();
 
@@ -81,13 +122,19 @@ export const useCreateJournalEntry = () => {
 
 export const useDeleteJournalEntry = () => {
   const queryClient = useQueryClient();
+  const { session } = useAuth();
 
   return useMutation({
     mutationFn: async (id: string) => {
+      if (!session?.user?.id) {
+        throw new Error("User not authenticated");
+      }
+
       const { error } = await supabase
         .from('journal_entries')
         .delete()
-        .eq('id', id);
+        .eq('id', id)
+        .eq('user_id', session.user.id);
 
       if (error) {
         toast.error("Failed to delete journal entry");
@@ -101,7 +148,7 @@ export const useDeleteJournalEntry = () => {
   });
 };
 
-// Simple sentiment analysis function
+// Simple sentiment analysis function - used as a fallback
 // In a real app, this would be replaced with an AI-powered analysis
 const determineSentiment = (text: string): string => {
   if (!text) return 'neutral';
