@@ -1,9 +1,8 @@
-
 import { useState } from "react";
 import { Task } from "@/types/task";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Loader2, Sparkles, AlertTriangle, Plus } from "lucide-react";
+import { Loader2, Sparkles, AlertTriangle, Plus, Trash2, ArrowUp, ArrowDown } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
@@ -23,6 +22,7 @@ const SubtasksList = ({ task, refetchTasks }: SubtasksListProps) => {
   const [showSuggestionInput, setShowSuggestionInput] = useState(false);
   const [suggestion, setSuggestion] = useState("");
   const [addingSuggestion, setAddingSuggestion] = useState(false);
+  const [editingIndex, setEditingIndex] = useState<number | null>(null);
 
   const hasSubtasks = task.subtasks && task.subtasks.length > 0;
 
@@ -113,15 +113,26 @@ const SubtasksList = ({ task, refetchTasks }: SubtasksListProps) => {
     }
   };
 
-  const handleAddSuggestion = async () => {
+  const handleAddStep = async (index: number | null = null) => {
     if (!suggestion.trim() || !task.subtasks) return;
     
     setAddingSuggestion(true);
     try {
-      const updatedSubtasks = [...task.subtasks, { 
-        title: suggestion.trim(),
-        completed: false
-      }];
+      const updatedSubtasks = [...task.subtasks];
+      
+      // If an index is provided, insert at that position
+      // Otherwise, add to the end
+      if (index !== null) {
+        updatedSubtasks.splice(index, 0, { 
+          title: suggestion.trim(),
+          completed: false
+        });
+      } else {
+        updatedSubtasks.push({ 
+          title: suggestion.trim(),
+          completed: false
+        });
+      }
 
       const { error } = await supabase
         .from("tasks")
@@ -131,22 +142,98 @@ const SubtasksList = ({ task, refetchTasks }: SubtasksListProps) => {
       if (error) throw error;
       
       toast({
-        title: "Suggestion added",
-        description: "Your suggestion has been added to the task breakdown.",
+        title: "Step added",
+        description: "Your step has been added to the task breakdown.",
       });
       
       setSuggestion("");
       setShowSuggestionInput(false);
+      setEditingIndex(null);
       refetchTasks();
     } catch (error) {
-      console.error("Error adding suggestion:", error);
+      console.error("Error adding step:", error);
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Failed to add your suggestion. Please try again.",
+        description: "Failed to add your step. Please try again.",
       });
     } finally {
       setAddingSuggestion(false);
+    }
+  };
+
+  const handleDeleteStep = async (index: number) => {
+    if (!task.subtasks) return;
+    
+    setLoading(true);
+    try {
+      const updatedSubtasks = [...task.subtasks];
+      updatedSubtasks.splice(index, 1);
+
+      const { error } = await supabase
+        .from("tasks")
+        .update({ subtasks: updatedSubtasks })
+        .eq("id", task.id);
+
+      if (error) throw error;
+      
+      toast({
+        title: "Step removed",
+        description: "The step has been removed from the task breakdown.",
+      });
+      
+      refetchTasks();
+    } catch (error) {
+      console.error("Error removing step:", error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to remove the step. Please try again.",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleMoveStep = async (index: number, direction: 'up' | 'down') => {
+    if (!task.subtasks) return;
+    
+    // Can't move up if already at the top
+    if (direction === 'up' && index === 0) return;
+    // Can't move down if already at the bottom
+    if (direction === 'down' && index === task.subtasks.length - 1) return;
+    
+    setLoading(true);
+    try {
+      const updatedSubtasks = [...task.subtasks];
+      const newIndex = direction === 'up' ? index - 1 : index + 1;
+      
+      // Swap the items
+      [updatedSubtasks[index], updatedSubtasks[newIndex]] = 
+      [updatedSubtasks[newIndex], updatedSubtasks[index]];
+
+      const { error } = await supabase
+        .from("tasks")
+        .update({ subtasks: updatedSubtasks })
+        .eq("id", task.id);
+
+      if (error) throw error;
+      
+      toast({
+        title: "Step moved",
+        description: `The step has been moved ${direction}.`,
+      });
+      
+      refetchTasks();
+    } catch (error) {
+      console.error("Error moving step:", error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: `Failed to move the step ${direction}. Please try again.`,
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -190,47 +277,24 @@ const SubtasksList = ({ task, refetchTasks }: SubtasksListProps) => {
 
       {hasSubtasks && (
         <div className="space-y-2">
-          <h3 className="text-sm font-medium mb-2">Subtasks:</h3>
-          {task.subtasks.map((subtask, index) => (
-            <div key={index} className="flex items-start space-x-2">
-              <Checkbox
-                id={`subtask-${task.id}-${index}`}
-                checked={subtask.completed}
-                onCheckedChange={() => handleToggleSubtask(index)}
-                disabled={loading}
-                className="mt-1"
-              />
-              <label
-                htmlFor={`subtask-${task.id}-${index}`}
-                className={`text-sm ${
-                  subtask.completed ? "line-through text-muted-foreground" : ""
-                }`}
-              >
-                {subtask.title}
-              </label>
-            </div>
-          ))}
-          
-          <div className="mt-4 flex justify-between items-center">
-            <div className="text-xs">
-              Completed: {task.subtasks.filter(st => st.completed).length} / {task.subtasks.length}
-            </div>
-            
-            {!showSuggestionInput && (
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                onClick={() => setShowSuggestionInput(true)}
-                className="text-xs"
-              >
-                <Plus className="h-3 w-3 mr-1" />
-                Add step
-              </Button>
-            )}
+          <div className="flex justify-between items-center mb-2">
+            <h3 className="text-sm font-medium">Subtasks:</h3>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={() => {
+                setEditingIndex(null);
+                setShowSuggestionInput(true);
+              }}
+              className="text-xs"
+            >
+              <Plus className="h-3 w-3 mr-1" />
+              Add step
+            </Button>
           </div>
-          
-          {showSuggestionInput && (
-            <div className="mt-2 space-y-2">
+
+          {showSuggestionInput && editingIndex === null && (
+            <div className="mb-4 space-y-2">
               <Textarea
                 placeholder="Enter a new step to add to the breakdown..."
                 value={suggestion}
@@ -251,7 +315,7 @@ const SubtasksList = ({ task, refetchTasks }: SubtasksListProps) => {
                 <Button 
                   variant="default" 
                   size="sm" 
-                  onClick={handleAddSuggestion}
+                  onClick={() => handleAddStep()}
                   disabled={!suggestion.trim() || addingSuggestion}
                 >
                   {addingSuggestion ? (
@@ -266,6 +330,113 @@ const SubtasksList = ({ task, refetchTasks }: SubtasksListProps) => {
               </div>
             </div>
           )}
+          
+          {task.subtasks.map((subtask, index) => (
+            <div key={index} className="group flex items-start space-x-2">
+              <Checkbox
+                id={`subtask-${task.id}-${index}`}
+                checked={subtask.completed}
+                onCheckedChange={() => handleToggleSubtask(index)}
+                disabled={loading}
+                className="mt-1"
+              />
+              <label
+                htmlFor={`subtask-${task.id}-${index}`}
+                className={`flex-grow text-sm ${
+                  subtask.completed ? "line-through text-muted-foreground" : ""
+                }`}
+              >
+                {subtask.title}
+              </label>
+
+              {editingIndex === index ? (
+                <div className="flex-grow space-y-2">
+                  <Textarea
+                    placeholder="Enter new step text..."
+                    value={suggestion}
+                    onChange={(e) => setSuggestion(e.target.value)}
+                    className="w-full text-sm"
+                  />
+                  <div className="flex space-x-2 justify-end">
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={() => {
+                        setEditingIndex(null);
+                        setSuggestion("");
+                      }}
+                    >
+                      Cancel
+                    </Button>
+                    <Button 
+                      variant="default" 
+                      size="sm" 
+                      onClick={() => {
+                        handleDeleteStep(index);
+                        handleAddStep(index);
+                      }}
+                      disabled={!suggestion.trim() || addingSuggestion}
+                    >
+                      {addingSuggestion ? (
+                        <>
+                          <Loader2 className="h-3 w-3 animate-spin mr-1" />
+                          Updating...
+                        </>
+                      ) : (
+                        "Update"
+                      )}
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-6 w-6"
+                    onClick={() => {
+                      setEditingIndex(index);
+                      setSuggestion(subtask.title);
+                      setShowSuggestionInput(false);
+                    }}
+                  >
+                    <Plus className="h-3 w-3" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-6 w-6"
+                    onClick={() => handleDeleteStep(index)}
+                    disabled={loading}
+                  >
+                    <Trash2 className="h-3 w-3" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-6 w-6"
+                    onClick={() => handleMoveStep(index, 'up')}
+                    disabled={loading || index === 0}
+                  >
+                    <ArrowUp className="h-3 w-3" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-6 w-6"
+                    onClick={() => handleMoveStep(index, 'down')}
+                    disabled={loading || index === (task.subtasks?.length || 0) - 1}
+                  >
+                    <ArrowDown className="h-3 w-3" />
+                  </Button>
+                </div>
+              )}
+            </div>
+          ))}
+          
+          <div className="mt-4 text-xs text-muted-foreground">
+            Completed: {task.subtasks.filter(st => st.completed).length} / {task.subtasks.length}
+          </div>
         </div>
       )}
     </div>
