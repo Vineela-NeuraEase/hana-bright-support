@@ -6,6 +6,7 @@ import { supabase } from '@/integrations/supabase/client';
 export type Profile = {
   id: string;
   role: 'autistic' | 'caregiver' | 'clinician';
+  link_code?: string;
 };
 
 export const useProfile = (session: Session | null) => {

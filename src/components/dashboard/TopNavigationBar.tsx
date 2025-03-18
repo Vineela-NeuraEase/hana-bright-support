@@ -12,6 +12,9 @@ import {
 import { MobileSidebar } from "./MobileSidebar";
 import { Session } from "@supabase/supabase-js";
 import { NavigationItem } from "@/types/navigation";
+import { useProfile } from "@/hooks/useProfile";
+import { clipboard, Copy } from "lucide-react";
+import { toast } from "sonner";
 
 interface TopNavigationBarProps {
   session: Session | null;
@@ -20,6 +23,17 @@ interface TopNavigationBarProps {
 }
 
 export const TopNavigationBar = ({ session, navigationItems, onSignOut }: TopNavigationBarProps) => {
+  const { profile } = useProfile(session);
+
+  const copyLinkCode = () => {
+    if (profile?.link_code) {
+      navigator.clipboard.writeText(profile.link_code);
+      toast.success("Link code copied to clipboard!");
+    } else {
+      toast.error("No link code available");
+    }
+  };
+
   return (
     <nav className="sticky top-0 z-10 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="flex h-14 items-center px-4 gap-4 justify-between">
@@ -40,7 +54,15 @@ export const TopNavigationBar = ({ session, navigationItems, onSignOut }: TopNav
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>My Account</DropdownMenuLabel>
-            <DropdownMenuSeparator />
+            {profile?.link_code && (
+              <>
+                <DropdownMenuItem onClick={copyLinkCode} className="gap-2 cursor-pointer">
+                  <span>Link Code: {profile.link_code}</span>
+                  <Copy className="h-4 w-4" />
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+              </>
+            )}
             <DropdownMenuItem>Profile</DropdownMenuItem>
             <DropdownMenuItem>Settings</DropdownMenuItem>
             <DropdownMenuSeparator />
