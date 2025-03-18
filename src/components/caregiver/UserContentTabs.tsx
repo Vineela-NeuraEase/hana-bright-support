@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -34,7 +35,7 @@ export const UserContentTabs: React.FC<UserContentTabsProps> = ({ userId }) => {
   const { 
     tasks = [], 
     isLoading: tasksLoading 
-  } = useTasks({userId: userId});  // Fixed by passing object with userId property
+  } = useTasks(userId);  // Pass the userId directly
 
   return (
     <Tabs defaultValue="journal" className="w-full">
