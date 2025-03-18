@@ -1,27 +1,12 @@
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Event } from "@/types/event";
 import { useTasks } from "@/hooks/tasks/useTasks";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
-
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  Drawer,
-  DrawerContent,
-  DrawerDescription,
-  DrawerHeader,
-  DrawerTitle,
-} from "@/components/ui/drawer";
-import { EventForm, EventFormValues } from "./EventForm";
-import { Task } from "@/types/task";
+import { EventFormValues } from "./EventForm";
+import { useTaskCreation } from "@/hooks/events/useTaskCreation";
+import { MobileEventDialog } from "./event-dialog/MobileEventDialog";
+import { DesktopEventDialog } from "./event-dialog/DesktopEventDialog";
 
 interface EventDialogProps {
   isOpen: boolean;
@@ -45,41 +30,7 @@ export function EventDialog({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { tasks, refetch: refetchTasks } = useTasks();
   const isMobile = useIsMobile();
-  const { toast } = useToast();
-  
-  const createTask = async (title: string, description: string, dueDate: Date) => {
-    try {
-      // Get the current user session first
-      const { data: sessionData } = await supabase.auth.getSession();
-      if (!sessionData?.session?.user) {
-        throw new Error("User not authenticated");
-      }
-      
-      const { data, error } = await supabase
-        .from("tasks")
-        .insert({
-          title,
-          // We don't include description as it's not in the database schema
-          status: "pending",
-          priority: "medium",
-          due_date: dueDate.toISOString(),
-          user_id: sessionData.session.user.id
-        })
-        .select()
-        .single();
-        
-      if (error) throw error;
-      return data.id;
-    } catch (error) {
-      console.error("Error creating task:", error);
-      toast({
-        variant: "destructive",
-        title: "Error creating task",
-        description: "Failed to create a task from this event."
-      });
-      return null;
-    }
-  };
+  const { createTask } = useTaskCreation(refetchTasks);
   
   const handleSubmit = async (values: EventFormValues) => {
     setIsSubmitting(true);
@@ -102,11 +53,6 @@ export function EventDialog({
         );
         if (newTaskId) {
           linkedTaskId = newTaskId;
-          refetchTasks();
-          toast({
-            title: "Task created",
-            description: "A new task has been created from this event."
-          });
         }
       } else if (linkedTaskId && linkedTaskId.trim() === "") {
         linkedTaskId = undefined;
@@ -154,52 +100,28 @@ export function EventDialog({
     }
   };
 
-  if (isMobile) {
-    return (
-      <Drawer open={isOpen} onOpenChange={(open) => !open && onClose()}>
-        <DrawerContent>
-          <DrawerHeader>
-            <DrawerTitle>{event ? "Edit Event" : "New Event"}</DrawerTitle>
-            <DrawerDescription>
-              {event ? "Update the details of your event." : "Add a new event to your schedule."}
-            </DrawerDescription>
-          </DrawerHeader>
-          <div className="p-4">
-            <EventForm
-              event={event}
-              selectedDate={selectedDate}
-              tasks={tasks || []}
-              isSubmitting={isSubmitting}
-              onSubmit={handleSubmit}
-              onDelete={handleDelete}
-              onClose={onClose}
-            />
-          </div>
-        </DrawerContent>
-      </Drawer>
-    );
-  }
-
-  return (
-    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-[500px]">
-        <DialogHeader>
-          <DialogTitle>{event ? "Edit Event" : "New Event"}</DialogTitle>
-          <DialogDescription>
-            {event ? "Update the details of your event." : "Add a new event to your schedule."}
-          </DialogDescription>
-        </DialogHeader>
-
-        <EventForm
-          event={event}
-          selectedDate={selectedDate}
-          tasks={tasks || []}
-          isSubmitting={isSubmitting}
-          onSubmit={handleSubmit}
-          onDelete={handleDelete}
-          onClose={onClose}
-        />
-      </DialogContent>
-    </Dialog>
+  // Render different dialog based on device type
+  return isMobile ? (
+    <MobileEventDialog
+      isOpen={isOpen}
+      onClose={onClose}
+      selectedDate={selectedDate}
+      event={event}
+      tasks={tasks}
+      isSubmitting={isSubmitting}
+      onSubmit={handleSubmit}
+      onDelete={handleDelete}
+    />
+  ) : (
+    <DesktopEventDialog
+      isOpen={isOpen}
+      onClose={onClose}
+      selectedDate={selectedDate}
+      event={event}
+      tasks={tasks}
+      isSubmitting={isSubmitting}
+      onSubmit={handleSubmit}
+      onDelete={handleDelete}
+    />
   );
 }
