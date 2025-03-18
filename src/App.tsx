@@ -11,27 +11,46 @@ import JudgePage from "./pages/tools/Judge";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "./components/ui/toaster";
 import { AuthProvider } from "./components/AuthProvider";
+import { MainNavBar } from "./components/layout/MainNavBar";
+import { supabase } from "./integrations/supabase/client";
+import { useNavigate } from "react-router-dom";
 
 // Create a client
 const queryClient = new QueryClient();
+
+const AppContent = () => {
+  const navigate = useNavigate();
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    navigate("/");
+  };
+
+  return (
+    <>
+      <MainNavBar onSignOut={handleSignOut} />
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/auth" element={<Auth />} />
+        <Route path="/tasks" element={<Tasks />} />
+        <Route path="/schedule" element={<Schedule />} />
+        <Route path="/dashboard/*" element={<Dashboard />} />
+        <Route path="/tools" element={<ToolsDirectory />} />
+        <Route path="/tools/formalizer" element={<FormalizerPage />} />
+        <Route path="/tools/judge" element={<JudgePage />} />
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+      <Toaster />
+    </>
+  );
+};
 
 const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <Router>
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/auth" element={<Auth />} />
-            <Route path="/tasks" element={<Tasks />} />
-            <Route path="/schedule" element={<Schedule />} />
-            <Route path="/dashboard/*" element={<Dashboard />} />
-            <Route path="/tools" element={<ToolsDirectory />} />
-            <Route path="/tools/formalizer" element={<FormalizerPage />} />
-            <Route path="/tools/judge" element={<JudgePage />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-          <Toaster />
+          <AppContent />
         </Router>
       </AuthProvider>
     </QueryClientProvider>

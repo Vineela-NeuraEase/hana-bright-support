@@ -5,7 +5,6 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import { useAuth } from "@/components/AuthProvider";
 import { supabase } from "@/integrations/supabase/client";
 import { Sidebar } from "@/components/dashboard/Sidebar";
-import { TopNavigationBar } from "@/components/dashboard/TopNavigationBar";
 import { DashboardContent } from "@/components/dashboard/DashboardContent";
 import { useProfile } from "@/hooks/useProfile";
 import { useNavigation } from "@/hooks/useNavigation";
@@ -52,12 +51,6 @@ const Dashboard = () => {
 
         {/* Main Content */}
         <main className="flex-1">
-          <TopNavigationBar
-            session={session}
-            navigationItems={navigationItems}
-            onSignOut={handleSignOut}
-          />
-
           <DashboardContent welcomeMessage={getWelcomeMessage()} />
         </main>
       </div>
