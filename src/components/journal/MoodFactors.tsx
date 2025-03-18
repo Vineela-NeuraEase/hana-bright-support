@@ -75,7 +75,7 @@ export const MoodFactors = () => {
     <Card>
       <form onSubmit={handleSubmit}>
         <CardHeader>
-          <CardTitle className="text-xl">What factors are affecting your mood?</CardTitle>
+          <CardTitle className="text-xl mb-2">What factors are affecting your mood?</CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="space-y-2">
@@ -85,7 +85,7 @@ export const MoodFactors = () => {
                   key={factor}
                   type="button"
                   variant={selectedFactors.includes(factor) ? "default" : "outline"}
-                  className="rounded-full"
+                  className="rounded-full text-sm"
                   onClick={() => handleFactorToggle(factor)}
                 >
                   {factor}
@@ -95,7 +95,7 @@ export const MoodFactors = () => {
           </div>
 
           <div className="space-y-2">
-            <label htmlFor="other-factors" className="text-md font-medium">
+            <label htmlFor="other-factors" className="text-md font-medium block mb-1">
               Other factors or notes
             </label>
             <Textarea

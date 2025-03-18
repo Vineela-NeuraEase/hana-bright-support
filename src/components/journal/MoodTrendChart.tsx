@@ -51,9 +51,9 @@ export const MoodTrendChart = ({ entries }: MoodTrendChartProps) => {
   return (
     <Card className="mt-6">
       <CardHeader className="pb-3">
-        <div className="flex flex-wrap justify-between items-center">
+        <div className="flex flex-col sm:flex-row sm:flex-wrap sm:justify-between sm:items-center gap-3">
           <CardTitle className="text-xl">Mood Trends</CardTitle>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <Button 
               size="sm" 
               variant={filter === "7days" ? "default" : "outline"} 
@@ -86,13 +86,19 @@ export const MoodTrendChart = ({ entries }: MoodTrendChartProps) => {
                 data={chartData}
                 margin={{
                   top: 5,
-                  right: 20,
-                  left: 0,
-                  bottom: 5,
+                  right: 30,
+                  left: 10,
+                  bottom: 30,
                 }}
               >
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="date" />
+                <XAxis 
+                  dataKey="date" 
+                  tick={{ fontSize: 12 }}
+                  angle={-45}
+                  textAnchor="end"
+                  height={60}
+                />
                 <YAxis domain={[1, 10]} />
                 <Tooltip />
                 <Line
