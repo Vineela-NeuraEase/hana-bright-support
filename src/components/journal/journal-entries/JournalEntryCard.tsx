@@ -1,5 +1,4 @@
 
-import { format, parseISO } from "date-fns";
 import { JournalEntry } from "@/types/journal";
 import { Card } from "@/components/ui/card";
 import { JournalEntryHeader } from "./JournalEntryHeader";
@@ -9,19 +8,22 @@ import { JournalEntryActions } from "./JournalEntryActions";
 interface JournalEntryCardProps {
   entry: JournalEntry;
   isCaregiver?: boolean;
+  onDelete?: (id: string) => void;
+  isMobile?: boolean;
 }
 
-export const JournalEntryCard = ({ entry, isCaregiver = false }: JournalEntryCardProps) => {
-  const formattedDate = entry.timestamp
-    ? format(parseISO(entry.timestamp), "MMM d, yyyy h:mm a")
-    : 'Unknown date';
+export const JournalEntryCard = ({ 
+  entry, 
+  isCaregiver = false, 
+  onDelete, 
+  isMobile 
+}: JournalEntryCardProps) => {
   
   return (
     <Card className="overflow-hidden">
       <JournalEntryHeader
-        date={formattedDate}
-        rating={entry.mood_rating}
-        id={entry.id}
+        mood={entry.mood_rating}
+        timestamp={entry.timestamp}
       />
       <JournalEntryContent
         text={entry.journal_text}
@@ -29,7 +31,12 @@ export const JournalEntryCard = ({ entry, isCaregiver = false }: JournalEntryCar
         factors={entry.factors}
         id={entry.id}
       />
-      {!isCaregiver && <JournalEntryActions id={entry.id} />}
+      {!isCaregiver && onDelete && (
+        <JournalEntryActions 
+          onDelete={() => onDelete(entry.id)} 
+          isMobile={isMobile} 
+        />
+      )}
     </Card>
   );
 };

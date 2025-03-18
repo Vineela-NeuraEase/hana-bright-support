@@ -1,4 +1,3 @@
-
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { CaregiverLink } from '@/types/caregiver';
@@ -17,8 +16,7 @@ export const useCaregiverLinks = (userId?: string) => {
           id,
           caregiver_id,
           user_id,
-          created_at,
-          user_profile:profiles!user_id(id, role)
+          created_at
         `)
         .eq('caregiver_id', userId);
 

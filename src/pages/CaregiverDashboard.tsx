@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,6 +11,7 @@ import { Loader2, UserPlus, LinkIcon, Users, Trash2 } from "lucide-react";
 import { CaregiverLink } from "@/types/caregiver";
 import { useLinkedUserJournalEntries } from "@/hooks/useLinkedUserJournalEntries";
 import { JournalEntryCard } from "@/components/journal/journal-entries/JournalEntryCard";
+import { toast } from "sonner";
 
 const CaregiverDashboard = () => {
   const navigate = useNavigate();

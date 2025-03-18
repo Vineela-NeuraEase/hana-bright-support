@@ -11,10 +11,6 @@ export interface CaregiverLink {
   caregiver_id: string;
   user_id: string;
   created_at: string;
-  user_profile?: {
-    id: string;
-    role: 'autistic' | 'caregiver' | 'clinician';
-  };
 }
 
 export interface LinkedUser {
