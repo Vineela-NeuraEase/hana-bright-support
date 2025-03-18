@@ -95,15 +95,15 @@ const MobileNav = () => {
         <CheckSquare size={20} />
         <span className="text-xs">Tasks</span>
       </Link>
-
+      
       <Link
-        to="/tools"
+        to="/journal"
         className={`flex flex-col items-center space-y-1 ${
-          location.pathname.startsWith("/tools") ? "text-primary" : "text-gray-500"
+          location.pathname === "/journal" ? "text-primary" : "text-gray-500"
         }`}
       >
-        <RadioTower size={20} />
-        <span className="text-xs">Tools</span>
+        <BookText size={20} />
+        <span className="text-xs">Journal</span>
       </Link>
     </nav>
   );
