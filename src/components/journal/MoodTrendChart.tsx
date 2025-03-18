@@ -8,11 +8,12 @@ import { JournalEntry } from "@/types/journal";
 
 interface MoodTrendChartProps {
   entries: JournalEntry[];
+  isMobile?: boolean;
 }
 
 type FilterOption = "7days" | "30days" | "all";
 
-export const MoodTrendChart = ({ entries }: MoodTrendChartProps) => {
+export const MoodTrendChart = ({ entries, isMobile }: MoodTrendChartProps) => {
   const [filter, setFilter] = useState<FilterOption>("7days");
 
   const filteredEntries = useMemo(() => {
@@ -60,7 +61,7 @@ export const MoodTrendChart = ({ entries }: MoodTrendChartProps) => {
     <Card className="mt-6">
       <CardHeader className="pb-3">
         <div className="flex flex-col sm:flex-row sm:flex-wrap sm:justify-between sm:items-center gap-3">
-          <CardTitle className="text-xl">Mood Trends</CardTitle>
+          {!isMobile && <CardTitle className="text-xl">Mood Trends</CardTitle>}
           <div className="flex flex-wrap gap-2">
             <Button 
               size="sm" 

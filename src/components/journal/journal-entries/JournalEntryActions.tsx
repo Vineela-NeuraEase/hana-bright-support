@@ -5,9 +5,10 @@ import { CardFooter } from "@/components/ui/card";
 
 interface JournalEntryActionsProps {
   onDelete: () => void;
+  isMobile?: boolean;
 }
 
-export const JournalEntryActions = ({ onDelete }: JournalEntryActionsProps) => {
+export const JournalEntryActions = ({ onDelete, isMobile }: JournalEntryActionsProps) => {
   return (
     <CardFooter className="pt-0 flex justify-end">
       <Button 

@@ -97,11 +97,12 @@ export const JournalCarousel = ({
           )}
         </CarouselItem>
 
-        {/* Page 2: Mood Factors - Without title */}
+        {/* Page 2: Mood Factors */}
         <CarouselItem className="basis-full">
           {showForm ? (
             <Card>
               <CardContent className="p-4">
+                {!isMobile && <h2 className="text-xl font-semibold mb-4">Mood Factors</h2>}
                 <MoodFactors />
               </CardContent>
             </Card>
@@ -116,12 +117,12 @@ export const JournalCarousel = ({
         <CarouselItem className="basis-full">
           <Card className="border-0 shadow-none">
             <CardContent className="p-1">
-              <MoodTrendChart entries={entries} />
+              <MoodTrendChart entries={entries} isMobile={isMobile} />
             </CardContent>
           </Card>
         </CarouselItem>
 
-        {/* Page 4: Journal Entries List - Already has its own title */}
+        {/* Page 4: Journal Entries List */}
         <CarouselItem className="basis-full">
           <Card className="border-0 shadow-none">
             <CardContent className="p-1">
@@ -134,7 +135,7 @@ export const JournalCarousel = ({
                   Error loading journal entries
                 </div>
               ) : (
-                <JournalEntriesList entries={entries} />
+                <JournalEntriesList entries={entries} isMobile={isMobile} />
               )}
             </CardContent>
           </Card>
