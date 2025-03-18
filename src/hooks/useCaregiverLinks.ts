@@ -1,14 +1,12 @@
-
 import { useState, useEffect } from "react";
 import { useAuth } from "@/components/AuthProvider";
 import { useToast } from "@/hooks/use-toast";
 import { 
   fetchLinkedUsers,
   linkUserWithCode,
-  unlinkUser,
-  SimplifiedSession
+  unlinkUser
 } from "@/services/caregiverLinks/caregiverLinksService";
-import { LinkedUser } from "@/services/caregiverLinks/types";
+import { LinkedUser, SimplifiedSession } from "@/services/caregiverLinks/types";
 
 export type { LinkedUser };
 
