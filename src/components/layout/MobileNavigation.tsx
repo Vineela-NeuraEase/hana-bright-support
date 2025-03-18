@@ -10,7 +10,7 @@ import { useNavigation } from "@/hooks/useNavigation";
 import { useFirebaseProfile } from "@/hooks/useFirebaseProfile";
 
 export const MobileNavigation = () => {
-  const { user, signOut } = useAuth();
+  const { session, signOut } = useAuth();
   const { profile } = useFirebaseProfile();
   const navigationItems: NavigationItem[] = useNavigation(profile?.role);
   const location = useLocation();
