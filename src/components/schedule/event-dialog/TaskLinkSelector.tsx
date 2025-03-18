@@ -20,14 +20,17 @@ export const TaskLinkSelector = ({ tasks, form }: TaskLinkSelectorProps) => {
       render={({ field }) => (
         <FormItem>
           <FormLabel>Link to Task (Optional)</FormLabel>
-          <Select onValueChange={field.onChange} value={field.value}>
+          <Select 
+            onValueChange={field.onChange} 
+            value={field.value || ""}
+          >
             <FormControl>
               <SelectTrigger>
                 <SelectValue placeholder="Select a task" />
               </SelectTrigger>
             </FormControl>
             <SelectContent>
-              <SelectItem value="none">None</SelectItem>
+              <SelectItem value="">None</SelectItem>
               {tasks.map((task: Task) => (
                 <SelectItem key={task.id} value={task.id}>
                   {task.title}

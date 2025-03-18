@@ -1,22 +1,29 @@
 
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import { Plus } from "lucide-react";
 import { TaskPriority } from "@/types/task";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
-export interface TaskFormData {
-  title: string;
-  priority: TaskPriority;
-  due_date?: string;
-  spiciness?: number;
-}
+// Define the form validation schema
+const formSchema = z.object({
+  title: z.string().min(1, "Task title is required"),
+  description: z.string().optional(),
+  priority: z.enum(["low", "medium", "high"] as const),
+  spiciness: z.number().min(1).max(5).optional(),
+  due_date: z.string().optional(),
+});
+
+export type TaskFormData = z.infer<typeof formSchema>;
 
 interface TaskFormProps {
   onTaskAdded: () => void;
@@ -25,7 +32,16 @@ interface TaskFormProps {
 const TaskForm = ({ onTaskAdded }: TaskFormProps) => {
   const [open, setOpen] = useState(false);
   const { toast } = useToast();
-  const form = useForm<TaskFormData>();
+  const form = useForm<TaskFormData>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      title: "",
+      description: "",
+      priority: "medium",
+      spiciness: 3,
+      due_date: "",
+    },
+  });
 
   const onSubmit = async (data: TaskFormData) => {
     try {
@@ -40,7 +56,7 @@ const TaskForm = ({ onTaskAdded }: TaskFormProps) => {
 
       toast({
         title: "Task created",
-        description: "Your task has been created successfully.",
+        description: "Your task has been created successfully. You can now break it down into subtasks.",
       });
       setOpen(false);
       form.reset();
@@ -82,6 +98,26 @@ const TaskForm = ({ onTaskAdded }: TaskFormProps) => {
                 </FormItem>
               )}
             />
+
+            <FormField
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Description (Optional)</FormLabel>
+                  <FormControl>
+                    <Textarea 
+                      placeholder="Add any details about your task" 
+                      className="resize-none" 
+                      rows={3}
+                      {...field} 
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            
             <FormField
               control={form.control}
               name="priority"
@@ -104,25 +140,49 @@ const TaskForm = ({ onTaskAdded }: TaskFormProps) => {
                 </FormItem>
               )}
             />
+            
             <FormField
               control={form.control}
               name="spiciness"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Spiciness (1-5)</FormLabel>
+                  <FormLabel>Spiciness (Complexity Level 1-5)</FormLabel>
                   <FormControl>
                     <Input
                       type="number"
                       min={1}
                       max={5}
                       {...field}
-                      placeholder="Task spiciness"
+                      value={field.value}
+                      onChange={(e) => field.onChange(parseInt(e.target.value) || 3)}
+                      placeholder="Task complexity"
+                    />
+                  </FormControl>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Higher values mean more detailed breakdown when analyzing the task
+                  </p>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            
+            <FormField
+              control={form.control}
+              name="due_date"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Due Date (Optional)</FormLabel>
+                  <FormControl>
+                    <Input 
+                      type="date" 
+                      {...field} 
                     />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
+            
             <DialogFooter>
               <Button type="submit">Create Task</Button>
             </DialogFooter>

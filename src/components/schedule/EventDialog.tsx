@@ -18,7 +18,7 @@ import {
   DrawerHeader,
   DrawerTitle,
 } from "@/components/ui/drawer";
-import { EventForm, EventFormValues } from "./event-dialog/EventForm";
+import { EventForm, EventFormValues } from "./EventForm";
 
 interface EventDialogProps {
   isOpen: boolean;
@@ -54,14 +54,19 @@ export function EventDialog({
       const [endHours, endMinutes] = values.endTime.split(":").map(Number);
       endDateTime.setHours(endHours, endMinutes);
 
+      // Handle linkedTaskId properly
+      const linkedTaskId = values.linkedTaskId && values.linkedTaskId.trim() !== "" 
+        ? values.linkedTaskId 
+        : undefined;
+      
       const eventData = {
         title: values.title,
         description: values.description,
         startTime: startDateTime.toISOString(),
         endTime: endDateTime.toISOString(),
-        linkedTaskId: values.linkedTaskId || undefined,
+        linkedTaskId,
         reminders: values.reminders,
-        color: values.linkedTaskId ? "#0EA5E9" : "#F2FCE2", // Blue for task-linked events, green for regular
+        color: linkedTaskId ? "#0EA5E9" : "#F2FCE2", // Blue for task-linked events, green for regular
       };
 
       if (event) {

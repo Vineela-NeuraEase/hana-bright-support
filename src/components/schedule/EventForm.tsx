@@ -1,4 +1,3 @@
-
 import React from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -117,10 +116,10 @@ export const EventForm = ({
   }, [event, selectedDate, form, defaultStartTime, defaultEndTime]);
 
   const handleSubmit = async (values: EventFormValues) => {
-    // Transform "none" value back to empty string for the API
+    // Empty string means no linked task
     const modifiedValues = {
       ...values,
-      linkedTaskId: values.linkedTaskId === "none" ? "" : values.linkedTaskId
+      linkedTaskId: values.linkedTaskId === "" ? undefined : values.linkedTaskId
     };
     await onSubmit(modifiedValues);
   };
