@@ -2,10 +2,10 @@
 import { useState } from "react";
 import { useCreateJournalEntry } from "@/hooks/useJournal";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { useAuth } from "@/components/AuthProvider";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 // Common factors that might affect mood
 const COMMON_FACTORS = [
@@ -29,6 +29,7 @@ const COMMON_FACTORS = [
 export const MoodFactors = () => {
   const createEntry = useCreateJournalEntry();
   const { session } = useAuth();
+  const isMobile = useIsMobile();
   
   const [journalText, setJournalText] = useState<string>("");
   const [selectedFactors, setSelectedFactors] = useState<string[]>([]);
@@ -75,7 +76,7 @@ export const MoodFactors = () => {
   return (
     <div>
       <form onSubmit={handleSubmit}>
-        <CardContent className="space-y-6 p-0">
+        <div className="space-y-6 p-0">
           <div className="space-y-4">
             <label className="text-md font-medium block mb-1">
               What factors are affecting your mood?
@@ -107,8 +108,8 @@ export const MoodFactors = () => {
               onChange={(e) => setJournalText(e.target.value)}
             />
           </div>
-        </CardContent>
-        <CardFooter className="px-0 pt-4">
+        </div>
+        <div className="px-0 pt-4">
           <Button 
             type="submit" 
             className="w-full" 
@@ -116,7 +117,7 @@ export const MoodFactors = () => {
           >
             {createEntry.isPending ? "Saving..." : "Save Factors"}
           </Button>
-        </CardFooter>
+        </div>
       </form>
     </div>
   );

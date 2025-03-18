@@ -6,10 +6,12 @@ import { Slider } from "@/components/ui/slider";
 import { toast } from "sonner";
 import { Smile, Meh, Frown, Heart, HeartCrack, Angry, Laugh } from "lucide-react";
 import { useAuth } from "@/components/AuthProvider";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export const MoodInput = () => {
   const createEntry = useCreateJournalEntry();
   const { session } = useAuth();
+  const isMobile = useIsMobile();
   
   const [moodRating, setMoodRating] = useState<number>(5);
 

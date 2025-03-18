@@ -93,9 +93,30 @@ const Journal = () => {
 
   return (
     <div className="container py-6 max-w-4xl mx-auto">
-      <div className="mb-6">
-        <div className="flex items-center justify-between mb-4">
-          <h1 className="text-3xl font-bold">Journal</h1>
+      {!isMobile && (
+        <div className="mb-6">
+          <div className="flex items-center justify-between mb-4">
+            <h1 className="text-3xl font-bold">Journal</h1>
+            {!showForm ? (
+              <Button onClick={() => setShowForm(true)}>
+                <PlusCircle className="mr-2 h-4 w-4" />
+                New Entry
+              </Button>
+            ) : (
+              <Button variant="ghost" onClick={() => setShowForm(false)}>
+                <X className="mr-2 h-4 w-4" />
+                Close Form
+              </Button>
+            )}
+          </div>
+          <p className="text-muted-foreground">
+            Track your moods and journal your thoughts to gain insight into your emotional patterns.
+          </p>
+        </div>
+      )}
+
+      {isMobile && (
+        <div className="flex items-center justify-end mb-4">
           {!showForm ? (
             <Button onClick={() => setShowForm(true)}>
               <PlusCircle className="mr-2 h-4 w-4" />
@@ -108,10 +129,7 @@ const Journal = () => {
             </Button>
           )}
         </div>
-        <p className="text-muted-foreground">
-          Track your moods and journal your thoughts to gain insight into your emotional patterns.
-        </p>
-      </div>
+      )}
 
       <div className="relative">
         <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full mb-4">
@@ -139,7 +157,7 @@ const Journal = () => {
               {showForm ? (
                 <Card>
                   <CardContent className="p-4">
-                    <h2 className="text-xl font-semibold mb-4">How are you feeling today?</h2>
+                    {!isMobile && <h2 className="text-xl font-semibold mb-4">How are you feeling today?</h2>}
                     <MoodInput />
                   </CardContent>
                 </Card>
