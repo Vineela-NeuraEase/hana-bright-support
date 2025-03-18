@@ -1,3 +1,4 @@
+
 import { Link } from "react-router-dom";
 import {
   Sheet,
@@ -37,9 +38,7 @@ export const MobileSidebar = ({ navigationItems, onSignOut }: MobileSidebarProps
         </Button>
       </SheetTrigger>
       <SheetContent side="left" className="w-[250px] p-0">
-        <div className="p-4 border-b">
-          <h2 className="text-xl font-bold">Hana</h2>
-        </div>
+        {/* Removed the title div that was here */}
         <div className="py-4">
           {navigationItems.map((item) => (
             <Link
