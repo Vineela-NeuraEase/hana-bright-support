@@ -13,7 +13,7 @@ import { MobileSidebar } from "./MobileSidebar";
 import { Session } from "@supabase/supabase-js";
 import { NavigationItem } from "@/types/navigation";
 import { useProfile } from "@/hooks/useProfile";
-import { Copy } from "lucide-react"; // Fixed import - removed 'clipboard'
+import { Copy } from "lucide-react";
 import { toast } from "sonner";
 
 interface TopNavigationBarProps {
@@ -35,10 +35,11 @@ export const TopNavigationBar = ({ session, navigationItems, onSignOut }: TopNav
   };
 
   return (
-    <nav className="sticky top-0 z-10 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <nav className="sticky top-0 z-10 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 md:hidden">
       <div className="flex h-14 items-center px-4 gap-4 justify-between">
         <div className="flex items-center gap-4">
           <MobileSidebar navigationItems={navigationItems} onSignOut={onSignOut} />
+          <span className="text-lg font-semibold">Hana</span>
         </div>
 
         {/* Profile Menu */}

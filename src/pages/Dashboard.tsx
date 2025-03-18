@@ -63,6 +63,7 @@ const Dashboard = () => {
     navigate("/");
   };
 
+  // Get the navigation items based on user role
   const navigationItems: NavigationItem[] = useNavigation(profile?.role);
 
   const getWelcomeMessage = () => {
@@ -119,7 +120,10 @@ const Dashboard = () => {
               navigationItems={navigationItems} 
               onSignOut={handleSignOut} 
             />
-            <DashboardContent welcomeMessage={getWelcomeMessage()} />
+            <DashboardContent 
+              welcomeMessage={getWelcomeMessage()} 
+              profile={profile}
+            />
           </main>
         </div>
       </div>

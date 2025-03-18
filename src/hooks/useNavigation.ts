@@ -1,5 +1,5 @@
 
-import { Settings, Home, PieChart, User, UserCog, BookText } from "lucide-react";
+import { Settings, Home, PieChart, User, UserCog, BookText, Calendar, CheckSquare, RadioTower, Users } from "lucide-react";
 import { NavigationItem } from "@/types/navigation";
 
 export const useNavigation = (role?: string): NavigationItem[] => {
@@ -8,6 +8,16 @@ export const useNavigation = (role?: string): NavigationItem[] => {
       title: "Dashboard",
       url: "/dashboard",
       icon: Home,
+    },
+    {
+      title: "Tasks",
+      url: "/tasks",
+      icon: CheckSquare,
+    },
+    {
+      title: "Schedule",
+      url: "/schedule",
+      icon: Calendar,
     },
   ];
 
@@ -22,6 +32,11 @@ export const useNavigation = (role?: string): NavigationItem[] => {
           icon: BookText,
         },
         {
+          title: "Tools",
+          url: "/tools",
+          icon: RadioTower,
+        },
+        {
           title: "Settings",
           url: "/settings",
           icon: Settings,
@@ -31,14 +46,19 @@ export const useNavigation = (role?: string): NavigationItem[] => {
       return [
         ...defaultItems,
         {
-          title: "Person Management",
+          title: "People",
           url: "/people",
-          icon: User,
+          icon: Users,
         },
         {
           title: "Journal",
           url: "/journal",
           icon: BookText,
+        },
+        {
+          title: "Tools",
+          url: "/tools",
+          icon: RadioTower,
         },
         {
           title: "Settings",
@@ -50,19 +70,24 @@ export const useNavigation = (role?: string): NavigationItem[] => {
       return [
         ...defaultItems,
         {
-          title: "Person Analytics",
-          url: "/analytics",
-          icon: PieChart,
+          title: "People",
+          url: "/people",
+          icon: Users,
         },
         {
-          title: "Person Management",
-          url: "/people",
-          icon: UserCog,
+          title: "Analytics",
+          url: "/analytics",
+          icon: PieChart,
         },
         {
           title: "Journal",
           url: "/journal",
           icon: BookText,
+        },
+        {
+          title: "Tools",
+          url: "/tools",
+          icon: RadioTower,
         },
         {
           title: "Settings",
@@ -77,6 +102,11 @@ export const useNavigation = (role?: string): NavigationItem[] => {
           title: "Journal",
           url: "/journal",
           icon: BookText,
+        },
+        {
+          title: "Tools",
+          url: "/tools",
+          icon: RadioTower,
         },
         {
           title: "Settings",

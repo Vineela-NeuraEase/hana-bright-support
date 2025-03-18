@@ -1,5 +1,5 @@
 
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { Home, Menu, Calendar, CheckSquare, RadioTower, Settings, BookText, Users } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -21,6 +21,7 @@ import { useNavigation } from "@/hooks/useNavigation";
 import { useProfile } from "@/hooks/useProfile";
 import { useState, useEffect } from "react";
 import { NavigationItem } from "@/types/navigation";
+import { toast } from "sonner";
 
 interface MainNavBarProps {
   onSignOut?: () => void;
@@ -30,17 +31,32 @@ export const MainNavBar = ({ onSignOut }: MainNavBarProps) => {
   const { session } = useAuth();
   const { profile } = useProfile(session);
   const navigationItems: NavigationItem[] = useNavigation(profile?.role);
-  const location = useLocation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   // Close the menu when the location changes (user navigates to a new page)
   useEffect(() => {
-    setIsMenuOpen(false);
-  }, [location.pathname]);
+    const handleRouteChange = () => {
+      setIsMenuOpen(false);
+    };
+
+    window.addEventListener('popstate', handleRouteChange);
+    return () => {
+      window.removeEventListener('popstate', handleRouteChange);
+    };
+  }, []);
 
   const handleSignOut = async () => {
     if (onSignOut) {
       onSignOut();
+    }
+  };
+
+  const copyLinkCode = () => {
+    if (profile?.link_code) {
+      navigator.clipboard.writeText(profile.link_code);
+      toast.success("Link code copied to clipboard!");
+    } else {
+      toast.error("No link code available");
     }
   };
 
@@ -71,57 +87,6 @@ export const MainNavBar = ({ onSignOut }: MainNavBarProps) => {
                     <span>{item.title}</span>
                   </Link>
                 ))}
-                {/* Only add these additional links if they're not already in navigation items */}
-                {!navigationItems.some(item => item.url === "/tasks") && (
-                  <Link
-                    to="/tasks"
-                    className="flex items-center gap-3 px-4 py-2 hover:bg-accent"
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    <CheckSquare className="h-5 w-5" />
-                    <span>Tasks</span>
-                  </Link>
-                )}
-                {!navigationItems.some(item => item.url === "/schedule") && (
-                  <Link
-                    to="/schedule"
-                    className="flex items-center gap-3 px-4 py-2 hover:bg-accent"
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    <Calendar className="h-5 w-5" />
-                    <span>Schedule</span>
-                  </Link>
-                )}
-                {!navigationItems.some(item => item.url === "/tools") && (
-                  <Link
-                    to="/tools"
-                    className="flex items-center gap-3 px-4 py-2 hover:bg-accent"
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    <RadioTower className="h-5 w-5" />
-                    <span>Tools</span>
-                  </Link>
-                )}
-                {!navigationItems.some(item => item.url === "/people") && profile?.role === "caregiver" && (
-                  <Link
-                    to="/people"
-                    className="flex items-center gap-3 px-4 py-2 hover:bg-accent"
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    <Users className="h-5 w-5" />
-                    <span>People</span>
-                  </Link>
-                )}
-                {!navigationItems.some(item => item.url === "/settings") && (
-                  <Link
-                    to="/settings"
-                    className="flex items-center gap-3 px-4 py-2 hover:bg-accent"
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    <Settings className="h-5 w-5" />
-                    <span>Settings</span>
-                  </Link>
-                )}
               </div>
             </SheetContent>
           </Sheet>
@@ -145,7 +110,15 @@ export const MainNavBar = ({ onSignOut }: MainNavBarProps) => {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>My Account</DropdownMenuLabel>
-              <DropdownMenuSeparator />
+              {profile?.link_code && (
+                <>
+                  <DropdownMenuItem onClick={copyLinkCode} className="gap-2 cursor-pointer">
+                    <span>Link Code: {profile.link_code}</span>
+                    <Copy className="h-4 w-4" />
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                </>
+              )}
               <DropdownMenuItem asChild>
                 <Link to="/dashboard">Dashboard</Link>
               </DropdownMenuItem>
