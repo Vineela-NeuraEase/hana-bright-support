@@ -37,9 +37,9 @@ const Dashboard = () => {
     );
   }
 
-  // Create a welcome message based on the user's name or email
-  const welcomeMessage = profile?.name 
-    ? `Welcome, ${profile.name}!` 
+  // Create a welcome message based on the user's displayName or email
+  const welcomeMessage = profile?.displayName 
+    ? `Welcome, ${profile.displayName}!` 
     : session?.user?.email 
       ? `Welcome, ${session.user.email}!` 
       : "Welcome to your Dashboard!";
