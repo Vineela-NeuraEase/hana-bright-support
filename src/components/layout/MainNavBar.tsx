@@ -16,14 +16,14 @@ import {
   SheetContent,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { useAuth } from "@/components/AuthProvider";
+import { useAuth } from "@/components/FirebaseAuthProvider";
 import { useNavigation } from "@/hooks/useNavigation";
-import { useProfile } from "@/hooks/useProfile";
+import { useProfile } from "@/hooks/useFirebaseProfile";
 import { useState, useEffect } from "react";
 import { NavigationItem } from "@/types/navigation";
 
 export const MainNavBar = () => {
-  const { session, signOut } = useAuth();
+  const { user, signOut } = useAuth();
   const { profile } = useProfile();
   const navigationItems: NavigationItem[] = useNavigation(profile?.role);
   const location = useLocation();
@@ -41,8 +41,8 @@ export const MainNavBar = () => {
   
   // Get user initials for avatar
   const getUserInitials = () => {
-    if (session?.user?.email) {
-      return session.user.email.charAt(0).toUpperCase();
+    if (user?.email) {
+      return user.email.charAt(0).toUpperCase();
     }
     return "U";
   };
@@ -137,7 +137,7 @@ export const MainNavBar = () => {
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>
-              {session ? session.user.email : "User"}
+              {user ? user.email : "User"}
               {profile?.role && <p className="text-xs text-muted-foreground">{profile.role}</p>}
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
@@ -160,7 +160,7 @@ export const MainNavBar = () => {
               <Link to="/settings">Settings</Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            {session ? (
+            {user ? (
               <DropdownMenuItem onClick={handleSignOut} className="text-red-500">
                 <LogOut className="h-4 w-4 mr-2" />
                 Sign Out
