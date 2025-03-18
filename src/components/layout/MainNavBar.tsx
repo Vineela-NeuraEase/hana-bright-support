@@ -71,51 +71,53 @@ export const MainNavBar = ({ onSignOut }: MainNavBarProps) => {
                     <span>{item.title}</span>
                   </Link>
                 ))}
-                <Link
-                  to="/tasks"
-                  className="flex items-center gap-3 px-4 py-2 hover:bg-accent"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  <CheckSquare className="h-5 w-5" />
-                  <span>Tasks</span>
-                </Link>
-                <Link
-                  to="/schedule"
-                  className="flex items-center gap-3 px-4 py-2 hover:bg-accent"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  <Calendar className="h-5 w-5" />
-                  <span>Schedule</span>
-                </Link>
-                <Link
-                  to="/journal"
-                  className="flex items-center gap-3 px-4 py-2 hover:bg-accent"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  <BookText className="h-5 w-5" />
-                  <span>Journal</span>
-                </Link>
-                <Link
-                  to="/tools"
-                  className="flex items-center gap-3 px-4 py-2 hover:bg-accent"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  <RadioTower className="h-5 w-5" />
-                  <span>Tools</span>
-                </Link>
-                <Link
-                  to="/settings"
-                  className="flex items-center gap-3 px-4 py-2 hover:bg-accent"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  <Settings className="h-5 w-5" />
-                  <span>Settings</span>
-                </Link>
+                {/* Only add these additional links if they're not already in navigation items */}
+                {!navigationItems.some(item => item.url === "/tasks") && (
+                  <Link
+                    to="/tasks"
+                    className="flex items-center gap-3 px-4 py-2 hover:bg-accent"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    <CheckSquare className="h-5 w-5" />
+                    <span>Tasks</span>
+                  </Link>
+                )}
+                {!navigationItems.some(item => item.url === "/schedule") && (
+                  <Link
+                    to="/schedule"
+                    className="flex items-center gap-3 px-4 py-2 hover:bg-accent"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    <Calendar className="h-5 w-5" />
+                    <span>Schedule</span>
+                  </Link>
+                )}
+                {!navigationItems.some(item => item.url === "/tools") && (
+                  <Link
+                    to="/tools"
+                    className="flex items-center gap-3 px-4 py-2 hover:bg-accent"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    <RadioTower className="h-5 w-5" />
+                    <span>Tools</span>
+                  </Link>
+                )}
+                {!navigationItems.some(item => item.url === "/settings") && (
+                  <Link
+                    to="/settings"
+                    className="flex items-center gap-3 px-4 py-2 hover:bg-accent"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    <Settings className="h-5 w-5" />
+                    <span>Settings</span>
+                  </Link>
+                )}
               </div>
             </SheetContent>
           </Sheet>
           
-          <Link to="/" className="flex items-center gap-2">
+          {/* Only show the Hana title on mobile */}
+          <Link to="/" className="flex items-center gap-2 md:hidden">
             <h2 className="text-lg font-semibold">Hana</h2>
           </Link>
         </div>
