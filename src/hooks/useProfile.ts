@@ -32,14 +32,29 @@ export const useProfile = (session: Session | null) => {
       setLoading(true);
       try {
         // First, fetch the profile
-        const { data: profileData, error: profileError } = await supabase
+        let { data: profileData, error: profileError } = await supabase
           .from('profiles')
           .select('*')
           .eq('id', session.user.id)
           .maybeSingle();
         
         if (profileError) {
-          throw profileError;
+          console.error('Error fetching profile:', profileError);
+          // If there's no profile found, create a default one
+          if (profileError.code === 'PGRST116') { // "No rows returned"
+            // Create a default profile
+            const { data: newProfile, error: insertError } = await supabase
+              .from('profiles')
+              .insert({ id: session.user.id, role: 'autistic' })
+              .select()
+              .single();
+            
+            if (insertError) {
+              console.error('Error creating profile:', insertError);
+            } else {
+              profileData = newProfile;
+            }
+          }
         }
         
         // Then, fetch the link code from user_links table
@@ -56,22 +71,28 @@ export const useProfile = (session: Session | null) => {
           console.error('Error fetching link code:', linkError);
         }
         
-        // Combine the data
-        if (profileData) {
-          const combinedProfile = {
-            ...profileData,
-            link_code: linkData?.link_code || undefined
+        // If we still don't have a profile, create a temporary one with the session ID
+        if (!profileData) {
+          profileData = {
+            id: session.user.id,
+            role: 'autistic' as const,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
           };
-          
-          console.log("Combined profile:", combinedProfile);
-          setProfile(combinedProfile);
+        }
+        
+        // Combine the data
+        const combinedProfile = {
+          ...profileData,
+          link_code: linkData?.link_code || undefined
+        };
+        
+        console.log("Combined profile:", combinedProfile);
+        setProfile(combinedProfile);
 
-          // If the user is a caregiver, fetch linked users
-          if (profileData.role === 'caregiver') {
-            fetchLinkedUsers(session.user.id);
-          }
-        } else {
-          console.log("No profile data found for user:", session.user.id);
+        // If the user is a caregiver, fetch linked users
+        if (profileData.role === 'caregiver') {
+          fetchLinkedUsers(session.user.id);
         }
       } catch (error) {
         console.error('Unexpected error fetching profile:', error);
