@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/components/AuthProvider';
 import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
 export type Profile = {
   id: string;
@@ -12,6 +13,25 @@ export const useProfile = () => {
   const { session, userRole } = useAuth();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
+
+  // Create a profile if it doesn't exist
+  const createProfile = async (userId: string, role: 'autistic' | 'caregiver' | 'clinician') => {
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .insert([{ id: userId, role: role }]);
+      
+      if (error) {
+        console.error("Error creating profile:", error);
+        return false;
+      }
+      return true;
+    } catch (error) {
+      console.error("Error in createProfile:", error);
+      return false;
+    }
+  };
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -24,20 +44,54 @@ export const useProfile = () => {
             .from('profiles')
             .select('id, role')
             .eq('id', session.user.id)
-            .single();
+            .maybeSingle();  // Use maybeSingle instead of single
 
           if (error) {
             console.error("Error fetching profile:", error);
-            // Fallback to using userRole from AuthProvider
-            setProfile({
-              id: session.user.id,
-              role: userRole
-            });
+            // Try to create a profile if it doesn't exist
+            const created = await createProfile(session.user.id, userRole);
+            
+            if (created) {
+              setProfile({
+                id: session.user.id,
+                role: userRole
+              });
+              toast({
+                title: "Profile Created",
+                description: "Your profile has been created successfully.",
+              });
+            } else {
+              // Fallback to using userRole from AuthProvider
+              setProfile({
+                id: session.user.id,
+                role: userRole
+              });
+            }
           } else if (data) {
             setProfile({
               id: data.id,
               role: data.role as 'autistic' | 'caregiver' | 'clinician'
             });
+          } else {
+            // Profile not found, create one
+            const created = await createProfile(session.user.id, userRole);
+            
+            if (created) {
+              setProfile({
+                id: session.user.id,
+                role: userRole
+              });
+              toast({
+                title: "Profile Created",
+                description: "Your profile has been created successfully.",
+              });
+            } else {
+              // Fallback to using userRole from AuthProvider
+              setProfile({
+                id: session.user.id,
+                role: userRole
+              });
+            }
           }
         } catch (error) {
           console.error("Error in profile fetch:", error);
@@ -61,7 +115,7 @@ export const useProfile = () => {
     };
 
     fetchProfile();
-  }, [session, userRole]);
+  }, [session, userRole, toast]);
 
   return { profile, loading };
 };

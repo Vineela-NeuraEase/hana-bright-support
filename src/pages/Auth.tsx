@@ -14,6 +14,7 @@ import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { useAuth } from "@/components/AuthProvider";
 
 type UserRole = 'autistic' | 'caregiver' | 'clinician';
 
@@ -44,8 +45,15 @@ type SignupFormValues = z.infer<typeof signupSchema>;
 const Auth = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { session } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<"login" | "signup">("login");
+
+  // Redirect if already logged in
+  if (session) {
+    navigate("/dashboard");
+    return null;
+  }
 
   // Login form
   const loginForm = useForm<LoginFormValues>({
@@ -74,45 +82,38 @@ const Auth = () => {
     
     const selectedRole = loginForm.getValues().role;
     
-    // Simulate loading
-    setTimeout(() => {
-      // Store the selected role in localStorage
-      localStorage.setItem('userRole', selectedRole);
-      
-      toast({
-        title: "Welcome",
-        description: `You have been signed in as a guest ${selectedRole}.`,
-      });
-      
-      navigate("/dashboard");
-      setIsLoading(false);
-    }, 1000);
+    // Store the selected role in localStorage
+    localStorage.setItem('userRole', selectedRole);
+    
+    toast({
+      title: "Welcome",
+      description: `You have been signed in as a guest ${selectedRole}.`,
+    });
+    
+    navigate("/dashboard");
+    setIsLoading(false);
   };
 
   const handleSignup = async (data: SignupFormValues) => {
     setIsLoading(true);
     try {
+      // Store the selected role in localStorage for profile creation
+      localStorage.setItem('userRole', data.role);
+      
       // Sign up the user with Supabase
       const { data: authData, error } = await supabase.auth.signUp({
         email: data.email,
-        password: data.password,
-        options: {
-          data: {
-            role: data.role
-          }
-        }
+        password: data.password
       });
 
       if (error) {
+        console.error("Signup error:", error);
         toast({
           title: "Error",
           description: error.message,
           variant: "destructive"
         });
       } else {
-        // Store the selected role in localStorage as a backup
-        localStorage.setItem('userRole', data.role);
-        
         toast({
           title: "Account created",
           description: "Please check your email for a confirmation link."
@@ -134,6 +135,9 @@ const Auth = () => {
   const handleLogin = async (data: LoginFormValues) => {
     setIsLoading(true);
     try {
+      // Store the selected role in localStorage for profile creation
+      localStorage.setItem('userRole', data.role);
+      
       // Sign in the user with Supabase
       const { data: authData, error } = await supabase.auth.signInWithPassword({
         email: data.email,
@@ -141,16 +145,13 @@ const Auth = () => {
       });
 
       if (error) {
+        console.error("Login error:", error);
         toast({
           title: "Error",
           description: error.message,
           variant: "destructive"
         });
       } else {
-        // Store the selected role in localStorage as a backup
-        // In a production app, we'd get this from the user's profile in the database
-        localStorage.setItem('userRole', data.role);
-        
         toast({
           title: "Welcome back",
           description: "You have been successfully signed in."
