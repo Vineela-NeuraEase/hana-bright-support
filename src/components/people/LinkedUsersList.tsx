@@ -55,7 +55,7 @@ export const LinkedUsersList = ({
                 <AvatarFallback>{user.role?.charAt(0).toUpperCase() || '?'}</AvatarFallback>
               </Avatar>
               <div>
-                <h3 className="font-medium">{user.role}</h3>
+                <h3 className="font-medium">{user.role || 'User'}</h3>
                 <p className="text-xs text-muted-foreground">
                   Link Code: {user.link_code || 'N/A'}
                 </p>

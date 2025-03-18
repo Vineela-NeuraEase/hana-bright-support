@@ -8,6 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import { User } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { MyLinkCode } from "@/components/people/MyLinkCode";
 
 const PersonManagement = () => {
   const { session } = useAuth();
@@ -20,7 +21,9 @@ const PersonManagement = () => {
   console.log("Linked users:", linkedUsers);
 
   const handleLinkSuccess = () => {
-    refetchLinkedUsers();
+    if (refetchLinkedUsers) {
+      refetchLinkedUsers();
+    }
     toast({
       title: "Success",
       description: "Successfully linked to person"
@@ -51,7 +54,9 @@ const PersonManagement = () => {
       });
       
       // Refresh the list
-      refetchLinkedUsers();
+      if (refetchLinkedUsers) {
+        refetchLinkedUsers();
+      }
       
     } catch (error: any) {
       toast({
@@ -107,16 +112,7 @@ const PersonManagement = () => {
         {profile?.role === 'autistic' && (
           <section>
             <h2 className="text-xl font-semibold mb-4">Your Link Code</h2>
-            <p className="mb-4">
-              Share this code with your caregivers to allow them to link to your account.
-            </p>
-            {profile.link_code ? (
-              <div className="p-4 bg-muted rounded-md font-mono text-center text-lg">
-                {profile.link_code}
-              </div>
-            ) : (
-              <p>No link code available. Please contact support.</p>
-            )}
+            <MyLinkCode profile={profile} />
           </section>
         )}
         

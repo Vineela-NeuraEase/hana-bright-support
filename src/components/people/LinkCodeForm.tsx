@@ -24,32 +24,33 @@ export const LinkCodeForm = ({ session, onSuccess }: LinkCodeFormProps) => {
     
     setIsLinking(true);
     try {
-      // Find the user with this link code
-      const { data: linkData, error: linkError } = await supabase
+      // Step 1: Find the user with this link code
+      const { data: userData, error: userError } = await supabase
         .from('user_links')
         .select('user_id')
         .eq('link_code', linkCode)
         .maybeSingle();
 
-      if (linkError) {
-        throw linkError;
+      if (userError) {
+        throw userError;
       }
 
-      if (!linkData) {
+      if (!userData) {
         toast({
           variant: "destructive",
           title: "Error",
           description: "No user found with that link code"
         });
+        setIsLinking(false);
         return;
       }
 
-      // Create link in caregiver_links table
+      // Step 2: Create link in caregiver_links table
       const { error: caregiverLinkError } = await supabase
         .from('caregiver_links')
         .insert({
           caregiver_id: session.user.id,
-          user_id: linkData.user_id
+          user_id: userData.user_id
         });
 
       if (caregiverLinkError) {

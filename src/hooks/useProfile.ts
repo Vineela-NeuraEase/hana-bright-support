@@ -119,6 +119,7 @@ export const useProfile = (session: Session | null) => {
 
       if (!linksData || linksData.length === 0) {
         setLinkedUsers([]);
+        setLinkedUsersLoading(false);
         return;
       }
 
