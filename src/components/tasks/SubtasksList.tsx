@@ -3,10 +3,11 @@ import { useState } from "react";
 import { Task } from "@/types/task";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Loader2, Sparkles, AlertTriangle } from "lucide-react";
+import { Loader2, Sparkles, AlertTriangle, Plus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
+import { Textarea } from "@/components/ui/textarea";
 
 interface SubtasksListProps {
   task: Task;
@@ -19,6 +20,9 @@ const SubtasksList = ({ task, refetchTasks }: SubtasksListProps) => {
   const [generatingSubtasks, setGeneratingSubtasks] = useState(false);
   const [fallbackMode, setFallbackMode] = useState(false);
   const [apiError, setApiError] = useState<string | null>(null);
+  const [showSuggestionInput, setShowSuggestionInput] = useState(false);
+  const [suggestion, setSuggestion] = useState("");
+  const [addingSuggestion, setAddingSuggestion] = useState(false);
 
   const hasSubtasks = task.subtasks && task.subtasks.length > 0;
 
@@ -109,6 +113,43 @@ const SubtasksList = ({ task, refetchTasks }: SubtasksListProps) => {
     }
   };
 
+  const handleAddSuggestion = async () => {
+    if (!suggestion.trim() || !task.subtasks) return;
+    
+    setAddingSuggestion(true);
+    try {
+      const updatedSubtasks = [...task.subtasks, { 
+        title: suggestion.trim(),
+        completed: false
+      }];
+
+      const { error } = await supabase
+        .from("tasks")
+        .update({ subtasks: updatedSubtasks })
+        .eq("id", task.id);
+
+      if (error) throw error;
+      
+      toast({
+        title: "Suggestion added",
+        description: "Your suggestion has been added to the task breakdown.",
+      });
+      
+      setSuggestion("");
+      setShowSuggestionInput(false);
+      refetchTasks();
+    } catch (error) {
+      console.error("Error adding suggestion:", error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to add your suggestion. Please try again.",
+      });
+    } finally {
+      setAddingSuggestion(false);
+    }
+  };
+
   return (
     <div className="mt-4">
       {!hasSubtasks && (
@@ -170,9 +211,61 @@ const SubtasksList = ({ task, refetchTasks }: SubtasksListProps) => {
             </div>
           ))}
           
-          <div className="mt-4 text-xs text-right">
-            Completed: {task.subtasks.filter(st => st.completed).length} / {task.subtasks.length}
+          <div className="mt-4 flex justify-between items-center">
+            <div className="text-xs">
+              Completed: {task.subtasks.filter(st => st.completed).length} / {task.subtasks.length}
+            </div>
+            
+            {!showSuggestionInput && (
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={() => setShowSuggestionInput(true)}
+                className="text-xs"
+              >
+                <Plus className="h-3 w-3 mr-1" />
+                Add step
+              </Button>
+            )}
           </div>
+          
+          {showSuggestionInput && (
+            <div className="mt-2 space-y-2">
+              <Textarea
+                placeholder="Enter a new step to add to the breakdown..."
+                value={suggestion}
+                onChange={(e) => setSuggestion(e.target.value)}
+                className="w-full text-sm"
+              />
+              <div className="flex space-x-2 justify-end">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => {
+                    setShowSuggestionInput(false);
+                    setSuggestion("");
+                  }}
+                >
+                  Cancel
+                </Button>
+                <Button 
+                  variant="default" 
+                  size="sm" 
+                  onClick={handleAddSuggestion}
+                  disabled={!suggestion.trim() || addingSuggestion}
+                >
+                  {addingSuggestion ? (
+                    <>
+                      <Loader2 className="h-3 w-3 animate-spin mr-1" />
+                      Adding...
+                    </>
+                  ) : (
+                    "Add Step"
+                  )}
+                </Button>
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>
