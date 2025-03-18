@@ -28,33 +28,31 @@ const Auth = () => {
 
     try {
       if (mode === "signup") {
-        // Create the user
+        console.log("Starting signup with role:", role);
+        
+        // Step 1: Create the auth user first
         const { data, error: signUpError } = await supabase.auth.signUp({
           email,
           password,
-          options: {
-            data: { role },
-          }
         });
         
         if (signUpError) throw signUpError;
+        console.log("Auth user created:", data?.user?.id);
         
-        // If user created successfully
+        // Step 2: If user created successfully, update the profile separately
         if (data.user) {
-          console.log("User created successfully:", data.user.id);
-          
-          // Try to directly set the profile role
           try {
+            console.log("Attempting to update profile with role:", role);
             const { error: profileError } = await supabase
               .from('profiles')
-              .upsert({ 
-                id: data.user.id,
-                role
-              });
+              .update({ role })
+              .eq('id', data.user.id);
               
             if (profileError) {
-              console.error("Error setting profile role:", profileError);
-              // Don't throw here - we created the user, just log the error
+              console.error("Error updating profile role:", profileError);
+              // Log but don't fail the signup
+            } else {
+              console.log("Profile role updated successfully");
             }
           } catch (profileErr) {
             console.error("Exception in profile update:", profileErr);
@@ -69,7 +67,7 @@ const Auth = () => {
           setMode("login");
         }
       } else {
-        // Login
+        // Login flow
         const { error: signInError, data } = await supabase.auth.signInWithPassword({
           email,
           password,
