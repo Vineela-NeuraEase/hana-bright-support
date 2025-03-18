@@ -7,16 +7,14 @@ import { useToast } from "@/hooks/use-toast";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { supabase } from "@/integrations/supabase/client";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useAuth } from "@/components/AuthProvider";
-
-type UserRole = 'autistic' | 'caregiver' | 'clinician';
 
 // Login form schema
 const loginSchema = z.object({
@@ -77,23 +75,6 @@ const Auth = () => {
     }
   });
 
-  const handleGuestAccess = () => {
-    setIsLoading(true);
-    
-    const selectedRole = loginForm.getValues().role;
-    
-    // Store the selected role in localStorage
-    localStorage.setItem('userRole', selectedRole);
-    
-    toast({
-      title: "Welcome",
-      description: `You have been signed in as a guest ${selectedRole}.`,
-    });
-    
-    navigate("/dashboard");
-    setIsLoading(false);
-  };
-
   const handleSignup = async (data: SignupFormValues) => {
     setIsLoading(true);
     try {
@@ -103,7 +84,12 @@ const Auth = () => {
       // Sign up the user with Supabase
       const { data: authData, error } = await supabase.auth.signUp({
         email: data.email,
-        password: data.password
+        password: data.password,
+        options: {
+          data: {
+            role: data.role
+          }
+        }
       });
 
       if (error) {
@@ -118,7 +104,9 @@ const Auth = () => {
           title: "Account created",
           description: "Please check your email for a confirmation link."
         });
-        navigate("/dashboard");
+        if (authData.user) {
+          navigate("/dashboard");
+        }
       }
     } catch (error) {
       console.error("Signup error:", error);
@@ -251,25 +239,13 @@ const Auth = () => {
                     )}
                   />
 
-                  <div className="space-y-2">
-                    <Button 
-                      type="submit" 
-                      className="w-full" 
-                      disabled={isLoading}
-                    >
-                      {isLoading ? "Signing In..." : "Sign In"}
-                    </Button>
-                    
-                    <Button 
-                      type="button" 
-                      variant="outline"
-                      className="w-full" 
-                      onClick={handleGuestAccess}
-                      disabled={isLoading}
-                    >
-                      Continue as Guest
-                    </Button>
-                  </div>
+                  <Button 
+                    type="submit" 
+                    className="w-full" 
+                    disabled={isLoading}
+                  >
+                    {isLoading ? "Signing In..." : "Sign In"}
+                  </Button>
                 </form>
               </Form>
             </CardContent>

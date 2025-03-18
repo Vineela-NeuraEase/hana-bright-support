@@ -1,6 +1,6 @@
 
 import { Link, useLocation } from "react-router-dom";
-import { Home, Menu, Calendar, CheckSquare, RadioTower, Settings, BookText } from "lucide-react";
+import { Home, Menu, Calendar, CheckSquare, RadioTower, Settings, LogOut } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -23,7 +23,7 @@ import { useState, useEffect } from "react";
 import { NavigationItem } from "@/types/navigation";
 
 export const MainNavBar = () => {
-  const { session } = useAuth();
+  const { session, signOut } = useAuth();
   const { profile } = useProfile();
   const navigationItems: NavigationItem[] = useNavigation(profile?.role);
   const location = useLocation();
@@ -33,6 +33,19 @@ export const MainNavBar = () => {
   useEffect(() => {
     setIsMenuOpen(false);
   }, [location.pathname]);
+
+  // Handle sign out
+  const handleSignOut = async () => {
+    await signOut();
+  };
+  
+  // Get user initials for avatar
+  const getUserInitials = () => {
+    if (session?.user?.email) {
+      return session.user.email.charAt(0).toUpperCase();
+    }
+    return "U";
+  };
 
   return (
     <nav className="sticky top-0 z-10 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -117,13 +130,16 @@ export const MainNavBar = () => {
             <Button variant="ghost" className="h-8 w-8 rounded-full">
               <Avatar className="h-8 w-8">
                 <AvatarFallback>
-                  G
+                  {getUserInitials()}
                 </AvatarFallback>
               </Avatar>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Guest User</DropdownMenuLabel>
+            <DropdownMenuLabel>
+              {session ? session.user.email : "User"}
+              {profile?.role && <p className="text-xs text-muted-foreground">{profile.role}</p>}
+            </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild>
               <Link to="/dashboard">Dashboard</Link>
@@ -143,6 +159,17 @@ export const MainNavBar = () => {
             <DropdownMenuItem asChild>
               <Link to="/settings">Settings</Link>
             </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            {session ? (
+              <DropdownMenuItem onClick={handleSignOut} className="text-red-500">
+                <LogOut className="h-4 w-4 mr-2" />
+                Sign Out
+              </DropdownMenuItem>
+            ) : (
+              <DropdownMenuItem asChild>
+                <Link to="/auth">Sign In</Link>
+              </DropdownMenuItem>
+            )}
           </DropdownMenuContent>
         </DropdownMenu>
       </div>

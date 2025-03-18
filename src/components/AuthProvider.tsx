@@ -75,49 +75,51 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       const { data: { session: currentSession } } = await supabase.auth.getSession();
       setSession(currentSession);
       
-      // Check for stored role in localStorage (backup)
-      const storedRole = localStorage.getItem('userRole');
-      
       if (currentSession) {
         try {
-          // Try to get role from Supabase profile
-          const { data, error } = await supabase
-            .from('profiles')
-            .select('role')
-            .eq('id', currentSession.user.id)
-            .maybeSingle();
-          
-          if (data && data.role) {
-            setUserRole(data.role as 'autistic' | 'caregiver' | 'clinician');
-            localStorage.setItem('userRole', data.role);
-          } else if (storedRole) {
-            // Fallback to localStorage if profile fetch fails
-            setUserRole(storedRole as 'autistic' | 'caregiver' | 'clinician');
+          // Try to get role from user metadata first (most accurate)
+          const userRole = currentSession.user?.user_metadata?.role;
+          if (userRole && ['autistic', 'caregiver', 'clinician'].includes(userRole)) {
+            setUserRole(userRole as 'autistic' | 'caregiver' | 'clinician');
+            localStorage.setItem('userRole', userRole);
+          }
+          else {
+            // Try to get role from Supabase profile
+            const { data, error } = await supabase
+              .from('profiles')
+              .select('role')
+              .eq('id', currentSession.user.id)
+              .maybeSingle();
             
-            // Try to create the profile if it doesn't exist
-            const profileCreated = await ensureUserProfile(
-              currentSession.user.id, 
-              storedRole as 'autistic' | 'caregiver' | 'clinician'
-            );
-            
-            if (!profileCreated) {
-              toast({
-                title: "Warning",
-                description: "Could not create or update user profile",
-                variant: "destructive",
-              });
+            if (data && data.role) {
+              setUserRole(data.role as 'autistic' | 'caregiver' | 'clinician');
+              localStorage.setItem('userRole', data.role);
+            } else {
+              // Get the selected role from localStorage as fallback
+              const storedRole = localStorage.getItem('userRole');
+              if (storedRole && ['autistic', 'caregiver', 'clinician'].includes(storedRole)) {
+                setUserRole(storedRole as 'autistic' | 'caregiver' | 'clinician');
+                
+                // Try to create the profile if it doesn't exist
+                const profileCreated = await ensureUserProfile(
+                  currentSession.user.id, 
+                  storedRole as 'autistic' | 'caregiver' | 'clinician'
+                );
+                
+                if (!profileCreated) {
+                  console.error("Could not create user profile");
+                }
+              }
             }
           }
         } catch (error) {
           console.error('Error fetching user role:', error);
           // Use localStorage as fallback
-          if (storedRole) {
+          const storedRole = localStorage.getItem('userRole');
+          if (storedRole && ['autistic', 'caregiver', 'clinician'].includes(storedRole)) {
             setUserRole(storedRole as 'autistic' | 'caregiver' | 'clinician');
           }
         }
-      } else if (storedRole) {
-        // Guest mode - use localStorage
-        setUserRole(storedRole as 'autistic' | 'caregiver' | 'clinician');
       }
       
       setLoading(false);
@@ -132,34 +134,47 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       
       if (event === 'SIGNED_IN' && newSession) {
         try {
-          // Get user role from profile
-          const { data, error } = await supabase
-            .from('profiles')
-            .select('role')
-            .eq('id', newSession.user.id)
-            .maybeSingle();
-          
-          if (data && data.role) {
-            setUserRole(data.role as 'autistic' | 'caregiver' | 'clinician');
-            localStorage.setItem('userRole', data.role);
+          // First check user metadata for role
+          const userMetadataRole = newSession.user?.user_metadata?.role;
+          if (userMetadataRole && ['autistic', 'caregiver', 'clinician'].includes(userMetadataRole)) {
+            setUserRole(userMetadataRole as 'autistic' | 'caregiver' | 'clinician');
+            localStorage.setItem('userRole', userMetadataRole);
+            
+            // Ensure profile exists
+            await ensureUserProfile(
+              newSession.user.id, 
+              userMetadataRole as 'autistic' | 'caregiver' | 'clinician'
+            );
           } else {
-            // If no profile exists, get the selected role from localStorage
-            const storedRole = localStorage.getItem('userRole');
-            if (storedRole) {
-              // Create a profile with the stored role
-              const profileCreated = await ensureUserProfile(
-                newSession.user.id, 
-                storedRole as 'autistic' | 'caregiver' | 'clinician'
-              );
-              
-              if (profileCreated) {
-                setUserRole(storedRole as 'autistic' | 'caregiver' | 'clinician');
-              } else {
-                toast({
-                  title: "Warning",
-                  description: "Could not create user profile",
-                  variant: "destructive",
-                });
+            // Get user role from profile
+            const { data, error } = await supabase
+              .from('profiles')
+              .select('role')
+              .eq('id', newSession.user.id)
+              .maybeSingle();
+            
+            if (data && data.role) {
+              setUserRole(data.role as 'autistic' | 'caregiver' | 'clinician');
+              localStorage.setItem('userRole', data.role);
+            } else {
+              // If no profile exists, get the selected role from localStorage
+              const storedRole = localStorage.getItem('userRole');
+              if (storedRole && ['autistic', 'caregiver', 'clinician'].includes(storedRole)) {
+                // Create a profile with the stored role
+                const profileCreated = await ensureUserProfile(
+                  newSession.user.id, 
+                  storedRole as 'autistic' | 'caregiver' | 'clinician'
+                );
+                
+                if (profileCreated) {
+                  setUserRole(storedRole as 'autistic' | 'caregiver' | 'clinician');
+                } else {
+                  toast({
+                    title: "Warning",
+                    description: "Could not create user profile",
+                    variant: "destructive",
+                  });
+                }
               }
             }
           }

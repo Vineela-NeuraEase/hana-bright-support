@@ -44,7 +44,7 @@ export const useProfile = () => {
             .from('profiles')
             .select('id, role')
             .eq('id', session.user.id)
-            .maybeSingle();  // Use maybeSingle instead of single
+            .maybeSingle();
 
           if (error) {
             console.error("Error fetching profile:", error);
@@ -101,13 +101,8 @@ export const useProfile = () => {
             role: userRole
           });
         }
-      } else if (localStorage.getItem('userRole')) {
-        // If no session (guest mode), use localStorage role
-        setProfile({
-          id: 'guest-user-id',
-          role: userRole
-        });
       } else {
+        // If no session, set profile to null
         setProfile(null);
       }
       
