@@ -19,10 +19,11 @@ const PersonManagement = () => {
   const { session } = useAuth();
   const { profile, loading, linkedUsers, linkedUsersLoading, refetchLinkedUsers } = useProfile(session);
   const { toast } = useToast();
-  const navigate = useNavigate();
   
   const [viewSection, setViewSection] = useState<"list" | "tasks" | "calendar" | "encourage">("list");
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
+  
+  const navigate = useNavigate();
   
   const handleViewDashboard = (userId: string) => {
     navigate(`/dashboard?viewAs=${userId}`);
@@ -80,7 +81,7 @@ const PersonManagement = () => {
           
           <div>
             <h2 className="text-xl font-semibold mb-4">Link to a Person</h2>
-            <LinkCodeForm onSuccess={refetchLinkedUsers} />
+            <LinkCodeForm session={session} onSuccess={refetchLinkedUsers} />
           </div>
           
           <div>

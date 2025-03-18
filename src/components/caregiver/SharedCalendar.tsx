@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Event } from "@/types/event";
@@ -165,7 +164,6 @@ export const SharedCalendar = ({ userId }: SharedCalendarProps) => {
               onDateSelect={setSelectedDate}
               onAddEvent={() => {}}
               isLoading={isLoading}
-              readOnly
             />
           )}
         </div>

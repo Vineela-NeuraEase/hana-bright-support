@@ -6,7 +6,7 @@ export interface Task {
   id: string;
   user_id: string;
   title: string;
-  description?: string; // Already defined here, but the database might not have this column
+  description?: string;
   status: TaskStatus;
   priority: TaskPriority;
   due_date?: string;
@@ -14,4 +14,6 @@ export interface Task {
   subtasks?: { title: string; completed: boolean }[];
   created_at?: string;
   updated_at?: string;
+  created_by?: string;
+  created_by_role?: string;
 }

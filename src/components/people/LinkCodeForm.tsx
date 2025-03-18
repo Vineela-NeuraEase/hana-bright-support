@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
+import { useToast } from "@/hooks/use-toast";
 
 interface LinkCodeFormProps {
   session: Session | null;
@@ -15,6 +15,7 @@ interface LinkCodeFormProps {
 export const LinkCodeForm = ({ session, onSuccess }: LinkCodeFormProps) => {
   const [linkCode, setLinkCode] = useState("");
   const [isLinking, setIsLinking] = useState(false);
+  const { toast } = useToast();
 
   const handleLinkUser = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,7 +36,11 @@ export const LinkCodeForm = ({ session, onSuccess }: LinkCodeFormProps) => {
       }
 
       if (!linkData) {
-        toast.error("No user found with that link code");
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "No user found with that link code"
+        });
         return;
       }
 
@@ -50,18 +55,29 @@ export const LinkCodeForm = ({ session, onSuccess }: LinkCodeFormProps) => {
       if (caregiverLinkError) {
         // Check if it's a duplicate link error
         if (caregiverLinkError.code === '23505') { // Unique constraint violation
-          toast.error("You are already linked to this user");
+          toast({
+            variant: "destructive",
+            title: "Error",
+            description: "You are already linked to this user"
+          });
         } else {
           throw caregiverLinkError;
         }
       } else {
-        toast.success(`Successfully linked to user`);
+        toast({
+          title: "Success",
+          description: "Successfully linked to user"
+        });
         setLinkCode("");
         onSuccess();
       }
     } catch (error: any) {
       console.error('Error linking user:', error);
-      toast.error(error.message || "Failed to link user");
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error.message || "Failed to link user"
+      });
     } finally {
       setIsLinking(false);
     }

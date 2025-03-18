@@ -16,7 +16,12 @@ export const useTasks = () => {
         .order("created_at", { ascending: false });
 
       if (error) throw error;
-      return data as Task[];
+      
+      // Transform the data to ensure subtasks are properly typed
+      return data.map(task => ({
+        ...task,
+        subtasks: task.subtasks ? (Array.isArray(task.subtasks) ? task.subtasks : JSON.parse(task.subtasks as string)) : []
+      })) as Task[];
     },
   });
 

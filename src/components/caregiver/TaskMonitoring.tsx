@@ -40,7 +40,13 @@ export const TaskMonitoring = ({ userId }: TaskMonitoringProps) => {
         throw error;
       }
 
-      setTasks(data);
+      // Transform the data to ensure subtasks are properly typed
+      const transformedTasks = data.map(task => ({
+        ...task,
+        subtasks: task.subtasks ? (Array.isArray(task.subtasks) ? task.subtasks : JSON.parse(task.subtasks as string)) : []
+      })) as Task[];
+
+      setTasks(transformedTasks);
     } catch (error: any) {
       console.error("Error fetching tasks:", error);
       setError("Failed to load tasks. Please try again later.");
