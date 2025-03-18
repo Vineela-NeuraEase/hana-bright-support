@@ -3,12 +3,7 @@ import { Link } from "react-router-dom";
 import { LogOut, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-
-type NavigationItem = {
-  title: string;
-  icon: React.ComponentType<{ className?: string }>;
-  url: string;
-};
+import { NavigationItem } from "@/types/navigation";
 
 interface MobileSidebarProps {
   navigationItems: NavigationItem[];

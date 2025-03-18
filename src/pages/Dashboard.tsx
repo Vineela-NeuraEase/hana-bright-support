@@ -8,6 +8,7 @@ import { Sidebar } from "@/components/dashboard/Sidebar";
 import { DashboardContent } from "@/components/dashboard/DashboardContent";
 import { useProfile } from "@/hooks/useProfile";
 import { useNavigation } from "@/hooks/useNavigation";
+import { NavigationItem } from "@/types/navigation";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -25,7 +26,7 @@ const Dashboard = () => {
     navigate("/");
   };
 
-  const navigationItems = useNavigation(profile?.role);
+  const navigationItems: NavigationItem[] = useNavigation(profile?.role);
 
   const getWelcomeMessage = () => {
     if (!profile) return "Welcome to Hana";

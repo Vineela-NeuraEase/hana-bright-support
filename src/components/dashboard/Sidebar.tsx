@@ -1,5 +1,5 @@
 
-import { Home, CheckSquare, Calendar, BookText, RadioTower, Cog, LogOut, UserCircle } from "lucide-react";
+import { LogOut } from "lucide-react";
 import { Link } from "react-router-dom";
 import {
   Sidebar as SidebarComponent,
@@ -10,12 +10,7 @@ import {
   SidebarMenuButton,
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
-
-type NavigationItem = {
-  title: string;
-  icon: React.ComponentType<{ className?: string }>;
-  url: string;
-};
+import { NavigationItem } from "@/types/navigation";
 
 interface SidebarProps {
   navigationItems: NavigationItem[];

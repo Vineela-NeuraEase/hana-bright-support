@@ -20,6 +20,7 @@ import { useAuth } from "@/components/AuthProvider";
 import { useNavigation } from "@/hooks/useNavigation";
 import { useProfile } from "@/hooks/useProfile";
 import { useState, useEffect } from "react";
+import { NavigationItem } from "@/types/navigation";
 
 interface MainNavBarProps {
   onSignOut?: () => void;
@@ -28,7 +29,7 @@ interface MainNavBarProps {
 export const MainNavBar = ({ onSignOut }: MainNavBarProps) => {
   const { session } = useAuth();
   const { profile } = useProfile(session);
-  const navigationItems = useNavigation(profile?.role);
+  const navigationItems: NavigationItem[] = useNavigation(profile?.role);
   const location = useLocation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 

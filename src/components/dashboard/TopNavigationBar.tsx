@@ -11,14 +11,11 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { MobileSidebar } from "./MobileSidebar";
 import { Session } from "@supabase/supabase-js";
+import { NavigationItem } from "@/types/navigation";
 
 interface TopNavigationBarProps {
   session: Session | null;
-  navigationItems: {
-    title: string;
-    icon: React.ComponentType<{ className?: string }>;
-    url: string;
-  }[];
+  navigationItems: NavigationItem[];
   onSignOut: () => void;
 }
 

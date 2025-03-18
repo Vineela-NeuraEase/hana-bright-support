@@ -1,11 +1,6 @@
 
 import { Settings, Home, PieChart, User, UserCog } from "lucide-react";
-
-interface NavigationItem {
-  title: string;
-  url: string;
-  icon: React.ElementType;
-}
+import { NavigationItem } from "@/types/navigation";
 
 export const useNavigation = (role?: string): NavigationItem[] => {
   const defaultItems = [
