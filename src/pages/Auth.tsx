@@ -7,11 +7,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 type Role = 'autistic' | 'caregiver' | 'clinician';
 
 const Auth = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [role, setRole] = useState<Role>("autistic");
@@ -27,24 +29,51 @@ const Auth = () => {
     try {
       if (mode === "signup") {
         // Sign up with role metadata
-        const { error: signUpError } = await supabase.auth.signUp({
+        const { data, error: signUpError } = await supabase.auth.signUp({
           email,
           password,
           options: {
-            data: { role }, // Pass role as metadata
+            data: { role },
             emailRedirectTo: window.location.origin + "/dashboard"
           }
         });
+        
         if (signUpError) throw signUpError;
-
+        
+        if (data.user) {
+          // Manually insert profile record with role to ensure it's set correctly
+          const { error: profileError } = await supabase
+            .from('profiles')
+            .upsert({ 
+              id: data.user.id,
+              role: role 
+            });
+            
+          if (profileError) {
+            console.error("Error saving profile:", profileError);
+            throw new Error("Failed to save user profile");
+          }
+          
+          toast({
+            title: "Account created",
+            description: "Your account has been successfully created. Please sign in.",
+          });
+          
+          // Switch to login mode after successful signup
+          setMode("login");
+          setLoading(false);
+          return;
+        }
       } else {
         const { error: signInError } = await supabase.auth.signInWithPassword({
           email,
           password,
         });
+        
         if (signInError) throw signInError;
+        
+        navigate("/dashboard");
       }
-      navigate("/dashboard");
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
     } finally {
