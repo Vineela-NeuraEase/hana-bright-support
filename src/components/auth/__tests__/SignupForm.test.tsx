@@ -161,14 +161,4 @@ describe('SignupForm Component', () => {
       }));
     });
   });
-
-  it('displays different text when using Firebase', () => {
-    render(
-      <BrowserRouter>
-        <SignupForm onFirebase={true} />
-      </BrowserRouter>
-    );
-    
-    expect(screen.getByText(/create account/i)).toBeInTheDocument();
-  });
 });

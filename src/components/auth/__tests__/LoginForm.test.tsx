@@ -102,14 +102,4 @@ describe('LoginForm Component', () => {
       }));
     });
   });
-
-  it('displays different text when using Firebase', () => {
-    render(
-      <BrowserRouter>
-        <LoginForm onFirebase={true} />
-      </BrowserRouter>
-    );
-    
-    expect(screen.getByText(/sign in/i)).toBeInTheDocument();
-  });
 });

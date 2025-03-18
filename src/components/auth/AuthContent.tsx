@@ -6,11 +6,7 @@ import AuthHeader from "@/components/auth/AuthHeader";
 import LoginForm from "@/components/auth/LoginForm";
 import SignupForm from "@/components/auth/SignupForm";
 
-interface AuthContentProps {
-  onFirebase?: boolean;
-}
-
-const AuthContent = ({ onFirebase = false }: AuthContentProps) => {
+const AuthContent = () => {
   const [activeTab, setActiveTab] = useState<"login" | "signup">("login");
 
   return (
@@ -25,11 +21,11 @@ const AuthContent = ({ onFirebase = false }: AuthContentProps) => {
           </TabsList>
           
           <TabsContent value="login">
-            <LoginForm onFirebase={onFirebase} />
+            <LoginForm />
           </TabsContent>
 
           <TabsContent value="signup">
-            <SignupForm onFirebase={onFirebase} />
+            <SignupForm />
           </TabsContent>
         </Tabs>
       </Card>

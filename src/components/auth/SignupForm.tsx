@@ -32,11 +32,7 @@ const signupSchema = z.object({
 
 type SignupFormValues = z.infer<typeof signupSchema>;
 
-interface SignupFormProps {
-  onFirebase?: boolean;
-}
-
-const SignupForm = ({ onFirebase = false }: SignupFormProps) => {
+const SignupForm = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
