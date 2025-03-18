@@ -19,7 +19,7 @@ const Index = () => {
       <div className="w-full max-w-md space-y-4">
         <Button 
           className="w-full h-12 text-lg bg-primary hover:bg-primary/90 transition-all duration-300"
-          onClick={() => navigate("/login")}
+          onClick={() => navigate("/auth")}
         >
           Get Started
         </Button>
