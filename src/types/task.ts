@@ -6,6 +6,7 @@ export interface Task {
   id: string;
   user_id: string;
   title: string;
+  description?: string; // Adding description to the Task type
   status: TaskStatus;
   priority: TaskPriority;
   due_date?: string;

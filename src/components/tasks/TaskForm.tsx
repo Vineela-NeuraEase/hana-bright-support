@@ -45,11 +45,27 @@ const TaskForm = ({ onTaskAdded }: TaskFormProps) => {
 
   const onSubmit = async (data: TaskFormData) => {
     try {
+      // Ensure data has a non-empty title
+      if (!data.title.trim()) {
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Task title is required.",
+        });
+        return;
+      }
+
+      const user = await supabase.auth.getUser();
       const { error } = await supabase
         .from("tasks")
         .insert({
-          ...data,
-          user_id: (await supabase.auth.getUser()).data.user?.id
+          title: data.title,
+          description: data.description,
+          priority: data.priority,
+          spiciness: data.spiciness,
+          due_date: data.due_date || null,
+          status: 'pending', // Adding default status
+          user_id: user.data.user?.id
         });
       
       if (error) throw error;

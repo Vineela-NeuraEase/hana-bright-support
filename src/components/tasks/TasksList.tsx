@@ -1,4 +1,3 @@
-
 import { Task, TaskStatus } from "@/types/task";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
@@ -103,7 +102,10 @@ const TasksList = ({ tasks, isLoading, onStatusUpdate, refetchTasks }: TasksList
                       {task.title}
                     </CardTitle>
                     {requiresAttention && (
-                      <AlertCircle className="h-4 w-4 text-orange-500" title="This task needs attention" />
+                      <AlertCircle 
+                        className="h-4 w-4 text-orange-500" 
+                        aria-label="This task needs attention" 
+                      />
                     )}
                   </div>
                   {task.description && (
