@@ -16,6 +16,7 @@ import Schedule from "@/pages/Schedule";
 import Auth from "@/pages/Auth";
 import CaregiverDashboard from "@/pages/CaregiverDashboard";
 import NotFound from "@/pages/NotFound";
+import Index from "@/pages/Index";
 
 // Import tool pages
 import ToolsDirectory from "@/pages/tools/Index";
@@ -41,7 +42,7 @@ function App() {
           <AuthProvider>
             <Routes>
               <Route element={<MainLayout />}>
-                <Route path="/" element={<Home />} />
+                <Route path="/" element={<Index />} />
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/dashboard/tools" element={<ToolsDirectory />} />
                 <Route path="/dashboard/tools/formalizer" element={<FormalizerPage />} />
@@ -55,6 +56,7 @@ function App() {
                 <Route path="/settings" element={<Settings />} />
                 <Route path="/caregiver" element={<CaregiverDashboard />} />
                 <Route path="/auth" element={<Auth />} />
+                <Route path="/home" element={<Home />} />
                 <Route path="*" element={<NotFound />} />
               </Route>
             </Routes>
