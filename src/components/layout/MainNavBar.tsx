@@ -1,6 +1,5 @@
-
 import { Link } from "react-router-dom";
-import { Home, Menu, Calendar, CheckSquare, RadioTower, Settings, BookText, Users } from "lucide-react";
+import { Home, Menu, Calendar, CheckSquare, RadioTower, Settings, BookText, Users, Copy } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
