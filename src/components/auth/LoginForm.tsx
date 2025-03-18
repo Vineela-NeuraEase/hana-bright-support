@@ -22,7 +22,11 @@ const loginSchema = z.object({
 
 type LoginFormValues = z.infer<typeof loginSchema>;
 
-const LoginForm = () => {
+interface LoginFormProps {
+  onFirebase?: boolean;
+}
+
+const LoginForm = ({ onFirebase = false }: LoginFormProps) => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
@@ -42,30 +46,34 @@ const LoginForm = () => {
       // Store the selected role in localStorage for profile creation
       localStorage.setItem('userRole', data.role);
       
-      // Sign in the user with Supabase
-      const { data: authData, error } = await supabase.auth.signInWithPassword({
-        email: data.email,
-        password: data.password,
-        options: {
-          data: {
-            role: data.role
-          }
-        }
-      });
-
-      if (error) {
-        console.error("Login error:", error);
+      if (onFirebase) {
+        // The firebase implementation would be here, but we're not implementing it
+        // in this component since that's handled in the FirebaseAuth component
         toast({
-          title: "Error",
-          description: error.message,
-          variant: "destructive"
+          title: "Using Firebase Auth",
+          description: "This login component is for demonstration only when Firebase is enabled.",
         });
       } else {
-        toast({
-          title: "Welcome back",
-          description: "You have been successfully signed in."
+        // Sign in the user with Supabase
+        const { error } = await supabase.auth.signInWithPassword({
+          email: data.email,
+          password: data.password,
         });
-        navigate("/dashboard");
+
+        if (error) {
+          console.error("Login error:", error);
+          toast({
+            title: "Error",
+            description: error.message,
+            variant: "destructive"
+          });
+        } else {
+          toast({
+            title: "Welcome back",
+            description: "You have been successfully signed in."
+          });
+          navigate("/dashboard");
+        }
       }
     } catch (error) {
       console.error("Login error:", error);

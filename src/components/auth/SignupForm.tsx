@@ -30,7 +30,11 @@ const signupSchema = z.object({
 
 type SignupFormValues = z.infer<typeof signupSchema>;
 
-const SignupForm = () => {
+interface SignupFormProps {
+  onFirebase?: boolean;
+}
+
+const SignupForm = ({ onFirebase = false }: SignupFormProps) => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
@@ -52,31 +56,34 @@ const SignupForm = () => {
       // Store the selected role in localStorage for profile creation
       localStorage.setItem('userRole', data.role);
       
-      // Sign up the user with Supabase
-      const { data: authData, error } = await supabase.auth.signUp({
-        email: data.email,
-        password: data.password,
-        options: {
-          data: {
-            role: data.role
-          }
-        }
-      });
-
-      if (error) {
-        console.error("Signup error:", error);
+      if (onFirebase) {
+        // Firebase signup handled in FirebaseAuth component
         toast({
-          title: "Error",
-          description: error.message,
-          variant: "destructive"
+          title: "Using Firebase Auth",
+          description: "This signup component is for demonstration only when Firebase is enabled.",
         });
       } else {
-        toast({
-          title: "Account created",
-          description: "Please check your email for a confirmation link."
+        // Sign up the user with Supabase
+        const { data: authData, error } = await supabase.auth.signUp({
+          email: data.email,
+          password: data.password,
         });
-        if (authData.user) {
-          navigate("/dashboard");
+
+        if (error) {
+          console.error("Signup error:", error);
+          toast({
+            title: "Error",
+            description: error.message,
+            variant: "destructive"
+          });
+        } else {
+          toast({
+            title: "Account created",
+            description: "Please check your email for a confirmation link."
+          });
+          if (authData.user) {
+            navigate("/dashboard");
+          }
         }
       }
     } catch (error) {
