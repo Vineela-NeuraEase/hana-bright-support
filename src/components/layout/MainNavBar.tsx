@@ -116,7 +116,8 @@ export const MainNavBar = ({ onSignOut }: MainNavBarProps) => {
             </SheetContent>
           </Sheet>
           
-          <Link to="/" className="flex items-center gap-2">
+          {/* Only show the Hana title on mobile */}
+          <Link to="/" className="flex items-center gap-2 md:hidden">
             <h2 className="text-lg font-semibold">Hana</h2>
           </Link>
         </div>
