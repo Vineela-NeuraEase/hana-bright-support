@@ -5,12 +5,16 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
+
+type Role = 'autistic' | 'caregiver' | 'clinician';
 
 const Auth = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [role, setRole] = useState<Role>("autistic");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [mode, setMode] = useState<"login" | "signup">("login");
@@ -22,20 +26,23 @@ const Auth = () => {
 
     try {
       if (mode === "signup") {
-        const { error } = await supabase.auth.signUp({
+        // Sign up with role metadata
+        const { error: signUpError } = await supabase.auth.signUp({
           email,
           password,
           options: {
+            data: { role }, // Pass role as metadata
             emailRedirectTo: window.location.origin + "/dashboard"
           }
         });
-        if (error) throw error;
+        if (signUpError) throw signUpError;
+
       } else {
-        const { error } = await supabase.auth.signInWithPassword({
+        const { error: signInError } = await supabase.auth.signInWithPassword({
           email,
           password,
         });
-        if (error) throw error;
+        if (signInError) throw signInError;
       }
       navigate("/dashboard");
     } catch (err) {
@@ -85,6 +92,25 @@ const Auth = () => {
               required
             />
           </div>
+
+          {mode === "signup" && (
+            <div className="space-y-2">
+              <Label htmlFor="role">Role</Label>
+              <Select 
+                value={role} 
+                onValueChange={(value: Role) => setRole(value)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select your role" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="autistic">Autistic Individual</SelectItem>
+                  <SelectItem value="caregiver">Caregiver</SelectItem>
+                  <SelectItem value="clinician">Clinician</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          )}
 
           <Button type="submit" className="w-full" disabled={loading}>
             {loading
