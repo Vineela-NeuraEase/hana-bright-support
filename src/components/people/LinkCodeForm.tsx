@@ -88,7 +88,7 @@ export const LinkCodeForm = ({ session, onSuccess }: LinkCodeFormProps) => {
       <CardHeader>
         <CardTitle>Link to a Person</CardTitle>
         <CardDescription>
-          Enter the 8-character link code provided by the individual you want to support.
+          Enter the link code provided by the individual you want to support.
         </CardDescription>
       </CardHeader>
       <form onSubmit={handleLinkUser}>
