@@ -4,14 +4,27 @@ import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import TaskStatusBadge from "./TaskStatusBadge";
 import { Skeleton } from "@/components/ui/skeleton";
+import SubtasksList from "./SubtasksList";
+import { useState } from "react";
+import { ChevronDown, ChevronUp } from "lucide-react";
 
 interface TasksListProps {
   tasks?: Task[];
   isLoading?: boolean;
   onStatusUpdate: (taskId: string, currentStatus: TaskStatus) => void;
+  refetchTasks: () => void;
 }
 
-const TasksList = ({ tasks, isLoading, onStatusUpdate }: TasksListProps) => {
+const TasksList = ({ tasks, isLoading, onStatusUpdate, refetchTasks }: TasksListProps) => {
+  const [expandedTasks, setExpandedTasks] = useState<Record<string, boolean>>({});
+
+  const toggleExpand = (taskId: string) => {
+    setExpandedTasks(prev => ({
+      ...prev,
+      [taskId]: !prev[taskId]
+    }));
+  };
+
   if (isLoading) {
     return (
       <div className="grid gap-4">
@@ -41,9 +54,19 @@ const TasksList = ({ tasks, isLoading, onStatusUpdate }: TasksListProps) => {
   return (
     <div className="grid gap-4">
       {tasks.map((task) => (
-        <Card key={task.id} className="cursor-pointer hover:shadow-md transition-shadow">
+        <Card key={task.id} className="hover:shadow-md transition-shadow">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">{task.title}</CardTitle>
+            <div className="flex items-center">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="p-0 mr-2 h-8 w-8"
+                onClick={() => toggleExpand(task.id)}
+              >
+                {expandedTasks[task.id] ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+              </Button>
+              <CardTitle className="text-sm font-medium">{task.title}</CardTitle>
+            </div>
             <Button
               variant="ghost"
               size="sm"
@@ -57,6 +80,10 @@ const TasksList = ({ tasks, isLoading, onStatusUpdate }: TasksListProps) => {
               <span className="capitalize">Priority: {task.priority}</span>
               {task.spiciness && <span>Spiciness: {task.spiciness}</span>}
             </div>
+            
+            {expandedTasks[task.id] && (
+              <SubtasksList task={task} refetchTasks={refetchTasks} />
+            )}
           </CardContent>
         </Card>
       ))}

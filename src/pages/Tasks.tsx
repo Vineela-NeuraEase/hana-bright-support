@@ -17,6 +17,7 @@ const Tasks = () => {
         tasks={tasks} 
         isLoading={isLoading} 
         onStatusUpdate={updateTaskStatus} 
+        refetchTasks={refetch}
       />
     </div>
   );
