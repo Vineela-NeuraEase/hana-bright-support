@@ -1,13 +1,16 @@
 
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Routes, Route, Link } from "react-router-dom";
 import { Sidebar, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarProvider } from "@/components/ui/sidebar";
 import { useAuth } from "@/components/AuthProvider";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { BookText, Calendar, CheckSquare, Cog, Home, LogOut, RadioTower, UserCircle } from "lucide-react";
+import { BookText, Calendar, CheckSquare, Cog, Home, Info, LogOut, RadioTower, UserCircle, FilePenLine } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import FormalizerPage from "./tools/Formalizer";
+import JudgePage from "./tools/Judge";
+import ToolsDirectory from "./tools/Index";
 
 type Profile = {
   id: string;
@@ -60,17 +63,19 @@ const Dashboard = () => {
         { title: "Tasks", icon: CheckSquare, url: "/tasks" },
         { title: "Schedule", icon: Calendar, url: "/schedule" },
         { title: "Journal", icon: BookText, url: "/journal" },
-        { title: "Sensory Tools", icon: RadioTower, url: "/tools" },
+        { title: "Communication Tools", icon: RadioTower, url: "/dashboard/tools" },
       ];
     } else if (role === 'caregiver') {
       return [
         ...commonItems,
         { title: "Care Dashboard", icon: UserCircle, url: "/care" },
+        { title: "Communication Tools", icon: RadioTower, url: "/dashboard/tools" },
       ];
     } else if (role === 'clinician') {
       return [
         ...commonItems,
         { title: "Clinician Portal", icon: UserCircle, url: "/portal" },
+        { title: "Communication Tools", icon: RadioTower, url: "/dashboard/tools" },
       ];
     }
 
@@ -161,7 +166,27 @@ const Dashboard = () => {
 
           {/* Page Content */}
           <div className="flex-1 px-4 py-8">
-            <h1 className="text-2xl font-bold">{getWelcomeMessage()}</h1>
+            <Routes>
+              <Route path="/" element={
+                <div>
+                  <h1 className="text-2xl font-bold mb-6">{getWelcomeMessage()}</h1>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <Link to="/dashboard/tools" className="block">
+                      <div className="p-4 border rounded-lg hover:bg-muted transition-colors flex items-center gap-3">
+                        <RadioTower className="h-6 w-6 text-primary" />
+                        <div>
+                          <h2 className="font-medium">Communication Tools</h2>
+                          <p className="text-sm text-muted-foreground">Access tools for communication support</p>
+                        </div>
+                      </div>
+                    </Link>
+                  </div>
+                </div>
+              } />
+              <Route path="tools" element={<ToolsDirectory />} />
+              <Route path="tools/formalizer" element={<FormalizerPage />} />
+              <Route path="tools/judge" element={<JudgePage />} />
+            </Routes>
           </div>
         </main>
       </div>

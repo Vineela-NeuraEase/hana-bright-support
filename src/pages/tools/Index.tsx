@@ -1,25 +1,28 @@
 
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { FilePenLine, Info, RadioTower } from "lucide-react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
 const ToolsDirectory = () => {
+  const location = useLocation();
+  const isDashboardRoute = location.pathname.includes("/dashboard");
+  
   const tools = [
     {
       id: "formalizer",
       name: "Formalizer",
       description: "Rewrite text in different tones while preserving the original meaning. Useful for emails, messages, and professional communication.",
       icon: <FilePenLine className="h-6 w-6" />,
-      to: "/tools/formalizer",
+      to: isDashboardRoute ? "/dashboard/tools/formalizer" : "/tools/formalizer",
     },
     {
       id: "judge",
       name: "Tone Judge",
       description: "Analyze the tone and sentiment of messages to better understand their emotional context and intent.",
       icon: <Info className="h-6 w-6" />,
-      to: "/tools/judge",
+      to: isDashboardRoute ? "/dashboard/tools/judge" : "/tools/judge",
     },
   ];
 
