@@ -10,7 +10,8 @@ import { Form } from "@/components/ui/form";
 import { CardContent } from "@/components/ui/card";
 import LoginFields from "./form-components/LoginFields";
 import RoleSelector from "./form-components/RoleSelector";
-import { signIn } from "@/services/auth/firebaseAuth";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "@/integrations/firebase/client";
 
 // Login form schema
 const loginSchema = z.object({
@@ -42,7 +43,7 @@ const LoginForm = () => {
       localStorage.setItem('userRole', data.role);
       
       // Sign in the user with Firebase
-      await signIn(data.email, data.password);
+      await signInWithEmailAndPassword(auth, data.email, data.password);
       
       toast({
         title: "Welcome back",
@@ -51,9 +52,22 @@ const LoginForm = () => {
       navigate("/dashboard");
     } catch (error: any) {
       console.error("Login error:", error);
+      
+      // Improved error handling with specific messages for different error codes
+      let errorMessage = "An unexpected error occurred during login.";
+      if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
+        errorMessage = "Invalid email or password. Please try again.";
+      } else if (error.code === 'auth/too-many-requests') {
+        errorMessage = "Too many failed login attempts. Please try again later.";
+      } else if (error.code === 'auth/invalid-credential') {
+        errorMessage = "Invalid login credentials. Please check your email and password.";
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
       toast({
         title: "Error",
-        description: error.message || "An unexpected error occurred during login.",
+        description: errorMessage,
         variant: "destructive"
       });
     } finally {

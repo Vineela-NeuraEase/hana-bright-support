@@ -11,7 +11,10 @@ import { CardContent } from "@/components/ui/card";
 import FormFields from "./form-components/FormFields";
 import RoleSelector from "./form-components/RoleSelector";
 import TermsAgreement from "./form-components/TermsAgreement";
-import { signUp } from "@/services/auth/firebaseAuth";
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { auth } from "@/integrations/firebase/client";
+import { doc, setDoc } from "firebase/firestore";
+import { db } from "@/integrations/firebase/client";
 
 // Sign up form schema
 const signupSchema = z.object({
@@ -48,8 +51,20 @@ const SignupForm = () => {
   const handleSignup = async (data: SignupFormValues) => {
     setIsLoading(true);
     try {
-      // Sign up with Firebase Auth service
-      await signUp(data.email, data.password, data.role);
+      // Store the selected role in localStorage for profile creation
+      localStorage.setItem('userRole', data.role);
+      
+      // Create the user with Firebase Auth
+      const userCredential = await createUserWithEmailAndPassword(auth, data.email, data.password);
+      const { user } = userCredential;
+      
+      // Create user profile in Firestore
+      await setDoc(doc(db, "users", user.uid), {
+        email: user.email,
+        role: data.role,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      });
       
       toast({
         title: "Account created",
@@ -58,9 +73,22 @@ const SignupForm = () => {
       navigate("/dashboard");
     } catch (error: any) {
       console.error("Signup error:", error);
+      
+      // Improved error handling with specific messages
+      let errorMessage = "An unexpected error occurred during signup.";
+      if (error.code === 'auth/email-already-in-use') {
+        errorMessage = "This email is already registered. Please use a different email or try logging in.";
+      } else if (error.code === 'auth/invalid-email') {
+        errorMessage = "Please enter a valid email address.";
+      } else if (error.code === 'auth/weak-password') {
+        errorMessage = "Password is too weak. Please use a stronger password.";
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
       toast({
         title: "Error",
-        description: error.message || "An unexpected error occurred during signup.",
+        description: errorMessage,
         variant: "destructive"
       });
     } finally {

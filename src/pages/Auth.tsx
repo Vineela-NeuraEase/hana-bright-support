@@ -1,14 +1,14 @@
 
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "@/hooks/useAuth";
+import { useFirebaseAuth } from "@/hooks/useFirebaseAuth";
 import AuthContent from "@/components/auth/AuthContent";
 
 const Auth = () => {
   const navigate = useNavigate();
-  const { session } = useAuth();
+  const { user } = useFirebaseAuth();
 
   // Redirect if already logged in
-  if (session) {
+  if (user) {
     navigate("/dashboard");
     return null;
   }
