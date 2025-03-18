@@ -2,7 +2,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { CalendarIcon, CheckSquare, MessageSquareDiff } from "lucide-react";
+import { CalendarIcon, CheckSquare, MessageSquareDiff, Loader2 } from "lucide-react";
 
 interface LinkedUser {
   id: string;
@@ -31,7 +31,12 @@ export const LinkedUsersList = ({
 }: LinkedUsersListProps) => {
   if (isLoading) {
     return (
-      <div className="text-center p-8">Loading linked people...</div>
+      <Card>
+        <CardContent className="p-8 text-center flex flex-col items-center">
+          <Loader2 className="h-8 w-8 animate-spin text-primary mb-2" />
+          <p>Loading linked people...</p>
+        </CardContent>
+      </Card>
     );
   }
   

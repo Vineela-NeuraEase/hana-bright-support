@@ -107,17 +107,23 @@ export const useProfile = (session: Session | null) => {
   const fetchLinkedUsers = async (caregiverId: string) => {
     setLinkedUsersLoading(true);
     try {
+      console.log("Fetching linked users for caregiver:", caregiverId);
+      
       // Get the linked user IDs from caregiver_links
       const { data: linksData, error: linksError } = await supabase
         .from('caregiver_links')
         .select('user_id')
         .eq('caregiver_id', caregiverId);
       
+      console.log("Linked users query result:", linksData, linksError);
+      
       if (linksError) {
+        console.error("Error fetching caregiver links:", linksError);
         throw linksError;
       }
 
       if (!linksData || linksData.length === 0) {
+        console.log("No linked users found");
         setLinkedUsers([]);
         setLinkedUsersLoading(false);
         return;
@@ -125,12 +131,17 @@ export const useProfile = (session: Session | null) => {
 
       // Get the profile data for each linked user
       const userIds = linksData.map(link => link.user_id);
+      console.log("User IDs to fetch profiles for:", userIds);
+      
       const { data: profilesData, error: profilesError } = await supabase
         .from('profiles')
         .select('*')
         .in('id', userIds);
       
+      console.log("Profiles query result:", profilesData, profilesError);
+      
       if (profilesError) {
+        console.error("Error fetching profiles:", profilesError);
         throw profilesError;
       }
 
@@ -140,7 +151,10 @@ export const useProfile = (session: Session | null) => {
         .select('user_id, link_code')
         .in('user_id', userIds);
       
+      console.log("Link codes query result:", linkCodesData, linkCodesError);
+      
       if (linkCodesError) {
+        console.error("Error fetching link codes:", linkCodesError);
         throw linkCodesError;
       }
 
@@ -153,6 +167,7 @@ export const useProfile = (session: Session | null) => {
         };
       });
 
+      console.log("Final linked users data:", linkedUsersWithLinkCodes);
       setLinkedUsers(linkedUsersWithLinkCodes);
     } catch (error) {
       console.error('Error fetching linked users:', error);

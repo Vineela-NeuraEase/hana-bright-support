@@ -3,26 +3,26 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter }
 import { Profile } from "@/hooks/useProfile";
 import { Button } from "@/components/ui/button";
 import { Copy, Link } from "lucide-react";
-import { toast } from "sonner";
+import { useToast } from "@/hooks/use-toast";
 
 interface MyLinkCodeProps {
   profile: Profile | null;
 }
 
 export const MyLinkCode = ({ profile }: MyLinkCodeProps) => {
+  const { toast } = useToast();
+  
   if (!profile) {
-    console.log("MyLinkCode: No profile provided");
     return null;
   }
-  
-  console.log("MyLinkCode profile:", profile);
-  console.log("MyLinkCode role:", profile.role);
-  console.log("MyLinkCode link_code:", profile.link_code);
   
   const copyToClipboard = () => {
     if (profile.link_code) {
       navigator.clipboard.writeText(profile.link_code);
-      toast.success("Link code copied to clipboard!");
+      toast({
+        title: "Success", 
+        description: "Link code copied to clipboard"
+      });
     }
   };
 

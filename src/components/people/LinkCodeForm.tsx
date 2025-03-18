@@ -24,12 +24,16 @@ export const LinkCodeForm = ({ session, onSuccess }: LinkCodeFormProps) => {
     
     setIsLinking(true);
     try {
+      console.log("Attempting to link with code:", linkCode);
+      
       // Step 1: Find the user with this link code
       const { data: userData, error: userError } = await supabase
         .from('user_links')
         .select('user_id')
         .eq('link_code', linkCode)
         .maybeSingle();
+
+      console.log("User lookup result:", userData, userError);
 
       if (userError) {
         throw userError;
@@ -45,33 +49,47 @@ export const LinkCodeForm = ({ session, onSuccess }: LinkCodeFormProps) => {
         return;
       }
 
-      // Step 2: Create link in caregiver_links table
-      const { error: caregiverLinkError } = await supabase
+      // Step 2: Check if this link already exists
+      const { data: existingLink, error: existingLinkError } = await supabase
+        .from('caregiver_links')
+        .select('*')
+        .eq('caregiver_id', session.user.id)
+        .eq('user_id', userData.user_id)
+        .maybeSingle();
+        
+      console.log("Existing link check:", existingLink, existingLinkError);
+      
+      if (existingLink) {
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "You are already linked to this user"
+        });
+        setIsLinking(false);
+        return;
+      }
+
+      // Step 3: Create link in caregiver_links table
+      const { data: newLink, error: caregiverLinkError } = await supabase
         .from('caregiver_links')
         .insert({
           caregiver_id: session.user.id,
           user_id: userData.user_id
-        });
+        })
+        .select();
+
+      console.log("New link creation result:", newLink, caregiverLinkError);
 
       if (caregiverLinkError) {
-        // Check if it's a duplicate link error
-        if (caregiverLinkError.code === '23505') { // Unique constraint violation
-          toast({
-            variant: "destructive",
-            title: "Error",
-            description: "You are already linked to this user"
-          });
-        } else {
-          throw caregiverLinkError;
-        }
-      } else {
-        toast({
-          title: "Success",
-          description: "Successfully linked to user"
-        });
-        setLinkCode("");
-        onSuccess();
+        throw caregiverLinkError;
       }
+
+      toast({
+        title: "Success",
+        description: "Successfully linked to user"
+      });
+      setLinkCode("");
+      onSuccess();
     } catch (error: any) {
       console.error('Error linking user:', error);
       toast({
