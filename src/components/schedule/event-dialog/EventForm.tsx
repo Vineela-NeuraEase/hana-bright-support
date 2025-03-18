@@ -3,6 +3,7 @@ import React from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { format } from "date-fns"; // Make sure format is imported
 import { Trash2 } from "lucide-react";
 import { Event } from "@/types/event";
 
@@ -185,6 +186,3 @@ export const EventForm = ({
     </Form>
   );
 };
-
-// Helper function needed for formatting
-import { format } from "date-fns";

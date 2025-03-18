@@ -1,7 +1,8 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Event } from "@/types/event";
 import { useTasks } from "@/hooks/tasks/useTasks";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 import {
   Dialog,
@@ -10,6 +11,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerDescription,
+  DrawerHeader,
+  DrawerTitle,
+} from "@/components/ui/drawer";
 import { EventForm, EventFormValues } from "./event-dialog/EventForm";
 
 interface EventDialogProps {
@@ -33,6 +41,7 @@ export function EventDialog({
 }: EventDialogProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { tasks } = useTasks();
+  const isMobile = useIsMobile();
   
   const handleSubmit = async (values: EventFormValues) => {
     setIsSubmitting(true);
@@ -84,6 +93,32 @@ export function EventDialog({
       setIsSubmitting(false);
     }
   };
+
+  if (isMobile) {
+    return (
+      <Drawer open={isOpen} onOpenChange={(open) => !open && onClose()}>
+        <DrawerContent>
+          <DrawerHeader>
+            <DrawerTitle>{event ? "Edit Event" : "New Event"}</DrawerTitle>
+            <DrawerDescription>
+              {event ? "Update the details of your event." : "Add a new event to your schedule."}
+            </DrawerDescription>
+          </DrawerHeader>
+          <div className="p-4">
+            <EventForm
+              event={event}
+              selectedDate={selectedDate}
+              tasks={tasks || []}
+              isSubmitting={isSubmitting}
+              onSubmit={handleSubmit}
+              onDelete={handleDelete}
+              onClose={onClose}
+            />
+          </div>
+        </DrawerContent>
+      </Drawer>
+    );
+  }
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
