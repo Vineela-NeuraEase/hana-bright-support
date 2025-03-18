@@ -1,9 +1,19 @@
 
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/components/AuthProvider";
+import { useEffect } from "react";
 
 const Index = () => {
   const navigate = useNavigate();
+  const { session } = useAuth();
+
+  // Redirect authenticated users to dashboard
+  useEffect(() => {
+    if (session) {
+      navigate("/dashboard");
+    }
+  }, [session, navigate]);
 
   return (
     <div className="min-h-[calc(100vh-4rem)] flex flex-col items-center justify-center p-4 space-y-8 animate-fade-up">
