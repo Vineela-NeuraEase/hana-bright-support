@@ -1,3 +1,4 @@
+
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -14,6 +15,8 @@ import { NavigationItem } from "@/types/navigation";
 import { useProfile } from "@/hooks/useProfile";
 import { Copy } from "lucide-react";
 import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 
 interface TopNavigationBarProps {
   session: Session | null;
@@ -23,6 +26,7 @@ interface TopNavigationBarProps {
 
 export const TopNavigationBar = ({ session, navigationItems, onSignOut }: TopNavigationBarProps) => {
   const { profile } = useProfile(session);
+  const navigate = useNavigate();
 
   const copyLinkCode = () => {
     if (profile?.link_code) {
@@ -33,12 +37,23 @@ export const TopNavigationBar = ({ session, navigationItems, onSignOut }: TopNav
     }
   };
 
+  const handleSignOut = async () => {
+    try {
+      await supabase.auth.signOut();
+      navigate("/");
+      toast.success("Successfully signed out");
+      onSignOut();
+    } catch (error) {
+      console.error("Error signing out:", error);
+      toast.error("Failed to sign out");
+    }
+  };
+
   return (
     <nav className="sticky top-0 z-10 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 md:hidden">
       <div className="flex h-14 items-center px-4 gap-4 justify-between">
         <div className="flex items-center gap-4">
           <MobileSidebar navigationItems={navigationItems} onSignOut={onSignOut} />
-          <span className="text-lg font-semibold">Hana</span>
         </div>
 
         {/* Profile Menu */}
@@ -66,7 +81,7 @@ export const TopNavigationBar = ({ session, navigationItems, onSignOut }: TopNav
             <DropdownMenuItem>Profile</DropdownMenuItem>
             <DropdownMenuItem>Settings</DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={onSignOut}>
+            <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer">
               Log out
             </DropdownMenuItem>
           </DropdownMenuContent>

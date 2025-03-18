@@ -1,3 +1,4 @@
+
 import { Link } from "react-router-dom";
 import { Home, Menu, Calendar, CheckSquare, RadioTower, Settings, BookText, Users, Copy } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -21,6 +22,8 @@ import { useProfile } from "@/hooks/useProfile";
 import { useState, useEffect } from "react";
 import { NavigationItem } from "@/types/navigation";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import { useNavigate } from "react-router-dom";
 
 interface MainNavBarProps {
   onSignOut?: () => void;
@@ -31,6 +34,7 @@ export const MainNavBar = ({ onSignOut }: MainNavBarProps) => {
   const { profile } = useProfile(session);
   const navigationItems: NavigationItem[] = useNavigation(profile?.role);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const navigate = useNavigate();
 
   // Close the menu when the location changes (user navigates to a new page)
   useEffect(() => {
@@ -45,8 +49,13 @@ export const MainNavBar = ({ onSignOut }: MainNavBarProps) => {
   }, []);
 
   const handleSignOut = async () => {
-    if (onSignOut) {
-      onSignOut();
+    try {
+      await supabase.auth.signOut();
+      navigate("/");
+      toast.success("Successfully signed out");
+    } catch (error) {
+      console.error("Error signing out:", error);
+      toast.error("Failed to sign out");
     }
   };
 
@@ -89,11 +98,6 @@ export const MainNavBar = ({ onSignOut }: MainNavBarProps) => {
               </div>
             </SheetContent>
           </Sheet>
-          
-          {/* Only show the Hana title on mobile */}
-          <Link to="/" className="flex items-center gap-2 md:hidden">
-            <h2 className="text-lg font-semibold">Hana</h2>
-          </Link>
         </div>
 
         {session ? (
@@ -142,7 +146,7 @@ export const MainNavBar = ({ onSignOut }: MainNavBarProps) => {
                 <Link to="/settings">Settings</Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={handleSignOut}>
+              <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer">
                 Log out
               </DropdownMenuItem>
             </DropdownMenuContent>

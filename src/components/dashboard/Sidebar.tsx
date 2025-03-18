@@ -1,5 +1,4 @@
 
-import { LogOut } from "lucide-react";
 import { Link } from "react-router-dom";
 import {
   Sidebar as SidebarComponent,
@@ -9,7 +8,6 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
 } from "@/components/ui/sidebar";
-import { Button } from "@/components/ui/button";
 import { NavigationItem } from "@/types/navigation";
 
 interface SidebarProps {
@@ -37,16 +35,6 @@ export const Sidebar = ({ navigationItems, onSignOut }: SidebarProps) => {
           ))}
         </SidebarMenu>
       </SidebarContent>
-      <div className="mt-auto p-4">
-        <Button 
-          variant="ghost" 
-          className="w-full justify-start gap-2" 
-          onClick={onSignOut}
-        >
-          <LogOut className="h-4 w-4" />
-          <span>Sign Out</span>
-        </Button>
-      </div>
     </SidebarComponent>
   );
 };
