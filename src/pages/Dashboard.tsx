@@ -10,6 +10,10 @@ import { useProfile } from "@/hooks/useProfile";
 import { useNavigation } from "@/hooks/useNavigation";
 import { NavigationItem } from "@/types/navigation";
 import { TopNavigationBar } from "@/components/dashboard/TopNavigationBar";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Copy } from "lucide-react";
+import { toast } from "sonner";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -103,6 +107,42 @@ const Dashboard = () => {
     );
   };
 
+  // Display link code section for autistic users
+  const LinkCodeDisplay = () => {
+    if (!profile || profile.role !== 'autistic' || viewingUserId || !profile.link_code) return null;
+    
+    const copyToClipboard = () => {
+      navigator.clipboard.writeText(profile.link_code!);
+      toast.success("Link code copied to clipboard!");
+    };
+    
+    return (
+      <Card className="mb-6">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-lg">Your Link Code</CardTitle>
+          <CardDescription>
+            Share this code with caregivers to connect your accounts
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center gap-2">
+            <div className="p-3 bg-muted rounded-md font-mono text-center flex-1">
+              {profile.link_code}
+            </div>
+            <Button 
+              size="icon" 
+              variant="outline" 
+              onClick={copyToClipboard}
+              title="Copy to clipboard"
+            >
+              <Copy className="h-4 w-4" />
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  };
+
   return (
     <SidebarProvider defaultOpen>
       <div className="flex flex-col min-h-screen bg-background">
@@ -120,6 +160,11 @@ const Dashboard = () => {
               navigationItems={navigationItems} 
               onSignOut={handleSignOut} 
             />
+            
+            {/* Link Code Section for Autistic Users */}
+            <div className="px-4 pt-4">
+              <LinkCodeDisplay />
+            </div>
             
             <DashboardContent 
               welcomeMessage={getWelcomeMessage()} 

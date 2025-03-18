@@ -2,7 +2,7 @@
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { Profile } from "@/hooks/useProfile";
 import { Button } from "@/components/ui/button";
-import { Copy } from "lucide-react";
+import { Copy, Link } from "lucide-react";
 import { toast } from "sonner";
 
 interface MyLinkCodeProps {
@@ -19,10 +19,29 @@ export const MyLinkCode = ({ profile }: MyLinkCodeProps) => {
     }
   };
 
+  if (!profile.link_code) {
+    return (
+      <Card className="mb-8">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Link className="h-5 w-5 text-primary" />
+            Your Link Code
+          </CardTitle>
+          <CardDescription>
+            No link code is currently available for your account. Please contact support.
+          </CardDescription>
+        </CardHeader>
+      </Card>
+    );
+  }
+
   return (
     <Card className="mb-8">
       <CardHeader>
-        <CardTitle>Your Link Code</CardTitle>
+        <CardTitle className="flex items-center gap-2">
+          <Link className="h-5 w-5 text-primary" />
+          Your Link Code
+        </CardTitle>
         <CardDescription>
           Share this code with caregivers if you want them to link to your account.
         </CardDescription>
@@ -30,18 +49,16 @@ export const MyLinkCode = ({ profile }: MyLinkCodeProps) => {
       <CardContent>
         <div className="flex items-center gap-2">
           <div className="p-4 bg-muted rounded-md font-mono text-center text-lg flex-1">
-            {profile.link_code || "No link code available"}
+            {profile.link_code}
           </div>
-          {profile.link_code && (
-            <Button 
-              size="icon" 
-              variant="outline" 
-              onClick={copyToClipboard}
-              title="Copy to clipboard"
-            >
-              <Copy className="h-4 w-4" />
-            </Button>
-          )}
+          <Button 
+            size="icon" 
+            variant="outline" 
+            onClick={copyToClipboard}
+            title="Copy to clipboard"
+          >
+            <Copy className="h-4 w-4" />
+          </Button>
         </div>
       </CardContent>
       <CardFooter className="text-sm text-muted-foreground">
