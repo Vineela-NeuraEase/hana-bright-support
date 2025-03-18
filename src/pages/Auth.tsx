@@ -30,44 +30,30 @@ const Auth = () => {
       if (mode === "signup") {
         console.log("Starting signup with role:", role);
         
-        // Step 1: Create the auth user first
+        // Step 1: Create the auth user with the role included in metadata
         const { data, error: signUpError } = await supabase.auth.signUp({
           email,
           password,
+          options: {
+            data: {
+              role: role
+            }
+          }
         });
         
         if (signUpError) throw signUpError;
-        console.log("Auth user created:", data?.user?.id);
+        console.log("Auth user created with metadata:", data?.user?.id, data?.user?.user_metadata);
         
-        // Step 2: If user created successfully, update the profile separately
-        if (data.user) {
-          try {
-            console.log("Attempting to update profile with role:", role);
-            const { error: profileError } = await supabase
-              .from('profiles')
-              .update({ role })
-              .eq('id', data.user.id);
-              
-            if (profileError) {
-              console.error("Error updating profile role:", profileError);
-              // Log but don't fail the signup
-            } else {
-              console.log("Profile role updated successfully");
-            }
-          } catch (profileErr) {
-            console.error("Exception in profile update:", profileErr);
-          }
-          
-          toast({
-            title: "Account created",
-            description: "Your account has been created successfully. Please sign in.",
-          });
-          
-          // Switch to login mode after successful signup
-          setMode("login");
-        }
+        // Success message and switch to login mode
+        toast({
+          title: "Account created",
+          description: "Your account has been created successfully. Please sign in.",
+        });
+        
+        setMode("login");
       } else {
         // Login flow
+        console.log("Attempting login with email:", email);
         const { error: signInError, data } = await supabase.auth.signInWithPassword({
           email,
           password,
@@ -76,11 +62,20 @@ const Auth = () => {
         if (signInError) throw signInError;
         
         console.log("Signed in successfully:", data?.user?.id);
+        toast({
+          title: "Welcome back",
+          description: "You have successfully signed in.",
+        });
         navigate("/dashboard");
       }
     } catch (err) {
       console.error("Auth error:", err);
       setError(err instanceof Error ? err.message : "An error occurred during authentication");
+      toast({
+        title: "Authentication Error",
+        description: err instanceof Error ? err.message : "An error occurred during authentication",
+        variant: "destructive",
+      });
     } finally {
       setLoading(false);
     }
