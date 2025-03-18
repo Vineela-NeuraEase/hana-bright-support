@@ -118,20 +118,24 @@ const Journal = () => {
           <CarouselContent>
             {/* Page 1: How You're Feeling */}
             <CarouselItem className="basis-full">
-              <Card>
-                <CardContent className="p-4">
-                  {showForm && <JournalForm moodOnly />}
-                </CardContent>
-              </Card>
+              {showForm && (
+                <Card>
+                  <CardContent className="p-4">
+                    <JournalForm moodOnly />
+                  </CardContent>
+                </Card>
+              )}
             </CarouselItem>
 
             {/* Page 2: Mood Factors */}
             <CarouselItem className="basis-full">
-              <Card>
-                <CardContent className="p-4">
-                  {showForm && <MoodFactors />}
-                </CardContent>
-              </Card>
+              {showForm && (
+                <Card>
+                  <CardContent className="p-4">
+                    <MoodFactors />
+                  </CardContent>
+                </Card>
+              )}
             </CarouselItem>
 
             {/* Page 3: Mood Trends Chart */}
