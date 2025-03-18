@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate, Routes, Route, Link } from "react-router-dom";
 import { Sidebar, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarProvider } from "@/components/ui/sidebar";
@@ -136,14 +135,13 @@ const Dashboard = () => {
 
         {/* Main Content */}
         <main className="flex-1">
-          {/* Top Navigation Bar */}
-          <nav className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+          {/* Top Navigation Bar - Now positioned at the top of every page */}
+          <nav className="sticky top-0 z-10 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
             <div className="flex h-14 items-center px-4 gap-4 justify-between">
-              {/* Mobile Hamburger Menu */}
               <div className="flex items-center gap-4">
                 <Sheet>
-                  <SheetTrigger asChild className="md:hidden">
-                    <Button variant="ghost" size="icon" aria-label="Menu">
+                  <SheetTrigger asChild>
+                    <Button variant="ghost" size="icon" aria-label="Menu" className="md:hidden">
                       <Menu className="h-5 w-5" />
                     </Button>
                   </SheetTrigger>
@@ -177,7 +175,7 @@ const Dashboard = () => {
                 </Sheet>
                 <h2 className="text-lg font-semibold">Hana</h2>
               </div>
-              
+
               {/* Profile Menu */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
