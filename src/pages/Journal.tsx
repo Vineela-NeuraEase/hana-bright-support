@@ -1,16 +1,17 @@
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { useJournalEntries } from "@/hooks/useJournal";
 import { JournalForm } from "@/components/journal/JournalForm";
 import { JournalEntriesList } from "@/components/journal/JournalEntriesList";
 import { MoodTrendChart } from "@/components/journal/MoodTrendChart";
 import { Button } from "@/components/ui/button";
-import { PlusCircle, X } from "lucide-react";
+import { PlusCircle, X, CircleIcon } from "lucide-react";
 import { useAuth } from "@/components/AuthProvider";
 import { Navigate } from "react-router-dom";
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious, type CarouselApi } from "@/components/ui/carousel";
+import { Carousel, CarouselContent, CarouselItem, type CarouselApi } from "@/components/ui/carousel";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { MoodFactors } from "@/components/journal/MoodFactors";
 
 const Journal = () => {
   const { session } = useAuth();
@@ -49,6 +50,30 @@ const Journal = () => {
     };
   }, [carouselApi]);
 
+  const renderCarouselDots = () => {
+    if (!carouselApi) return null;
+    
+    const slides = [0, 1, 2, 3]; // Four slides now
+    return (
+      <div className="flex justify-center gap-2 mt-4">
+        {slides.map((index) => (
+          <Button
+            key={index}
+            variant="ghost"
+            size="icon"
+            className={`rounded-full p-0 h-3 w-3 ${activeTab === index.toString() ? 'bg-primary' : 'bg-muted'}`}
+            onClick={() => {
+              if (carouselApi) carouselApi.scrollTo(index);
+            }}
+          >
+            <CircleIcon className="h-3 w-3" />
+            <span className="sr-only">Go to slide {index + 1}</span>
+          </Button>
+        ))}
+      </div>
+    );
+  };
+
   return (
     <div className="container py-6 max-w-4xl mx-auto">
       <div className="mb-6">
@@ -73,10 +98,11 @@ const Journal = () => {
 
       <div className="relative">
         <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full mb-4">
-          <TabsList className="w-full grid grid-cols-3">
+          <TabsList className="w-full grid grid-cols-4">
             <TabsTrigger value="0">How You're Feeling</TabsTrigger>
-            <TabsTrigger value="1">Mood Trends</TabsTrigger>
-            <TabsTrigger value="2">Journal Entries</TabsTrigger>
+            <TabsTrigger value="1">Mood Factors</TabsTrigger>
+            <TabsTrigger value="2">Mood Trends</TabsTrigger>
+            <TabsTrigger value="3">Journal Entries</TabsTrigger>
           </TabsList>
         </Tabs>
 
@@ -90,16 +116,25 @@ const Journal = () => {
           orientation="horizontal"
         >
           <CarouselContent>
-            {/* Page 1: Journal Form */}
+            {/* Page 1: How You're Feeling */}
             <CarouselItem className="basis-full">
               <Card>
                 <CardContent className="p-4">
-                  {showForm && <JournalForm />}
+                  {showForm && <JournalForm moodOnly />}
                 </CardContent>
               </Card>
             </CarouselItem>
 
-            {/* Page 2: Mood Trends Chart */}
+            {/* Page 2: Mood Factors */}
+            <CarouselItem className="basis-full">
+              <Card>
+                <CardContent className="p-4">
+                  {showForm && <MoodFactors />}
+                </CardContent>
+              </Card>
+            </CarouselItem>
+
+            {/* Page 3: Mood Trends Chart */}
             <CarouselItem className="basis-full">
               <Card className="border-0 shadow-none">
                 <CardContent className="p-1">
@@ -108,7 +143,7 @@ const Journal = () => {
               </Card>
             </CarouselItem>
 
-            {/* Page 3: Journal Entries List */}
+            {/* Page 4: Journal Entries List */}
             <CarouselItem className="basis-full">
               <Card className="border-0 shadow-none">
                 <CardContent className="p-1">
@@ -128,10 +163,8 @@ const Journal = () => {
             </CarouselItem>
           </CarouselContent>
           
-          <div className="absolute -bottom-12 left-1/2 transform -translate-x-1/2 flex gap-2">
-            <CarouselPrevious className="relative left-0 right-auto translate-y-0" />
-            <CarouselNext className="relative right-0 left-auto translate-y-0" />
-          </div>
+          {/* Dots pagination instead of arrows */}
+          {renderCarouselDots()}
         </Carousel>
       </div>
     </div>

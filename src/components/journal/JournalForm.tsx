@@ -9,35 +9,13 @@ import { toast } from "sonner";
 import { Smile, Meh, Frown } from "lucide-react";
 import { useAuth } from "@/components/AuthProvider";
 
-// Common factors that might affect mood
-const COMMON_FACTORS = [
-  "Poor sleep",
-  "Good sleep",
-  "Stressful day",
-  "Relaxing day",
-  "Social interaction",
-  "Social conflict",
-  "Physical exercise",
-  "Pain/discomfort",
-  "Weather",
-  "Food/Nutrition",
-];
-
-export const JournalForm = () => {
+export const JournalForm = ({ moodOnly = false }) => {
   const createEntry = useCreateJournalEntry();
   const { session } = useAuth();
   
   const [moodRating, setMoodRating] = useState<number>(5);
   const [journalText, setJournalText] = useState<string>("");
   const [selectedFactors, setSelectedFactors] = useState<string[]>([]);
-
-  const handleFactorToggle = (factor: string) => {
-    setSelectedFactors((prev) => 
-      prev.includes(factor) 
-        ? prev.filter((f) => f !== factor) 
-        : [...prev, factor]
-    );
-  };
 
   const getMoodIcon = (mood: number) => {
     if (mood <= 3) return <Frown className="text-red-500 h-8 w-8" />;
@@ -111,35 +89,20 @@ export const JournalForm = () => {
             </div>
           </div>
 
-          <div className="space-y-2">
-            <label htmlFor="journal-text" className="text-md font-medium">
-              What's on your mind today?
-            </label>
-            <Textarea
-              id="journal-text"
-              className="min-h-[120px]"
-              placeholder="Write your thoughts here..."
-              value={journalText}
-              onChange={(e) => setJournalText(e.target.value)}
-            />
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-md font-medium">What factors are affecting your mood?</label>
-            <div className="flex flex-wrap gap-2">
-              {COMMON_FACTORS.map((factor) => (
-                <Button
-                  key={factor}
-                  type="button"
-                  variant={selectedFactors.includes(factor) ? "default" : "outline"}
-                  className="rounded-full"
-                  onClick={() => handleFactorToggle(factor)}
-                >
-                  {factor}
-                </Button>
-              ))}
+          {!moodOnly && (
+            <div className="space-y-2">
+              <label htmlFor="journal-text" className="text-md font-medium">
+                What's on your mind today?
+              </label>
+              <Textarea
+                id="journal-text"
+                className="min-h-[120px]"
+                placeholder="Write your thoughts here..."
+                value={journalText}
+                onChange={(e) => setJournalText(e.target.value)}
+              />
             </div>
-          </div>
+          )}
         </CardContent>
         <CardFooter>
           <Button 
@@ -147,7 +110,7 @@ export const JournalForm = () => {
             className="w-full" 
             disabled={createEntry.isPending}
           >
-            {createEntry.isPending ? "Saving..." : "Save Journal Entry"}
+            {createEntry.isPending ? "Saving..." : "Next"}
           </Button>
         </CardFooter>
       </form>
