@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 type Role = 'autistic' | 'caregiver' | 'clinician';
 
@@ -35,18 +36,28 @@ const Auth = () => {
             emailRedirectTo: window.location.origin + "/dashboard"
           }
         });
+        
         if (signUpError) throw signUpError;
+        
+        // Show success message
+        toast.success("Account created successfully! Please check your email to confirm your registration.");
 
       } else {
+        // Sign in
         const { error: signInError } = await supabase.auth.signInWithPassword({
           email,
           password,
         });
+        
         if (signInError) throw signInError;
+        
+        // Navigate on success
+        navigate("/dashboard");
       }
-      navigate("/dashboard");
     } catch (err) {
+      console.error("Auth error:", err);
       setError(err instanceof Error ? err.message : "An error occurred");
+      toast.error(err instanceof Error ? err.message : "Authentication failed");
     } finally {
       setLoading(false);
     }
