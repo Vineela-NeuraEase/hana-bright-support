@@ -1,18 +1,28 @@
 
 import React from "react";
-import { Task } from "@/types/task";
-import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { UseFormReturn } from "react-hook-form";
+import { Task } from "@/types/task";
+import {
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+} from "@/components/ui/form";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { EventFormValues } from "../EventForm";
 
 interface TaskLinkSelectorProps {
   tasks: Task[];
-  form: UseFormReturn<any>;
+  form: UseFormReturn<EventFormValues>;
 }
 
 export const TaskLinkSelector = ({ tasks, form }: TaskLinkSelectorProps) => {
-  if (!tasks || tasks.length === 0) return null;
-  
   return (
     <FormField
       control={form.control}
@@ -20,25 +30,26 @@ export const TaskLinkSelector = ({ tasks, form }: TaskLinkSelectorProps) => {
       render={({ field }) => (
         <FormItem>
           <FormLabel>Link to Task (Optional)</FormLabel>
-          <Select 
-            onValueChange={field.onChange} 
-            value={field.value || ""}
+          <Select
+            onValueChange={(value) => {
+              field.onChange(value === "no-task" ? "" : value);
+            }}
+            value={field.value || "no-task"}
           >
             <FormControl>
               <SelectTrigger>
-                <SelectValue placeholder="Select a task" />
+                <SelectValue placeholder="None" />
               </SelectTrigger>
             </FormControl>
             <SelectContent>
-              <SelectItem value="">None</SelectItem>
-              {tasks.map((task: Task) => (
+              <SelectItem value="no-task">None</SelectItem>
+              {tasks.map((task) => (
                 <SelectItem key={task.id} value={task.id}>
                   {task.title}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
-          <FormMessage />
         </FormItem>
       )}
     />

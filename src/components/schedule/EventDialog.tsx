@@ -53,8 +53,8 @@ export function EventDialog({
       const endDateTime = new Date(values.endDate);
       const [endHours, endMinutes] = values.endTime.split(":").map(Number);
       endDateTime.setHours(endHours, endMinutes);
-
-      // Handle linkedTaskId properly
+      
+      // Handle linkedTaskId properly - use empty string for no task
       const linkedTaskId = values.linkedTaskId && values.linkedTaskId.trim() !== "" 
         ? values.linkedTaskId 
         : undefined;
@@ -68,6 +68,8 @@ export function EventDialog({
         reminders: values.reminders,
         color: linkedTaskId ? "#0EA5E9" : "#F2FCE2", // Blue for task-linked events, green for regular
       };
+
+      console.log("Event data being submitted:", eventData);
 
       if (event) {
         await onUpdateEvent(event.id, eventData);
