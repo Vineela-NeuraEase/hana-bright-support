@@ -27,7 +27,7 @@ export const TaskLinkSelector = ({ tasks, form }: TaskLinkSelectorProps) => {
               </SelectTrigger>
             </FormControl>
             <SelectContent>
-              <SelectItem value="">None</SelectItem>
+              <SelectItem value="none">None</SelectItem>
               {tasks.map((task: Task) => (
                 <SelectItem key={task.id} value={task.id}>
                   {task.title}
