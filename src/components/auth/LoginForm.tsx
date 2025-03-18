@@ -7,10 +7,11 @@ import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form } from "@/components/ui/form";
-import { supabase } from "@/integrations/supabase/client";
 import { CardContent } from "@/components/ui/card";
 import LoginFields from "./form-components/LoginFields";
 import RoleSelector from "./form-components/RoleSelector";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "@/integrations/firebase/client";
 
 // Login form schema
 const loginSchema = z.object({
@@ -21,11 +22,7 @@ const loginSchema = z.object({
 
 type LoginFormValues = z.infer<typeof loginSchema>;
 
-interface LoginFormProps {
-  onFirebase?: boolean;
-}
-
-const LoginForm = ({ onFirebase = false }: LoginFormProps) => {
+const LoginForm = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
@@ -45,40 +42,19 @@ const LoginForm = ({ onFirebase = false }: LoginFormProps) => {
       // Store the selected role in localStorage for profile creation
       localStorage.setItem('userRole', data.role);
       
-      if (onFirebase) {
-        // The firebase implementation would be here, but we're not implementing it
-        // in this component since that's handled in the FirebaseAuth component
-        toast({
-          title: "Using Firebase Auth",
-          description: "This login component is for demonstration only when Firebase is enabled.",
-        });
-      } else {
-        // Sign in the user with Supabase
-        const { error } = await supabase.auth.signInWithPassword({
-          email: data.email,
-          password: data.password,
-        });
-
-        if (error) {
-          console.error("Login error:", error);
-          toast({
-            title: "Error",
-            description: error.message,
-            variant: "destructive"
-          });
-        } else {
-          toast({
-            title: "Welcome back",
-            description: "You have been successfully signed in."
-          });
-          navigate("/dashboard");
-        }
-      }
-    } catch (error) {
+      // Sign in the user with Firebase
+      await signInWithEmailAndPassword(auth, data.email, data.password);
+      
+      toast({
+        title: "Welcome back",
+        description: "You have been successfully signed in."
+      });
+      navigate("/dashboard");
+    } catch (error: any) {
       console.error("Login error:", error);
       toast({
         title: "Error",
-        description: "An unexpected error occurred during login.",
+        description: error.message || "An unexpected error occurred during login.",
         variant: "destructive"
       });
     } finally {

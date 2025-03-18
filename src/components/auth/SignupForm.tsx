@@ -7,11 +7,14 @@ import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form } from "@/components/ui/form";
-import { supabase } from "@/integrations/supabase/client";
 import { CardContent } from "@/components/ui/card";
 import FormFields from "./form-components/FormFields";
 import RoleSelector from "./form-components/RoleSelector";
 import TermsAgreement from "./form-components/TermsAgreement";
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { auth } from "@/integrations/firebase/client";
+import { doc, setDoc } from "firebase/firestore";
+import { db } from "@/integrations/firebase/client";
 
 // Sign up form schema
 const signupSchema = z.object({
@@ -29,11 +32,7 @@ const signupSchema = z.object({
 
 type SignupFormValues = z.infer<typeof signupSchema>;
 
-interface SignupFormProps {
-  onFirebase?: boolean;
-}
-
-const SignupForm = ({ onFirebase = false }: SignupFormProps) => {
+const SignupForm = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
@@ -55,41 +54,28 @@ const SignupForm = ({ onFirebase = false }: SignupFormProps) => {
       // Store the selected role in localStorage for profile creation
       localStorage.setItem('userRole', data.role);
       
-      if (onFirebase) {
-        // Firebase signup handled in FirebaseAuth component
-        toast({
-          title: "Using Firebase Auth",
-          description: "This signup component is for demonstration only when Firebase is enabled.",
-        });
-      } else {
-        // Sign up the user with Supabase
-        const { data: authData, error } = await supabase.auth.signUp({
-          email: data.email,
-          password: data.password,
-        });
-
-        if (error) {
-          console.error("Signup error:", error);
-          toast({
-            title: "Error",
-            description: error.message,
-            variant: "destructive"
-          });
-        } else {
-          toast({
-            title: "Account created",
-            description: "Please check your email for a confirmation link."
-          });
-          if (authData.user) {
-            navigate("/dashboard");
-          }
-        }
-      }
-    } catch (error) {
+      // Create the user with Firebase Auth
+      const userCredential = await createUserWithEmailAndPassword(auth, data.email, data.password);
+      const { user } = userCredential;
+      
+      // Create user profile in Firestore
+      await setDoc(doc(db, "users", user.uid), {
+        email: user.email,
+        role: data.role,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      });
+      
+      toast({
+        title: "Account created",
+        description: "Your account has been created successfully."
+      });
+      navigate("/dashboard");
+    } catch (error: any) {
       console.error("Signup error:", error);
       toast({
         title: "Error",
-        description: "An unexpected error occurred during signup.",
+        description: error.message || "An unexpected error occurred during signup.",
         variant: "destructive"
       });
     } finally {

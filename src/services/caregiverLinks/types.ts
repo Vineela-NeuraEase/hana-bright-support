@@ -1,34 +1,24 @@
 
-import { Session } from "@supabase/supabase-js";
-
-export type LinkedUser = {
+export interface LinkedUser {
   id: string;
   linkId: string;
-  email?: string;
-};
+  email: string;
+}
 
-export type CaregiverLinksState = {
-  linkCode: string;
-  isLinking: boolean;
+export interface FetchLinkedUsersResult {
   linkedUsers: LinkedUser[];
-  selectedUserId: string | null;
-  loading: boolean;
-};
+}
 
-export type FetchLinkedUsersResult = {
-  linkedUsers: LinkedUser[];
-};
-
-export type LinkUserResult = {
+export interface LinkUserResult {
   success: boolean;
   message: string;
   newLink?: {
     id: string;
     user_id: string;
   };
-};
+}
 
-export type UnlinkUserResult = {
+export interface UnlinkUserResult {
   success: boolean;
   message: string;
-};
+}

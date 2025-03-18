@@ -1,12 +1,12 @@
-import { BrowserRouter, Route, Routes, Navigate } from 'react-router-dom';
+
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from '@/components/ThemeProvider';
-import { FirebaseAuthProvider } from '@/components/FirebaseAuthProvider';
+import { FirebaseAuthProvider } from '@/contexts/auth/FirebaseAuthProvider';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 
 import Home from './pages/Home';
 import Auth from './pages/Auth'; 
-import FirebaseAuth from './pages/FirebaseAuth';
 import Dashboard from './pages/Dashboard';
 import Tasks from './pages/Tasks';
 import Schedule from './pages/Schedule';
@@ -18,7 +18,6 @@ import ToolsIndex from './pages/tools/Index';
 import Formalizer from './pages/tools/Formalizer';
 import Judge from './pages/tools/Judge';
 
-// We're keeping this simple since this is just an update to the authentication method
 function App() {
   return (
     <ThemeProvider defaultTheme="system" storageKey="hana-theme">
@@ -27,8 +26,7 @@ function App() {
           <ErrorBoundary>
             <Routes>
               <Route path="/" element={<Home />} />
-              {/* Use Firebase Auth instead of the Supabase Auth */}
-              <Route path="/auth" element={<FirebaseAuth />} />
+              <Route path="/auth" element={<Auth />} />
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/tasks" element={<Tasks />} />
               <Route path="/schedule" element={<Schedule />} />
