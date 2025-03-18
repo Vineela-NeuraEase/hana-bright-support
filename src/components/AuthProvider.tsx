@@ -1,29 +1,48 @@
 
-import { createContext, useContext } from "react";
+import { createContext, useContext, useState, useEffect } from "react";
 
 // Create a simplified auth context with a mock session
 type AuthContextType = {
-  session: { user: { id: string; email: string } } | null;
+  session: { user: { id: string; email: string; } } | null;
   loading: boolean;
-};
-
-// Create a mock session that's always active
-const mockSession = {
-  user: {
-    id: "guest-user-id",
-    email: "guest@example.com"
-  }
+  userRole: 'autistic' | 'caregiver' | 'clinician';
 };
 
 const AuthContext = createContext<AuthContextType>({ 
-  session: mockSession, 
-  loading: false 
+  session: null, 
+  loading: false,
+  userRole: 'autistic'
 });
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  // Always provide a mock session
+  const [loading, setLoading] = useState(true);
+  const [session, setSession] = useState<{ user: { id: string; email: string; } } | null>(null);
+  const [userRole, setUserRole] = useState<'autistic' | 'caregiver' | 'clinician'>('autistic');
+
+  useEffect(() => {
+    // Check if user is authenticated
+    const storedRole = localStorage.getItem('userRole');
+    if (storedRole) {
+      // Create mock session with mock user
+      setSession({
+        user: {
+          id: "guest-user-id",
+          email: "guest@example.com"
+        }
+      });
+      
+      // Set user role from localStorage
+      setUserRole(storedRole as 'autistic' | 'caregiver' | 'clinician');
+    }
+    setLoading(false);
+  }, []);
+
   return (
-    <AuthContext.Provider value={{ session: mockSession, loading: false }}>
+    <AuthContext.Provider value={{ 
+      session, 
+      loading,
+      userRole 
+    }}>
       {children}
     </AuthContext.Provider>
   );

@@ -24,6 +24,9 @@ const Index = () => {
         <p className="text-xl md:text-2xl text-gray-600">
           Your Second Brain for Autism Support
         </p>
+        <p className="text-md text-gray-600">
+          Supporting neurodivergent individuals, caregivers, and clinicians
+        </p>
       </div>
       
       <div className="w-full max-w-md space-y-4">

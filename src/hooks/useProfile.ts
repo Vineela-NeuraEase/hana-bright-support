@@ -1,21 +1,29 @@
 
 import { useEffect, useState } from 'react';
+import { useAuth } from '@/components/AuthProvider';
 
 export type Profile = {
   id: string;
   role: 'autistic' | 'caregiver' | 'clinician';
 };
 
-// Create a mock profile for the guest user
-const mockProfile = {
-  id: "guest-user-id",
-  role: "autistic" as const
-};
-
 export const useProfile = () => {
-  const [profile, setProfile] = useState<Profile | null>(mockProfile);
-  const [loading, setLoading] = useState(false);
+  const { session, userRole } = useAuth();
+  const [profile, setProfile] = useState<Profile | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  // Return the mock profile immediately
+  useEffect(() => {
+    if (session) {
+      // Create a mock profile using the user's role from AuthProvider
+      setProfile({
+        id: session.user.id,
+        role: userRole
+      });
+    } else {
+      setProfile(null);
+    }
+    setLoading(false);
+  }, [session, userRole]);
+
   return { profile, loading };
 };
