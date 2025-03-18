@@ -10,7 +10,7 @@ export interface Event {
   endTime: string | Date;    // This maps to end_time in the database
   reminders?: number[];      // minutes before
   linkedTaskId?: string;     // This maps to linked_task_id in the database
-  linkedTask?: Task;
+  linkedTask?: Partial<Task>; // Making this Partial<Task> to handle incomplete task data
   color?: string;
   created_at?: string;
   updated_at?: string;

@@ -6,7 +6,7 @@ import { useAuth } from "@/components/AuthProvider";
 import { useToast } from "@/hooks/use-toast";
 
 export const useEvents = () => {
-  const [events, setEvents] = useState<Event[] | null>(null);
+  const [events, setEvents] = useState<Event[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { session } = useAuth();
   const { toast } = useToast();
@@ -35,7 +35,7 @@ export const useEvents = () => {
       }
 
       // Transform the data to match our Event interface (camelCase vs snake_case)
-      const transformedEvents = data?.map((event) => ({
+      const transformedEvents: Event[] = data?.map((event: any) => ({
         id: event.id,
         user_id: event.user_id,
         title: event.title,
@@ -95,25 +95,30 @@ export const useEvents = () => {
       if (!session?.user) return null;
 
       try {
+        // Convert Date objects to ISO strings for Supabase
+        const startTime = event.startTime instanceof Date 
+          ? event.startTime.toISOString() 
+          : event.startTime;
+        
+        const endTime = event.endTime instanceof Date 
+          ? event.endTime.toISOString() 
+          : event.endTime;
+        
         // Transform our camelCase properties to snake_case for the database
         const dbEvent = {
           title: event.title,
           description: event.description,
-          start_time: event.startTime,
-          end_time: event.endTime,
+          start_time: startTime,
+          end_time: endTime,
           reminders: event.reminders,
           linked_task_id: event.linkedTaskId,
           color: event.color,
+          user_id: session.user.id
         };
 
         const { data, error } = await supabase
           .from("events")
-          .insert([
-            {
-              ...dbEvent,
-              user_id: session.user.id,
-            },
-          ])
+          .insert(dbEvent)
           .select()
           .single();
 
@@ -162,8 +167,19 @@ export const useEvents = () => {
         const dbUpdates: any = {};
         if (updates.title !== undefined) dbUpdates.title = updates.title;
         if (updates.description !== undefined) dbUpdates.description = updates.description;
-        if (updates.startTime !== undefined) dbUpdates.start_time = updates.startTime;
-        if (updates.endTime !== undefined) dbUpdates.end_time = updates.endTime;
+        
+        if (updates.startTime !== undefined) {
+          dbUpdates.start_time = updates.startTime instanceof Date 
+            ? updates.startTime.toISOString() 
+            : updates.startTime;
+        }
+        
+        if (updates.endTime !== undefined) {
+          dbUpdates.end_time = updates.endTime instanceof Date 
+            ? updates.endTime.toISOString() 
+            : updates.endTime;
+        }
+        
         if (updates.reminders !== undefined) dbUpdates.reminders = updates.reminders;
         if (updates.linkedTaskId !== undefined) dbUpdates.linked_task_id = updates.linkedTaskId;
         if (updates.color !== undefined) dbUpdates.color = updates.color;
