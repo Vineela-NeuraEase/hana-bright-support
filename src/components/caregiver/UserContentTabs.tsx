@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useJournalEntries } from "@/hooks/useJournal";
@@ -10,14 +10,15 @@ import { SentimentSummary } from "@/components/journal/SentimentSummary";
 import { CalendarIcon, CheckSquareIcon, BookTextIcon } from "lucide-react";
 import { DayView } from "@/components/schedule/DayView";
 import { Skeleton } from "@/components/ui/skeleton";
-import { addDays } from "date-fns";
+import { AddTaskCard } from "./AddTaskCard";
 
 interface UserContentTabsProps {
   userId: string;
 }
 
 export const UserContentTabs: React.FC<UserContentTabsProps> = ({ userId }) => {
-  const [selectedDate, setSelectedDate] = React.useState(new Date());
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [taskRefreshTrigger, setTaskRefreshTrigger] = useState(0);
   
   // Fetch journal entries for the selected user
   const { 
@@ -35,7 +36,11 @@ export const UserContentTabs: React.FC<UserContentTabsProps> = ({ userId }) => {
   const { 
     tasks = [], 
     isLoading: tasksLoading 
-  } = useTasks(userId);  // Pass the userId directly
+  } = useTasks(userId);
+
+  const handleTaskAdded = () => {
+    setTaskRefreshTrigger(prev => prev + 1);
+  };
 
   return (
     <Tabs defaultValue="journal" className="w-full">
@@ -105,7 +110,9 @@ export const UserContentTabs: React.FC<UserContentTabsProps> = ({ userId }) => {
         </Card>
       </TabsContent>
       
-      <TabsContent value="tasks">
+      <TabsContent value="tasks" className="space-y-4">
+        <AddTaskCard userId={userId} onTaskAdded={handleTaskAdded} />
+        
         <Card>
           <CardHeader>
             <CardTitle className="text-lg">Tasks</CardTitle>

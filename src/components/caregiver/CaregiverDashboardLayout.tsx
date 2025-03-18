@@ -1,11 +1,10 @@
 
 import React from 'react';
 import { LinkedUser } from '@/hooks/useCaregiverLinks';
-import { LinkedUsersList } from "@/components/caregiver/LinkedUsersList";
-import { CaregiverLinkCodeCard } from "@/components/caregiver/CaregiverLinkCodeCard";
 import { UserContentTabs } from "@/components/caregiver/UserContentTabs";
 import { NoUserSelected } from "@/components/caregiver/NoUserSelected";
 import { CaregiverDashboardHeader } from "@/components/caregiver/CaregiverDashboardHeader";
+import { LinkManagement } from "@/components/caregiver/LinkManagement";
 
 interface CaregiverDashboardLayoutProps {
   linkCode: string;
@@ -35,22 +34,17 @@ export const CaregiverDashboardLayout: React.FC<CaregiverDashboardLayoutProps> =
       <CaregiverDashboardHeader title="Caregiver Dashboard" />
       
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        {/* Sidebar */}
-        <div className="md:col-span-1 space-y-4">
-          {/* Link Code Input */}
-          <CaregiverLinkCodeCard 
-            linkCode={linkCode} 
-            setLinkCode={setLinkCode} 
-            isLinking={isLinking} 
-            handleLinkUser={handleLinkUser} 
-          />
-
-          {/* Linked Users List */}
-          <LinkedUsersList
+        {/* Sidebar with Link Management */}
+        <div className="md:col-span-1">
+          <LinkManagement
+            linkCode={linkCode}
+            setLinkCode={setLinkCode}
+            isLinking={isLinking}
             linkedUsers={linkedUsers}
             loading={loading}
             selectedUserId={selectedUserId}
             setSelectedUserId={setSelectedUserId}
+            handleLinkUser={handleLinkUser}
             handleUnlinkUser={handleUnlinkUser}
           />
         </div>

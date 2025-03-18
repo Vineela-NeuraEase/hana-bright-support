@@ -38,7 +38,7 @@ const CaregiverDashboard = () => {
     }
   }, [profile, profileLoading, navigate]);
 
-  if (profileLoading || (profile && profile.role !== 'caregiver')) {
+  if (profileLoading) {
     return <div className="container py-6">Loading...</div>;
   }
 
