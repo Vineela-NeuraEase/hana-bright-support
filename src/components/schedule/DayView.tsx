@@ -3,7 +3,7 @@ import React from "react";
 import { parseISO } from "date-fns";
 import { Event } from "@/types/event";
 import { Skeleton } from "@/components/ui/skeleton";
-import { HourRow } from "./day";
+import { HourRow } from "./day/HourRow";
 
 interface DayViewProps {
   events: Event[];

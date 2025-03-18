@@ -1,4 +1,4 @@
 
-export * from './HourRow';
-export * from './TimeLabel';
-export * from './EventItem';
+export { HourRow } from './HourRow';
+export { TimeLabel } from './TimeLabel';
+export { EventItem } from './EventItem';
