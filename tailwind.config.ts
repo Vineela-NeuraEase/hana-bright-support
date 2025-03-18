@@ -20,6 +20,11 @@ export default {
     },
     extend: {
       colors: {
+        border: "hsl(var(--border))",
+        input: "hsl(var(--input))",
+        ring: "hsl(var(--ring))",
+        background: "hsl(var(--background))",
+        foreground: "hsl(var(--foreground))",
         primary: {
           DEFAULT: "#9b87f5",
           foreground: "#ffffff",
@@ -28,10 +33,11 @@ export default {
           DEFAULT: "#6b9bd0",
           foreground: "#ffffff",
         },
-        background: "#ffffff",
       },
-      fontFamily: {
-        sans: ["Plus Jakarta Sans", "sans-serif"],
+      borderRadius: {
+        lg: "var(--radius)",
+        md: "calc(var(--radius) - 2px)",
+        sm: "calc(var(--radius) - 4px)",
       },
       keyframes: {
         "fade-up": {
@@ -46,3 +52,4 @@ export default {
   },
   plugins: [require("tailwindcss-animate")],
 } satisfies Config;
+
