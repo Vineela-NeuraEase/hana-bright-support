@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { JournalEntry } from "@/types/journal";
 import { Card, CardContent } from "@/components/ui/card";
@@ -8,7 +7,7 @@ import { CircleIcon } from "lucide-react";
 import { MoodInput } from "./MoodInput";
 import { MoodFactors } from "./MoodFactors";
 import { MoodTrendChart } from "./MoodTrendChart";
-import { JournalEntriesList } from "./JournalEntriesList";
+import { JournalEntriesList } from "./journal-entries/JournalEntriesList";
 
 interface JournalCarouselProps {
   showForm: boolean;
