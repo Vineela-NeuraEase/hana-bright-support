@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { ChevronDown, ChevronUp } from "lucide-react";
+import { ChevronDown, ChevronUp, Smile, Meh, Frown, ThermometerSnowflake, ThermometerSun, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -18,12 +18,43 @@ export const JournalEntryContent = ({ text, sentiment, factors, id }: JournalEnt
   const getSentimentColor = (sentiment?: string) => {
     switch (sentiment) {
       case 'positive':
+      case 'happy':
         return 'bg-green-100 text-green-800';
       case 'negative':
+      case 'sad':
+      case 'frustrated':
+      case 'angry':
         return 'bg-red-100 text-red-800';
+      case 'anxious':
+        return 'bg-amber-100 text-amber-800';
       default:
         return 'bg-gray-100 text-gray-800';
     }
+  };
+
+  const getSentimentIcon = (sentiment?: string) => {
+    switch (sentiment) {
+      case 'positive':
+      case 'happy':
+        return <Smile className="h-4 w-4 mr-1 text-green-600" />;
+      case 'negative':
+      case 'sad':
+        return <Frown className="h-4 w-4 mr-1 text-red-600" />;
+      case 'neutral':
+        return <Meh className="h-4 w-4 mr-1 text-gray-600" />;
+      case 'frustrated':
+      case 'angry':
+        return <ThermometerSun className="h-4 w-4 mr-1 text-red-600" />;
+      case 'anxious':
+        return <AlertTriangle className="h-4 w-4 mr-1 text-amber-600" />;
+      default:
+        return <Meh className="h-4 w-4 mr-1 text-gray-600" />;
+    }
+  };
+
+  const getSentimentLabel = (sentiment?: string) => {
+    if (!sentiment) return 'Neutral';
+    return sentiment.charAt(0).toUpperCase() + sentiment.slice(1);
   };
 
   const toggleExpand = () => {
@@ -34,8 +65,9 @@ export const JournalEntryContent = ({ text, sentiment, factors, id }: JournalEnt
     <>
       <CardContent className="pb-3">
         {sentiment && (
-          <Badge className={`mb-2 ${getSentimentColor(sentiment)}`}>
-            {sentiment.charAt(0).toUpperCase() + sentiment.slice(1)}
+          <Badge className={`mb-2 flex items-center ${getSentimentColor(sentiment)}`}>
+            {getSentimentIcon(sentiment)}
+            {getSentimentLabel(sentiment)}
           </Badge>
         )}
         

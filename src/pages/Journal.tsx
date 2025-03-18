@@ -7,6 +7,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { JournalHeader } from "@/components/journal/JournalHeader";
 import { JournalTabs } from "@/components/journal/JournalTabs";
 import { JournalCarousel } from "@/components/journal/JournalCarousel";
+import { SentimentSummary } from "@/components/journal/SentimentSummary";
 
 const Journal = () => {
   const { session } = useAuth();
@@ -47,6 +48,8 @@ const Journal = () => {
         setShowForm={setShowForm} 
         isMobile={isMobile} 
       />
+
+      <SentimentSummary entries={entries} />
 
       <div className="relative">
         <JournalTabs

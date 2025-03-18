@@ -68,12 +68,12 @@ export const useCreateJournalEntry = () => {
         throw new Error("User not authenticated");
       }
 
-      // Call the Supabase Edge Function to analyze sentiment
+      // Call the new OpenAI-powered sentiment analysis function
       let sentiment = 'neutral';
-      if (journalData.journal_text) {
+      if (journalData.journal_text && journalData.journal_text.trim() !== '') {
         try {
-          // Use the functions.invoke method instead of accessing protected properties
-          const { data, error } = await supabase.functions.invoke("analyze-sentiment", {
+          // Use the advanced AI sentiment analysis function
+          const { data, error } = await supabase.functions.invoke("analyze-sentiment-ai", {
             body: JSON.stringify({ 
               text: journalData.journal_text 
             })
@@ -81,14 +81,26 @@ export const useCreateJournalEntry = () => {
           
           if (!error && data) {
             sentiment = data.sentiment;
+            console.log('Sentiment analysis result:', data);
           } else if (error) {
-            console.error('Error analyzing sentiment:', error);
-            // Fallback to determineSentiment if the edge function fails
-            sentiment = determineSentiment(journalData.journal_text);
+            console.error('Error analyzing sentiment with AI:', error);
+            // Fallback to the simpler sentiment analysis
+            const { data: fallbackData, error: fallbackError } = await supabase.functions.invoke("analyze-sentiment", {
+              body: JSON.stringify({ 
+                text: journalData.journal_text 
+              })
+            });
+            
+            if (!fallbackError && fallbackData) {
+              sentiment = fallbackData.sentiment;
+              console.log('Fallback sentiment analysis result:', fallbackData);
+            } else {
+              console.error('Error with fallback sentiment analysis:', fallbackError);
+              sentiment = determineSentiment(journalData.journal_text);
+            }
           }
         } catch (error) {
           console.error('Error analyzing sentiment:', error);
-          // Fallback to determineSentiment if the edge function fails
           sentiment = determineSentiment(journalData.journal_text);
         }
       }
