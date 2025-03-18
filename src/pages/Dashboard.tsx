@@ -12,14 +12,14 @@ import { useEffect } from "react";
 
 const Dashboard = () => {
   const { profile } = useProfile();
-  const { session } = useAuth();
+  const { session, signOut } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   const navigationItems: NavigationItem[] = useNavigation(profile?.role);
 
   // Redirect to auth if not authenticated
   useEffect(() => {
-    if (!session) {
+    if (!session && !localStorage.getItem('userRole')) {
       navigate("/auth");
     }
   }, [session, navigate]);
@@ -38,9 +38,8 @@ const Dashboard = () => {
     }
   };
 
-  const handleSignOut = () => {
-    // Clear role from localStorage
-    localStorage.removeItem('userRole');
+  const handleSignOut = async () => {
+    await signOut();
     
     toast({
       title: "Signed Out",
@@ -49,10 +48,6 @@ const Dashboard = () => {
     
     navigate("/auth");
   };
-
-  if (!session) {
-    return null; // Will redirect via useEffect
-  }
 
   return (
     <SidebarProvider defaultOpen>

@@ -10,7 +10,7 @@ const Index = () => {
 
   // Redirect authenticated users to dashboard
   useEffect(() => {
-    if (session) {
+    if (session || localStorage.getItem('userRole')) {
       navigate("/dashboard");
     }
   }, [session, navigate]);
