@@ -152,6 +152,39 @@ export type Database = {
           },
         ]
       }
+      journal_entries: {
+        Row: {
+          created_at: string | null
+          factors: string[] | null
+          id: string
+          journal_text: string | null
+          mood_rating: number
+          sentiment: string | null
+          timestamp: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          factors?: string[] | null
+          id?: string
+          journal_text?: string | null
+          mood_rating: number
+          sentiment?: string | null
+          timestamp?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          factors?: string[] | null
+          id?: string
+          journal_text?: string | null
+          mood_rating?: number
+          sentiment?: string | null
+          timestamp?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       location_history: {
         Row: {
           context_tags: string[] | null

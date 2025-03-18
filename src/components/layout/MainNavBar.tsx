@@ -1,6 +1,6 @@
 
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { Home, Menu, Calendar, CheckSquare, RadioTower, Settings } from "lucide-react";
+import { Home, Menu, Calendar, CheckSquare, RadioTower, Settings, BookText } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -88,6 +88,14 @@ export const MainNavBar = ({ onSignOut }: MainNavBarProps) => {
                   <span>Schedule</span>
                 </Link>
                 <Link
+                  to="/journal"
+                  className="flex items-center gap-3 px-4 py-2 hover:bg-accent"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  <BookText className="h-5 w-5" />
+                  <span>Journal</span>
+                </Link>
+                <Link
                   to="/tools"
                   className="flex items-center gap-3 px-4 py-2 hover:bg-accent"
                   onClick={() => setIsMenuOpen(false)}
@@ -134,6 +142,9 @@ export const MainNavBar = ({ onSignOut }: MainNavBarProps) => {
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
                 <Link to="/schedule">Schedule</Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link to="/journal">Journal</Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
                 <Link to="/tools">Tools</Link>

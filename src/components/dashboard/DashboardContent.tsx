@@ -34,15 +34,18 @@ export const DashboardContent = ({ welcomeMessage }: DashboardContentProps) => {
       case 'caregiver':
         return [
           { title: "Communication Tools", icon: RadioTower, url: "/dashboard/tools", description: "Access tools for communication support" },
+          { title: "Journal", icon: BookText, url: "/journal", description: "Track mood and thoughts of those you care for" },
           { title: "Care Dashboard", icon: CheckSquare, url: "/care", description: "Monitor care routines and schedules" }
         ];
       case 'clinician':
         return [
           { title: "Communication Tools", icon: RadioTower, url: "/dashboard/tools", description: "Access tools for communication support" },
+          { title: "Journal", icon: BookText, url: "/journal", description: "Track patient mood and thoughts" },
           { title: "Clinical Portal", icon: CheckSquare, url: "/portal", description: "Manage patient information and progress" }
         ];
       default:
         return [
+          { title: "Journal", icon: BookText, url: "/journal", description: "Record your thoughts and feelings" },
           { title: "Communication Tools", icon: RadioTower, url: "/dashboard/tools", description: "Access tools for communication support" }
         ];
     }

@@ -14,6 +14,7 @@ const Auth = lazy(() => import('./pages/Auth'));
 const Dashboard = lazy(() => import('./pages/Dashboard'));
 const Tasks = lazy(() => import('./pages/Tasks'));
 const Schedule = lazy(() => import('./pages/Schedule'));
+const Journal = lazy(() => import('./pages/Journal'));
 const FormalizerTool = lazy(() => import('./pages/tools/Formalizer'));
 const JudgeTool = lazy(() => import('./pages/tools/Judge'));
 const ToolsIndex = lazy(() => import('./pages/tools/Index'));
@@ -38,6 +39,7 @@ function App() {
                     <Route path="/dashboard" element={<Dashboard />} />
                     <Route path="/tasks" element={<Tasks />} />
                     <Route path="/schedule" element={<Schedule />} />
+                    <Route path="/journal" element={<Journal />} />
                     <Route path="/settings" element={<Settings />} />
                     <Route path="/tools" element={<ToolsIndex />} />
                     <Route path="/tools/formalizer" element={<FormalizerTool />} />

@@ -1,5 +1,5 @@
 
-import { Settings, Home, PieChart, User, UserCog } from "lucide-react";
+import { Settings, Home, PieChart, User, UserCog, BookText } from "lucide-react";
 import { NavigationItem } from "@/types/navigation";
 
 export const useNavigation = (role?: string): NavigationItem[] => {
@@ -17,6 +17,11 @@ export const useNavigation = (role?: string): NavigationItem[] => {
       return [
         ...defaultItems,
         {
+          title: "Journal",
+          url: "/journal",
+          icon: BookText,
+        },
+        {
           title: "Settings",
           url: "/settings",
           icon: Settings,
@@ -29,6 +34,11 @@ export const useNavigation = (role?: string): NavigationItem[] => {
           title: "Patient Management",
           url: "/patients",
           icon: User,
+        },
+        {
+          title: "Journal",
+          url: "/journal",
+          icon: BookText,
         },
         {
           title: "Settings",
@@ -50,6 +60,11 @@ export const useNavigation = (role?: string): NavigationItem[] => {
           icon: UserCog,
         },
         {
+          title: "Journal",
+          url: "/journal",
+          icon: BookText,
+        },
+        {
           title: "Settings",
           url: "/settings",
           icon: Settings,
@@ -58,6 +73,11 @@ export const useNavigation = (role?: string): NavigationItem[] => {
     default:
       return [
         ...defaultItems,
+        {
+          title: "Journal",
+          url: "/journal",
+          icon: BookText,
+        },
         {
           title: "Settings",
           url: "/settings",
