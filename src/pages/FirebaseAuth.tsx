@@ -13,7 +13,7 @@ const FirebaseAuth = () => {
     return null;
   }
 
-  return <AuthContent onFirebase={true} />;
+  return <AuthContent />;
 };
 
 export default FirebaseAuth;
