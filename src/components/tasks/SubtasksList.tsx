@@ -3,9 +3,10 @@ import { useState } from "react";
 import { Task } from "@/types/task";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Loader2, Sparkles } from "lucide-react";
+import { Loader2, Sparkles, AlertTriangle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 
 interface SubtasksListProps {
   task: Task;
@@ -16,11 +17,16 @@ const SubtasksList = ({ task, refetchTasks }: SubtasksListProps) => {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [generatingSubtasks, setGeneratingSubtasks] = useState(false);
+  const [fallbackMode, setFallbackMode] = useState(false);
+  const [apiError, setApiError] = useState<string | null>(null);
 
   const hasSubtasks = task.subtasks && task.subtasks.length > 0;
 
   const handleGenerateSubtasks = async () => {
     setGeneratingSubtasks(true);
+    setFallbackMode(false);
+    setApiError(null);
+    
     try {
       const { data, error } = await supabase.functions.invoke("break-down-task", {
         body: {
@@ -35,6 +41,14 @@ const SubtasksList = ({ task, refetchTasks }: SubtasksListProps) => {
         throw new Error("No steps were generated. Please try again.");
       }
 
+      // Check if fallback mode was used
+      if (data.fallback) {
+        setFallbackMode(true);
+        if (data.error_message) {
+          setApiError(data.error_message);
+        }
+      }
+
       // Update the task with subtasks
       const { error: updateError } = await supabase
         .from("tasks")
@@ -46,7 +60,9 @@ const SubtasksList = ({ task, refetchTasks }: SubtasksListProps) => {
       if (updateError) throw updateError;
       
       toast({
-        title: "Task broken down successfully",
+        title: data.fallback 
+          ? "Task broken down (using fallback)" 
+          : "Task broken down successfully",
         description: `Generated ${data.steps.length} subtasks for this task.`,
       });
       
@@ -119,6 +135,16 @@ const SubtasksList = ({ task, refetchTasks }: SubtasksListProps) => {
             Let Hannah break this task into manageable steps based on the spiciness level.
           </p>
         </div>
+      )}
+
+      {fallbackMode && apiError && (
+        <Alert variant="destructive" className="mt-3 mb-3">
+          <AlertTriangle className="h-4 w-4" />
+          <AlertTitle>AI Service Limited</AlertTitle>
+          <AlertDescription>
+            Using simplified breakdown due to AI service limitation: {apiError}
+          </AlertDescription>
+        </Alert>
       )}
 
       {hasSubtasks && (
