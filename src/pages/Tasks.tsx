@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Plus } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
@@ -198,7 +197,6 @@ const Tasks = () => {
         ))}
       </div>
     </div>
-  </div>
   );
 };
 
