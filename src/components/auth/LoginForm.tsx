@@ -2,16 +2,15 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Form } from "@/components/ui/form";
 import { supabase } from "@/integrations/supabase/client";
 import { CardContent } from "@/components/ui/card";
+import LoginFields from "./form-components/LoginFields";
+import RoleSelector from "./form-components/RoleSelector";
 
 // Login form schema
 const loginSchema = z.object({
@@ -91,66 +90,8 @@ const LoginForm = ({ onFirebase = false }: LoginFormProps) => {
     <CardContent className="space-y-4 pt-4">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(handleLogin)} className="space-y-4">
-          <FormField
-            control={form.control}
-            name="email"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Email</FormLabel>
-                <FormControl>
-                  <Input placeholder="your.email@example.com" type="email" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="password"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Password</FormLabel>
-                <FormControl>
-                  <Input placeholder="••••••••" type="password" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          
-          <FormField
-            control={form.control}
-            name="role"
-            render={({ field }) => (
-              <FormItem className="space-y-3">
-                <FormLabel>I am a...</FormLabel>
-                <FormControl>
-                  <RadioGroup
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                    className="space-y-2"
-                  >
-                    <div className="flex items-center space-x-2 rounded-md border p-3 hover:bg-muted transition-all">
-                      <RadioGroupItem value="autistic" id="login-autistic" />
-                      <Label htmlFor="login-autistic" className="flex-grow cursor-pointer">Neurodivergent Individual</Label>
-                    </div>
-                    
-                    <div className="flex items-center space-x-2 rounded-md border p-3 hover:bg-muted transition-all">
-                      <RadioGroupItem value="caregiver" id="login-caregiver" />
-                      <Label htmlFor="login-caregiver" className="flex-grow cursor-pointer">Caregiver</Label>
-                    </div>
-                    
-                    <div className="flex items-center space-x-2 rounded-md border p-3 hover:bg-muted transition-all">
-                      <RadioGroupItem value="clinician" id="login-clinician" />
-                      <Label htmlFor="login-clinician" className="flex-grow cursor-pointer">Clinician</Label>
-                    </div>
-                  </RadioGroup>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          <LoginFields control={form.control} />
+          <RoleSelector control={form.control} name="role" />
 
           <Button 
             type="submit" 
