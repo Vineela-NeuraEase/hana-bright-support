@@ -1,8 +1,9 @@
 
 import { useUserLinkCode } from "@/hooks/useCaregiverLinks";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { useGenerateUserLinkCode } from "@/hooks/useGenerateUserLinkCode";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { LinkIcon, Loader2, Copy } from "lucide-react";
+import { LinkIcon, Loader2, Copy, RefreshCw } from "lucide-react";
 import { toast } from 'sonner';
 
 interface LinkCodeSettingsProps {
@@ -10,12 +11,23 @@ interface LinkCodeSettingsProps {
 }
 
 export const LinkCodeSettings = ({ userId }: LinkCodeSettingsProps) => {
-  const { data: linkCode, isLoading } = useUserLinkCode(userId);
+  const { data: linkCode, isLoading, refetch } = useUserLinkCode(userId);
+  const { mutate: generateLinkCode, isPending: isGenerating } = useGenerateUserLinkCode();
 
   const handleCopyLinkCode = () => {
     if (linkCode) {
       navigator.clipboard.writeText(linkCode);
       toast.success("Link code copied to clipboard");
+    }
+  };
+
+  const handleGenerateNewLinkCode = () => {
+    if (window.confirm("Creating a new link code will invalidate any previous code. Continue?")) {
+      generateLinkCode(userId, {
+        onSuccess: () => {
+          refetch();
+        }
+      });
     }
   };
 
@@ -31,7 +43,7 @@ export const LinkCodeSettings = ({ userId }: LinkCodeSettingsProps) => {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        {isLoading ? (
+        {isLoading || isGenerating ? (
           <div className="flex justify-center">
             <Loader2 className="h-5 w-5 animate-spin" />
           </div>
@@ -50,6 +62,23 @@ export const LinkCodeSettings = ({ userId }: LinkCodeSettingsProps) => {
           <p className="text-muted-foreground">No link code available</p>
         )}
       </CardContent>
+      {linkCode && (
+        <CardFooter>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="w-full"
+            onClick={handleGenerateNewLinkCode}
+            disabled={isGenerating}
+          >
+            {isGenerating ? (
+              <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Generating...</>
+            ) : (
+              <><RefreshCw className="h-4 w-4 mr-2" /> Generate New Code</>
+            )}
+          </Button>
+        </CardFooter>
+      )}
     </Card>
   );
 };
