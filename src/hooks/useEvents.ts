@@ -20,7 +20,7 @@ export const useEvents = () => {
         .from("events")
         .select(`
           *,
-          linkedTask:linkedTaskId(
+          linkedTask:linked_task_id(
             id,
             title,
             status,
@@ -28,13 +28,29 @@ export const useEvents = () => {
           )
         `)
         .eq("user_id", session.user.id)
-        .order("startTime", { ascending: true });
+        .order("start_time", { ascending: true });
 
       if (error) {
         throw error;
       }
 
-      setEvents(data);
+      // Transform the data to match our Event interface (camelCase vs snake_case)
+      const transformedEvents = data?.map((event) => ({
+        id: event.id,
+        user_id: event.user_id,
+        title: event.title,
+        description: event.description,
+        startTime: event.start_time,
+        endTime: event.end_time,
+        reminders: event.reminders,
+        linkedTaskId: event.linked_task_id,
+        linkedTask: event.linkedTask,
+        color: event.color,
+        created_at: event.created_at,
+        updated_at: event.updated_at,
+      })) || [];
+
+      setEvents(transformedEvents);
     } catch (error: any) {
       console.error("Error fetching events:", error);
       toast({
@@ -79,11 +95,22 @@ export const useEvents = () => {
       if (!session?.user) return null;
 
       try {
+        // Transform our camelCase properties to snake_case for the database
+        const dbEvent = {
+          title: event.title,
+          description: event.description,
+          start_time: event.startTime,
+          end_time: event.endTime,
+          reminders: event.reminders,
+          linked_task_id: event.linkedTaskId,
+          color: event.color,
+        };
+
         const { data, error } = await supabase
           .from("events")
           .insert([
             {
-              ...event,
+              ...dbEvent,
               user_id: session.user.id,
             },
           ])
@@ -99,7 +126,20 @@ export const useEvents = () => {
           description: "Your event has been added to your schedule",
         });
 
-        return data;
+        // Transform back to our Event interface format
+        return {
+          id: data.id,
+          user_id: data.user_id,
+          title: data.title,
+          description: data.description,
+          startTime: data.start_time,
+          endTime: data.end_time,
+          reminders: data.reminders,
+          linkedTaskId: data.linked_task_id,
+          color: data.color,
+          created_at: data.created_at,
+          updated_at: data.updated_at,
+        };
       } catch (error: any) {
         console.error("Error adding event:", error);
         toast({
@@ -118,9 +158,19 @@ export const useEvents = () => {
       if (!session?.user) return null;
 
       try {
+        // Transform our camelCase properties to snake_case for the database
+        const dbUpdates: any = {};
+        if (updates.title !== undefined) dbUpdates.title = updates.title;
+        if (updates.description !== undefined) dbUpdates.description = updates.description;
+        if (updates.startTime !== undefined) dbUpdates.start_time = updates.startTime;
+        if (updates.endTime !== undefined) dbUpdates.end_time = updates.endTime;
+        if (updates.reminders !== undefined) dbUpdates.reminders = updates.reminders;
+        if (updates.linkedTaskId !== undefined) dbUpdates.linked_task_id = updates.linkedTaskId;
+        if (updates.color !== undefined) dbUpdates.color = updates.color;
+
         const { data, error } = await supabase
           .from("events")
-          .update(updates)
+          .update(dbUpdates)
           .eq("id", id)
           .eq("user_id", session.user.id)
           .select()
@@ -135,7 +185,20 @@ export const useEvents = () => {
           description: "Your event has been updated",
         });
 
-        return data;
+        // Transform back to our Event interface format
+        return {
+          id: data.id,
+          user_id: data.user_id,
+          title: data.title,
+          description: data.description,
+          startTime: data.start_time,
+          endTime: data.end_time,
+          reminders: data.reminders,
+          linkedTaskId: data.linked_task_id,
+          color: data.color,
+          created_at: data.created_at,
+          updated_at: data.updated_at,
+        };
       } catch (error: any) {
         console.error("Error updating event:", error);
         toast({

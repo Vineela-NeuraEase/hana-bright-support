@@ -102,6 +102,56 @@ export type Database = {
         }
         Relationships: []
       }
+      events: {
+        Row: {
+          color: string | null
+          created_at: string | null
+          description: string | null
+          end_time: string
+          id: string
+          linked_task_id: string | null
+          reminders: number[] | null
+          start_time: string
+          title: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string | null
+          description?: string | null
+          end_time: string
+          id?: string
+          linked_task_id?: string | null
+          reminders?: number[] | null
+          start_time: string
+          title: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          color?: string | null
+          created_at?: string | null
+          description?: string | null
+          end_time?: string
+          id?: string
+          linked_task_id?: string | null
+          reminders?: number[] | null
+          start_time?: string
+          title?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "events_linked_task_id_fkey"
+            columns: ["linked_task_id"]
+            isOneToOne: false
+            referencedRelation: "tasks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       location_history: {
         Row: {
           context_tags: string[] | null
