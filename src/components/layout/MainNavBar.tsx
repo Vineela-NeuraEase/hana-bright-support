@@ -1,6 +1,6 @@
 
 import { Link } from "react-router-dom";
-import { Home, Menu } from "lucide-react";
+import { Home, Menu, Calendar, CheckSquare, RadioTower } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -132,6 +132,3 @@ export const MainNavBar = ({ onSignOut }: MainNavBarProps) => {
     </nav>
   );
 };
-
-// Import necessary icons
-import { Calendar, CheckSquare } from "lucide-react";
