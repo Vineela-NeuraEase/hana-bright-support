@@ -1,4 +1,3 @@
-
 import { Link } from "react-router-dom";
 import { Home, Menu, Calendar, CheckSquare, RadioTower, Settings, BookText, Users, Copy } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -22,8 +21,7 @@ import { useProfile } from "@/hooks/useProfile";
 import { useState, useEffect } from "react";
 import { NavigationItem } from "@/types/navigation";
 import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
-import { useNavigate } from "react-router-dom";
+import { useSignOut } from "@/hooks/useSignOut";
 
 interface MainNavBarProps {
   onSignOut?: () => void;
@@ -34,7 +32,7 @@ export const MainNavBar = ({ onSignOut }: MainNavBarProps) => {
   const { profile } = useProfile(session);
   const navigationItems: NavigationItem[] = useNavigation(profile?.role);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const navigate = useNavigate();
+  const handleSignOut = useSignOut(onSignOut);
 
   // Close the menu when the location changes (user navigates to a new page)
   useEffect(() => {
@@ -47,17 +45,6 @@ export const MainNavBar = ({ onSignOut }: MainNavBarProps) => {
       window.removeEventListener('popstate', handleRouteChange);
     };
   }, []);
-
-  const handleSignOut = async () => {
-    try {
-      await supabase.auth.signOut();
-      navigate("/");
-      toast.success("Successfully signed out");
-    } catch (error) {
-      console.error("Error signing out:", error);
-      toast.error("Failed to sign out");
-    }
-  };
 
   const copyLinkCode = () => {
     if (profile?.link_code) {

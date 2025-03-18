@@ -1,4 +1,3 @@
-
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -15,6 +14,7 @@ import { NavigationItem } from "@/types/navigation";
 import { useProfile } from "@/hooks/useProfile";
 import { Copy } from "lucide-react";
 import { toast } from "sonner";
+import { useSignOut } from "@/hooks/useSignOut";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -26,6 +26,7 @@ interface TopNavigationBarProps {
 
 export const TopNavigationBar = ({ session, navigationItems, onSignOut }: TopNavigationBarProps) => {
   const { profile } = useProfile(session);
+  const handleSignOut = useSignOut(onSignOut);
   const navigate = useNavigate();
 
   const copyLinkCode = () => {
@@ -34,18 +35,6 @@ export const TopNavigationBar = ({ session, navigationItems, onSignOut }: TopNav
       toast.success("Link code copied to clipboard!");
     } else {
       toast.error("No link code available");
-    }
-  };
-
-  const handleSignOut = async () => {
-    try {
-      await supabase.auth.signOut();
-      navigate("/");
-      toast.success("Successfully signed out");
-      onSignOut();
-    } catch (error) {
-      console.error("Error signing out:", error);
-      toast.error("Failed to sign out");
     }
   };
 
