@@ -1,9 +1,25 @@
 
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { SubtasksManager } from '../SubtasksManager';
 import { Task } from '@/types/task';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
 // Mock dependencies
+jest.mock('@/integrations/supabase/client', () => ({
+  supabase: {
+    from: jest.fn().mockReturnThis(),
+    update: jest.fn().mockReturnThis(),
+    eq: jest.fn().mockResolvedValue({ error: null }),
+  },
+}));
+
+jest.mock('@/hooks/use-toast', () => ({
+  useToast: jest.fn().mockReturnValue({
+    toast: jest.fn()
+  })
+}));
+
 jest.mock('../SubtaskItem', () => ({
   SubtaskItem: ({ task, subtask, index }) => (
     <div data-testid={`subtask-item-${index}`}>
@@ -30,6 +46,10 @@ describe('SubtasksManager', () => {
   };
   const mockRefetchTasks = jest.fn();
 
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
   it('renders the correct number of subtasks', () => {
     render(<SubtasksManager task={mockTask} refetchTasks={mockRefetchTasks} />);
     
@@ -48,6 +68,51 @@ describe('SubtasksManager', () => {
     render(<SubtasksManager task={mockTask} refetchTasks={mockRefetchTasks} />);
     
     expect(screen.getByText('Add step')).toBeInTheDocument();
+  });
+
+  it('renders the "Complete all" button', () => {
+    render(<SubtasksManager task={mockTask} refetchTasks={mockRefetchTasks} />);
+    
+    expect(screen.getByText('Complete all')).toBeInTheDocument();
+  });
+
+  it('renders the "Clear completed" button', () => {
+    render(<SubtasksManager task={mockTask} refetchTasks={mockRefetchTasks} />);
+    
+    expect(screen.getByText('Clear completed')).toBeInTheDocument();
+  });
+
+  it('handles the "Complete all" button click', async () => {
+    render(<SubtasksManager task={mockTask} refetchTasks={mockRefetchTasks} />);
+    
+    fireEvent.click(screen.getByText('Complete all'));
+    
+    await waitFor(() => {
+      expect(supabase.from).toHaveBeenCalledWith('tasks');
+      expect(supabase.update).toHaveBeenCalledWith({ 
+        subtasks: [
+          { title: 'Subtask 1', completed: true },
+          { title: 'Subtask 2', completed: true }
+        ] 
+      });
+      expect(mockRefetchTasks).toHaveBeenCalled();
+    });
+  });
+
+  it('handles the "Clear completed" button click', async () => {
+    render(<SubtasksManager task={mockTask} refetchTasks={mockRefetchTasks} />);
+    
+    fireEvent.click(screen.getByText('Clear completed'));
+    
+    await waitFor(() => {
+      expect(supabase.from).toHaveBeenCalledWith('tasks');
+      expect(supabase.update).toHaveBeenCalledWith({ 
+        subtasks: [
+          { title: 'Subtask 1', completed: false }
+        ] 
+      });
+      expect(mockRefetchTasks).toHaveBeenCalled();
+    });
   });
 
   it('handles when task has no subtasks', () => {
