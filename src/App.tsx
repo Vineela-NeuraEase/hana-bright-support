@@ -20,6 +20,7 @@ const JudgeTool = lazy(() => import('./pages/tools/Judge'));
 const ToolsIndex = lazy(() => import('./pages/tools/Index'));
 const Settings = lazy(() => import('./pages/Settings'));
 const NotFound = lazy(() => import('./pages/NotFound'));
+const CaregiverDashboard = lazy(() => import('./pages/CaregiverDashboard'));
 
 // Create a client
 const queryClient = new QueryClient();
@@ -41,6 +42,7 @@ function App() {
                     <Route path="/schedule" element={<Schedule />} />
                     <Route path="/journal" element={<Journal />} />
                     <Route path="/settings" element={<Settings />} />
+                    <Route path="/caregiver" element={<CaregiverDashboard />} />
                     <Route path="/tools" element={<ToolsIndex />} />
                     <Route path="/tools/formalizer" element={<FormalizerTool />} />
                     <Route path="/tools/judge" element={<JudgeTool />} />

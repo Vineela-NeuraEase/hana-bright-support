@@ -1,38 +1,35 @@
 
-import { Card } from "@/components/ui/card";
+import { format, parseISO } from "date-fns";
 import { JournalEntry } from "@/types/journal";
+import { Card } from "@/components/ui/card";
 import { JournalEntryHeader } from "./JournalEntryHeader";
 import { JournalEntryContent } from "./JournalEntryContent";
 import { JournalEntryActions } from "./JournalEntryActions";
 
 interface JournalEntryCardProps {
   entry: JournalEntry;
-  onDelete: (id: string) => void;
-  isMobile?: boolean;
+  isCaregiver?: boolean;
 }
 
-export const JournalEntryCard = ({ entry, onDelete, isMobile }: JournalEntryCardProps) => {
-  const handleDelete = () => {
-    if (confirm("Are you sure you want to delete this journal entry?")) {
-      onDelete(entry.id);
-    }
-  };
-
+export const JournalEntryCard = ({ entry, isCaregiver = false }: JournalEntryCardProps) => {
+  const formattedDate = entry.timestamp
+    ? format(parseISO(entry.timestamp), "MMM d, yyyy h:mm a")
+    : 'Unknown date';
+  
   return (
-    <Card key={entry.id}>
-      <JournalEntryHeader 
-        mood={entry.mood_rating} 
-        timestamp={entry.timestamp} 
+    <Card className="overflow-hidden">
+      <JournalEntryHeader
+        date={formattedDate}
+        rating={entry.mood_rating}
+        id={entry.id}
       />
-      
-      <JournalEntryContent 
+      <JournalEntryContent
         text={entry.journal_text}
         sentiment={entry.sentiment}
         factors={entry.factors}
         id={entry.id}
       />
-      
-      <JournalEntryActions onDelete={handleDelete} isMobile={isMobile} />
+      {!isCaregiver && <JournalEntryActions id={entry.id} />}
     </Card>
   );
 };
