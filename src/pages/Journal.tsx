@@ -12,6 +12,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { MoodFactors } from "@/components/journal/MoodFactors";
 import { MoodInput } from "@/components/journal/MoodInput";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const Journal = () => {
   const { session } = useAuth();
@@ -19,6 +20,7 @@ const Journal = () => {
   const { data: entries = [], isLoading, error } = useJournalEntries();
   const [activeTab, setActiveTab] = useState("0");
   const [carouselApi, setCarouselApi] = useState<CarouselApi>();
+  const isMobile = useIsMobile();
 
   // Redirect if not logged in
   if (!session) {
@@ -74,6 +76,21 @@ const Journal = () => {
     );
   };
 
+  // Define tab labels based on device type (mobile or web)
+  const tabLabels = isMobile 
+    ? [
+        "How You're Feeling",
+        "Mood Factors",
+        "Mood Trends",
+        "Journal Entries"
+      ]
+    : [
+        "How You're Feeling",
+        "Mood Factors",
+        "Mood Trends",
+        "Journal Entries"
+      ];
+
   return (
     <div className="container py-6 max-w-4xl mx-auto">
       <div className="mb-6">
@@ -99,10 +116,11 @@ const Journal = () => {
       <div className="relative">
         <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full mb-4">
           <TabsList className="w-full grid grid-cols-4">
-            <TabsTrigger value="0">How You're Feeling</TabsTrigger>
-            <TabsTrigger value="1">Mood Factors</TabsTrigger>
-            <TabsTrigger value="2">Mood Trends</TabsTrigger>
-            <TabsTrigger value="3">Journal Entries</TabsTrigger>
+            {tabLabels.map((label, index) => (
+              <TabsTrigger key={index} value={index.toString()}>
+                {label}
+              </TabsTrigger>
+            ))}
           </TabsList>
         </Tabs>
 
