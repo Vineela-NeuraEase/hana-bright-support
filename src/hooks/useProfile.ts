@@ -1,4 +1,7 @@
 
 import { useFirebaseProfile } from '@/hooks/useFirebaseProfile';
 
-export const useProfile = useFirebaseProfile;
+// Re-export useFirebaseProfile as useProfile
+const useProfile = useFirebaseProfile;
+
+export { useProfile };
