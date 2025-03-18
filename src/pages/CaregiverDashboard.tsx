@@ -2,7 +2,7 @@
 import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useProfile } from "@/hooks/useProfile";
-import { useAuth } from "@/components/AuthProvider";
+import { useAuth } from "@/hooks/useAuth";
 import { CaregiverDashboardLayout } from "@/components/caregiver/CaregiverDashboardLayout";
 import { AccessDeniedCard } from "@/components/caregiver/AccessDeniedCard";
 import { useCaregiverLinks } from "@/hooks/useCaregiverLinks";

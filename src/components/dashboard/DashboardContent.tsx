@@ -5,7 +5,7 @@ import ToolsDirectory from "@/pages/tools/Index";
 import FormalizerPage from "@/pages/tools/Formalizer";
 import JudgePage from "@/pages/tools/Judge";
 import { useProfile } from "@/hooks/useProfile";
-import { useAuth } from "@/components/AuthProvider";
+import { useAuth } from "@/hooks/useAuth";
 
 interface DashboardContentProps {
   welcomeMessage: string;
