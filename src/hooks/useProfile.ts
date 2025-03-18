@@ -1,46 +1,21 @@
 
 import { useEffect, useState } from 'react';
-import { Session } from '@supabase/supabase-js';
-import { supabase } from '@/integrations/supabase/client';
 
 export type Profile = {
   id: string;
   role: 'autistic' | 'caregiver' | 'clinician';
 };
 
-export const useProfile = (session: Session | null) => {
-  const [profile, setProfile] = useState<Profile | null>(null);
-  const [loading, setLoading] = useState(true);
+// Create a mock profile for the guest user
+const mockProfile = {
+  id: "guest-user-id",
+  role: "autistic" as const
+};
 
-  useEffect(() => {
-    if (!session) {
-      setLoading(false);
-      return;
-    }
+export const useProfile = () => {
+  const [profile, setProfile] = useState<Profile | null>(mockProfile);
+  const [loading, setLoading] = useState(false);
 
-    const getProfile = async () => {
-      setLoading(true);
-      try {
-        const { data, error } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', session.user.id)
-          .maybeSingle();
-
-        if (error) {
-          console.error('Error fetching profile:', error);
-        } else {
-          setProfile(data);
-        }
-      } catch (error) {
-        console.error('Unexpected error fetching profile:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    getProfile();
-  }, [session]);
-
+  // Return the mock profile immediately
   return { profile, loading };
 };

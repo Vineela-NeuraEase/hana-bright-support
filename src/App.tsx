@@ -43,6 +43,8 @@ function App() {
             <Routes>
               <Route element={<MainLayout />}>
                 <Route path="/" element={<Index />} />
+                {/* Redirect auth to dashboard since we're in guest mode */}
+                <Route path="/auth" element={<Auth />} />
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/dashboard/tools" element={<ToolsDirectory />} />
                 <Route path="/dashboard/tools/formalizer" element={<FormalizerPage />} />
@@ -55,7 +57,6 @@ function App() {
                 <Route path="/tools/judge" element={<JudgePage />} />
                 <Route path="/settings" element={<Settings />} />
                 <Route path="/caregiver" element={<CaregiverDashboard />} />
-                <Route path="/auth" element={<Auth />} />
                 <Route path="/home" element={<Home />} />
                 <Route path="*" element={<NotFound />} />
               </Route>

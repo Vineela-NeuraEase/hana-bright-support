@@ -1,16 +1,9 @@
 
-import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Settings as SettingsIcon } from "lucide-react";
 import { NotificationPreferences } from "@/components/settings/NotificationPreferences";
-import { LinkCodeCard } from "@/components/user/LinkCodeCard";
-import { useAuth } from "@/components/AuthProvider";
-import { useProfile } from "@/hooks/useProfile";
 
 const Settings = () => {
-  const { session } = useAuth();
-  const { profile } = useProfile(session);
-  
   return (
     <div className="container max-w-4xl py-8 space-y-6">
       <div className="flex items-center mb-6">
@@ -26,11 +19,8 @@ const Settings = () => {
         </TabsList>
         
         <TabsContent value="account" className="space-y-4">
-          {/* Only show link code for autistic users */}
-          {profile?.role === 'autistic' && <LinkCodeCard />}
-          
           <div className="text-muted-foreground">
-            More account settings will be available soon.
+            Account settings have been disabled as authentication is in guest mode.
           </div>
         </TabsContent>
         

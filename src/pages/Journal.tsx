@@ -1,8 +1,6 @@
 
 import { useState } from "react";
 import { useJournalEntries } from "@/hooks/useJournal";
-import { Navigate } from "react-router-dom";
-import { useAuth } from "@/components/AuthProvider";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { JournalHeader } from "@/components/journal/JournalHeader";
 import { JournalTabs } from "@/components/journal/JournalTabs";
@@ -10,16 +8,10 @@ import { JournalCarousel } from "@/components/journal/JournalCarousel";
 import { SentimentSummary } from "@/components/journal/SentimentSummary";
 
 const Journal = () => {
-  const { session } = useAuth();
   const [showForm, setShowForm] = useState(true);
   const { data: entries = [], isLoading, error } = useJournalEntries();
   const [activeTab, setActiveTab] = useState("0");
   const isMobile = useIsMobile();
-
-  // Redirect if not logged in
-  if (!session) {
-    return <Navigate to="/auth" />;
-  }
 
   // Handle tab change from tab clicks
   const handleTabChange = (value: string) => {

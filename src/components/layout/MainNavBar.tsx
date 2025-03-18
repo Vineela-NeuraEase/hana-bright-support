@@ -1,5 +1,5 @@
 
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { Home, Menu, Calendar, CheckSquare, RadioTower, Settings, BookText } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -22,13 +22,9 @@ import { useProfile } from "@/hooks/useProfile";
 import { useState, useEffect } from "react";
 import { NavigationItem } from "@/types/navigation";
 
-interface MainNavBarProps {
-  onSignOut?: () => void;
-}
-
-export const MainNavBar = ({ onSignOut }: MainNavBarProps) => {
+export const MainNavBar = () => {
   const { session } = useAuth();
-  const { profile } = useProfile(session);
+  const { profile } = useProfile();
   const navigationItems: NavigationItem[] = useNavigation(profile?.role);
   const location = useLocation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -37,12 +33,6 @@ export const MainNavBar = ({ onSignOut }: MainNavBarProps) => {
   useEffect(() => {
     setIsMenuOpen(false);
   }, [location.pathname]);
-
-  const handleSignOut = async () => {
-    if (onSignOut) {
-      onSignOut();
-    }
-  };
 
   return (
     <nav className="sticky top-0 z-10 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -71,7 +61,6 @@ export const MainNavBar = ({ onSignOut }: MainNavBarProps) => {
                     <span>{item.title}</span>
                   </Link>
                 ))}
-                {/* Only add these additional links if they're not already in navigation items */}
                 {!navigationItems.some(item => item.url === "/tasks") && (
                   <Link
                     to="/tasks"
@@ -122,49 +111,40 @@ export const MainNavBar = ({ onSignOut }: MainNavBarProps) => {
           </Link>
         </div>
 
-        {session ? (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 rounded-full">
-                <Avatar className="h-8 w-8">
-                  <AvatarFallback>
-                    {session?.user?.email?.charAt(0).toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>My Account</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem asChild>
-                <Link to="/dashboard">Dashboard</Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link to="/tasks">Tasks</Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link to="/schedule">Schedule</Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link to="/journal">Journal</Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link to="/tools">Tools</Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link to="/settings">Settings</Link>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={handleSignOut}>
-                Log out
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        ) : (
-          <Button asChild variant="ghost" size="sm">
-            <Link to="/auth">Login</Link>
-          </Button>
-        )}
+        {/* User Avatar */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" className="h-8 w-8 rounded-full">
+              <Avatar className="h-8 w-8">
+                <AvatarFallback>
+                  G
+                </AvatarFallback>
+              </Avatar>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuLabel>Guest User</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem asChild>
+              <Link to="/dashboard">Dashboard</Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link to="/tasks">Tasks</Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link to="/schedule">Schedule</Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link to="/journal">Journal</Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link to="/tools">Tools</Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link to="/settings">Settings</Link>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </nav>
   );

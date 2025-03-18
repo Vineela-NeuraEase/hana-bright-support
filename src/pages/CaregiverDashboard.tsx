@@ -1,42 +1,24 @@
 
-import React, { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { useAuth } from "@/components/AuthProvider";
+import React from "react";
 import { useProfile } from "@/hooks/useProfile";
-import { useCaregiverLinks } from "@/hooks/useCaregiverLinks";
 import { CaregiverDashboardLayout } from "@/components/caregiver/CaregiverDashboardLayout";
 import { AccessDeniedCard } from "@/components/caregiver/AccessDeniedCard";
 
 const CaregiverDashboard = () => {
-  const { session } = useAuth();
-  const { profile, loading: profileLoading } = useProfile(session);
-  const navigate = useNavigate();
+  const { profile, loading: profileLoading } = useProfile();
   
-  const {
-    linkCode,
-    setLinkCode,
-    isLinking,
-    linkedUsers,
-    selectedUserId,
-    setSelectedUserId,
-    loading,
-    handleLinkUser,
-    handleUnlinkUser
-  } = useCaregiverLinks();
+  // Mock link code and empty linked users array
+  const linkCode = "MOCKCODE";
+  const linkedUsers = [];
+  const selectedUserId = null;
+  const isLinking = false;
+  const loading = false;
 
-  // Redirect if not logged in
-  useEffect(() => {
-    if (!session && !profileLoading) {
-      navigate("/auth");
-    }
-  }, [session, profileLoading, navigate]);
-
-  // Redirect if not a caregiver
-  useEffect(() => {
-    if (profile && profile.role !== "caregiver" && !profileLoading) {
-      navigate("/dashboard");
-    }
-  }, [profile, profileLoading, navigate]);
+  // Mock handlers that don't perform any actual operations
+  const setLinkCode = () => {};
+  const setSelectedUserId = () => {};
+  const handleLinkUser = () => {};
+  const handleUnlinkUser = () => {};
 
   if (profileLoading) {
     return <div className="container py-6">Loading...</div>;

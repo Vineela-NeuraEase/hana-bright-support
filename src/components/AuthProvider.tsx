@@ -1,39 +1,29 @@
 
-import { createContext, useContext, useEffect, useState } from "react";
-import { Session } from "@supabase/supabase-js";
-import { supabase } from "@/integrations/supabase/client";
+import { createContext, useContext } from "react";
 
+// Create a simplified auth context with a mock session
 type AuthContextType = {
-  session: Session | null;
+  session: { user: { id: string; email: string } } | null;
   loading: boolean;
 };
 
-const AuthContext = createContext<AuthContextType>({ session: null, loading: true });
+// Create a mock session that's always active
+const mockSession = {
+  user: {
+    id: "guest-user-id",
+    email: "guest@example.com"
+  }
+};
+
+const AuthContext = createContext<AuthContextType>({ 
+  session: mockSession, 
+  loading: false 
+});
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [session, setSession] = useState<Session | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setLoading(false);
-    });
-
-    // Listen for auth changes
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-      setLoading(false);
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
-
+  // Always provide a mock session
   return (
-    <AuthContext.Provider value={{ session, loading }}>
+    <AuthContext.Provider value={{ session: mockSession, loading: false }}>
       {children}
     </AuthContext.Provider>
   );
