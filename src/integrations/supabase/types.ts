@@ -201,6 +201,27 @@ export type Database = {
         }
         Relationships: []
       }
+      profiles: {
+        Row: {
+          created_at: string | null
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id: string
+          role?: Database["public"]["Enums"]["app_role"]
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       safe_locations: {
         Row: {
           created_at: string | null
@@ -506,7 +527,7 @@ export type Database = {
       }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "autistic" | "caregiver" | "clinician"
     }
     CompositeTypes: {
       [_ in never]: never
