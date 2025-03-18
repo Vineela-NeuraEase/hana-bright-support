@@ -369,6 +369,45 @@ export type Database = {
         }
         Relationships: []
       }
+      tasks: {
+        Row: {
+          created_at: string | null
+          due_date: string | null
+          id: string
+          priority: Database["public"]["Enums"]["task_priority"]
+          spiciness: number | null
+          status: Database["public"]["Enums"]["task_status"]
+          subtasks: Json | null
+          title: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          due_date?: string | null
+          id?: string
+          priority?: Database["public"]["Enums"]["task_priority"]
+          spiciness?: number | null
+          status?: Database["public"]["Enums"]["task_status"]
+          subtasks?: Json | null
+          title: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          due_date?: string | null
+          id?: string
+          priority?: Database["public"]["Enums"]["task_priority"]
+          spiciness?: number | null
+          status?: Database["public"]["Enums"]["task_status"]
+          subtasks?: Json | null
+          title?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_insights: {
         Row: {
           action_taken: boolean | null
@@ -528,6 +567,8 @@ export type Database = {
     }
     Enums: {
       app_role: "autistic" | "caregiver" | "clinician"
+      task_priority: "low" | "medium" | "high"
+      task_status: "pending" | "in-progress" | "done"
     }
     CompositeTypes: {
       [_ in never]: never
