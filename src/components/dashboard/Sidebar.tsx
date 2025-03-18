@@ -19,7 +19,7 @@ export const Sidebar = ({ navigationItems, onSignOut }: SidebarProps) => {
   return (
     <SidebarComponent className="hidden md:flex">
       <SidebarHeader className="flex items-center justify-between p-4">
-        <h2 className="text-xl font-bold">Hana</h2>
+        {/* Removed the H2 title that was causing duplication */}
       </SidebarHeader>
       <SidebarContent>
         <SidebarMenu>
