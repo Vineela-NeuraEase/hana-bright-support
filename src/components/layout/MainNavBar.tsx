@@ -18,13 +18,13 @@ import {
 } from "@/components/ui/sheet";
 import { useAuth } from "@/components/FirebaseAuthProvider";
 import { useNavigation } from "@/hooks/useNavigation";
-import { useProfile } from "@/hooks/useFirebaseProfile";
+import { useFirebaseProfile } from "@/hooks/useFirebaseProfile";
 import { useState, useEffect } from "react";
 import { NavigationItem } from "@/types/navigation";
 
 export const MainNavBar = () => {
   const { user, signOut } = useAuth();
-  const { profile } = useProfile();
+  const { profile } = useFirebaseProfile();
   const navigationItems: NavigationItem[] = useNavigation(profile?.role);
   const location = useLocation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);

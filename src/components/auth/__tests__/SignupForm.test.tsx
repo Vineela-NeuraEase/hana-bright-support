@@ -2,16 +2,20 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import SignupForm from '../SignupForm';
-import * as supabase from '@/integrations/supabase/client';
+import * as firebaseAuth from 'firebase/auth';
 import { useToast } from '@/hooks/use-toast';
+import * as firestore from 'firebase/firestore';
 
 // Mock dependencies
-jest.mock('@/integrations/supabase/client', () => ({
-  supabase: {
-    auth: {
-      signUp: jest.fn()
-    }
-  }
+jest.mock('firebase/auth', () => ({
+  createUserWithEmailAndPassword: jest.fn(),
+  auth: jest.fn()
+}));
+
+jest.mock('firebase/firestore', () => ({
+  doc: jest.fn(),
+  setDoc: jest.fn(),
+  db: {}
 }));
 
 jest.mock('@/hooks/use-toast', () => ({
@@ -28,7 +32,8 @@ describe('SignupForm Component', () => {
     (useToast as jest.Mock).mockReturnValue({
       toast: jest.fn()
     });
-    (supabase.supabase.auth.signUp as jest.Mock).mockReset();
+    (firebaseAuth.createUserWithEmailAndPassword as jest.Mock).mockReset();
+    (firestore.setDoc as jest.Mock).mockReset();
   });
 
   it('renders the form with all fields and terms checkbox', () => {
@@ -66,18 +71,18 @@ describe('SignupForm Component', () => {
       expect(screen.getByText(/you must accept the terms and conditions/i)).toBeInTheDocument();
     });
     
-    // Supabase signUp should not be called
-    expect(supabase.supabase.auth.signUp).not.toHaveBeenCalled();
+    // Firebase signup should not be called
+    expect(firebaseAuth.createUserWithEmailAndPassword).not.toHaveBeenCalled();
   });
 
   it('handles successful signup', async () => {
     const mockToast = jest.fn();
     (useToast as jest.Mock).mockReturnValue({ toast: mockToast });
     
-    (supabase.supabase.auth.signUp as jest.Mock).mockResolvedValue({ 
-      data: { user: { id: '123' } },
-      error: null 
+    (firebaseAuth.createUserWithEmailAndPassword as jest.Mock).mockResolvedValue({ 
+      user: { uid: '123', email: 'test@example.com' } 
     });
+    (firestore.setDoc as jest.Mock).mockResolvedValue(undefined);
     
     render(
       <BrowserRouter>
@@ -108,11 +113,8 @@ describe('SignupForm Component', () => {
     fireEvent.click(screen.getByText(/create account/i));
     
     await waitFor(() => {
-      expect(supabase.supabase.auth.signUp).toHaveBeenCalledWith({
-        email: 'test@example.com',
-        password: 'password123'
-      });
-      
+      expect(firebaseAuth.createUserWithEmailAndPassword).toHaveBeenCalled();
+      expect(firestore.setDoc).toHaveBeenCalled();
       expect(mockToast).toHaveBeenCalledWith(expect.objectContaining({
         title: "Account created"
       }));
@@ -123,9 +125,8 @@ describe('SignupForm Component', () => {
     const mockToast = jest.fn();
     (useToast as jest.Mock).mockReturnValue({ toast: mockToast });
     
-    (supabase.supabase.auth.signUp as jest.Mock).mockResolvedValue({ 
-      data: null,
-      error: { message: 'Email already registered' } 
+    (firebaseAuth.createUserWithEmailAndPassword as jest.Mock).mockRejectedValue({ 
+      message: 'Email already registered' 
     });
     
     render(

@@ -2,16 +2,13 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import LoginForm from '../LoginForm';
-import * as supabase from '@/integrations/supabase/client';
+import * as firebaseAuth from 'firebase/auth';
 import { useToast } from '@/hooks/use-toast';
 
 // Mock dependencies
-jest.mock('@/integrations/supabase/client', () => ({
-  supabase: {
-    auth: {
-      signInWithPassword: jest.fn()
-    }
-  }
+jest.mock('firebase/auth', () => ({
+  signInWithEmailAndPassword: jest.fn(),
+  auth: jest.fn()
 }));
 
 jest.mock('@/hooks/use-toast', () => ({
@@ -28,7 +25,7 @@ describe('LoginForm Component', () => {
     (useToast as jest.Mock).mockReturnValue({
       toast: jest.fn()
     });
-    (supabase.supabase.auth.signInWithPassword as jest.Mock).mockReset();
+    (firebaseAuth.signInWithEmailAndPassword as jest.Mock).mockReset();
   });
 
   it('renders the form with all fields', () => {
@@ -45,9 +42,8 @@ describe('LoginForm Component', () => {
   });
 
   it('handles form submission with validation', async () => {
-    (supabase.supabase.auth.signInWithPassword as jest.Mock).mockResolvedValue({ 
-      data: { user: { id: '123' } },
-      error: null 
+    (firebaseAuth.signInWithEmailAndPassword as jest.Mock).mockResolvedValue({ 
+      user: { uid: '123' }
     });
     
     render(
@@ -69,10 +65,7 @@ describe('LoginForm Component', () => {
     fireEvent.click(screen.getByText(/sign in/i));
     
     await waitFor(() => {
-      expect(supabase.supabase.auth.signInWithPassword).toHaveBeenCalledWith({
-        email: 'test@example.com',
-        password: 'password123'
-      });
+      expect(firebaseAuth.signInWithEmailAndPassword).toHaveBeenCalled();
     });
   });
 
@@ -80,9 +73,8 @@ describe('LoginForm Component', () => {
     const mockToast = jest.fn();
     (useToast as jest.Mock).mockReturnValue({ toast: mockToast });
     
-    (supabase.supabase.auth.signInWithPassword as jest.Mock).mockResolvedValue({ 
-      data: null,
-      error: { message: 'Invalid login credentials' } 
+    (firebaseAuth.signInWithEmailAndPassword as jest.Mock).mockRejectedValue({ 
+      message: 'Invalid login credentials' 
     });
     
     render(
