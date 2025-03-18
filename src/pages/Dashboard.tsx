@@ -67,7 +67,7 @@ const Dashboard = () => {
 
   const getWelcomeMessage = () => {
     if (viewingUserProfile) {
-      return `Viewing Dashboard for Patient (Role: ${viewingUserProfile.role})`;
+      return `Viewing Dashboard for Person (Role: ${viewingUserProfile.role})`;
     }
     
     if (!profile) return "Welcome to Hannah";
@@ -90,7 +90,7 @@ const Dashboard = () => {
     return (
       <div className="bg-secondary/20 py-2 px-4 text-center">
         <p className="text-sm">
-          You are viewing a patient's dashboard. 
+          You are viewing a person's dashboard. 
           <button 
             onClick={() => navigate('/dashboard')} 
             className="ml-2 underline font-medium"

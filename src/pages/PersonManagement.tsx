@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/components/AuthProvider";
@@ -9,15 +10,14 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 
-// Define a more specific type for LinkedUser to avoid excessive type instantiation
+// Define a simple interface for LinkedUser
 interface LinkedUser {
   id: string;
   role: string;
   link_code?: string;
-  // Add other properties as needed, but keep it simple
 }
 
-const PatientManagement = () => {
+const PersonManagement = () => {
   const navigate = useNavigate();
   const { session } = useAuth();
   const { profile, loading } = useProfile(session);
@@ -147,12 +147,12 @@ const PatientManagement = () => {
 
   return (
     <div className="container max-w-4xl mx-auto py-8 px-4">
-      <h1 className="text-3xl font-bold mb-8">Patient Management</h1>
+      <h1 className="text-3xl font-bold mb-8">Person Management</h1>
 
       {/* Link New User Card */}
       <Card className="mb-8">
         <CardHeader>
-          <CardTitle>Link to a Patient</CardTitle>
+          <CardTitle>Link to a Person</CardTitle>
           <CardDescription>
             Enter the 8-character link code provided by the individual you want to support.
           </CardDescription>
@@ -196,10 +196,10 @@ const PatientManagement = () => {
       )}
 
       {/* Linked Users */}
-      <h2 className="text-2xl font-semibold mb-4">Linked Patients</h2>
+      <h2 className="text-2xl font-semibold mb-4">Linked People</h2>
       
       {isLoading ? (
-        <div className="text-center p-8">Loading linked patients...</div>
+        <div className="text-center p-8">Loading linked people...</div>
       ) : linkedUsers.length > 0 ? (
         <div className="grid gap-4 md:grid-cols-2">
           {linkedUsers.map(user => (
@@ -239,7 +239,7 @@ const PatientManagement = () => {
       ) : (
         <Card>
           <CardContent className="p-8 text-center text-muted-foreground">
-            You haven't linked to any patients yet. Use a link code to connect with someone.
+            You haven't linked to any people yet. Use a link code to connect with someone.
           </CardContent>
         </Card>
       )}
@@ -247,4 +247,4 @@ const PatientManagement = () => {
   );
 };
 
-export default PatientManagement;
+export default PersonManagement;

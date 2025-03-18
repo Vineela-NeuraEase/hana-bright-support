@@ -31,8 +31,8 @@ export const useNavigation = (role?: string): NavigationItem[] => {
       return [
         ...defaultItems,
         {
-          title: "Patient Management",
-          url: "/patients",
+          title: "Person Management",
+          url: "/people",
           icon: User,
         },
         {
@@ -50,13 +50,13 @@ export const useNavigation = (role?: string): NavigationItem[] => {
       return [
         ...defaultItems,
         {
-          title: "Patient Analytics",
+          title: "Person Analytics",
           url: "/analytics",
           icon: PieChart,
         },
         {
-          title: "Patient Management",
-          url: "/patients",
+          title: "Person Management",
+          url: "/people",
           icon: UserCog,
         },
         {
