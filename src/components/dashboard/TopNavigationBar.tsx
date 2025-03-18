@@ -39,6 +39,10 @@ export const TopNavigationBar = ({ session, navigationItems, onSignOut }: TopNav
     }
   };
 
+  const goToSettings = () => {
+    navigate('/settings');
+  };
+
   return (
     <nav className="sticky top-0 z-10 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 md:hidden">
       <div className="flex h-14 items-center px-4 gap-4 justify-between">
@@ -70,7 +74,7 @@ export const TopNavigationBar = ({ session, navigationItems, onSignOut }: TopNav
               </>
             )}
             <DropdownMenuItem>Profile</DropdownMenuItem>
-            <DropdownMenuItem>Settings</DropdownMenuItem>
+            <DropdownMenuItem onClick={goToSettings}>Settings</DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer">
               Log out

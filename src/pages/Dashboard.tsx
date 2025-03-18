@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { SidebarProvider } from "@/components/ui/sidebar";
@@ -9,7 +10,6 @@ import { useProfile } from "@/hooks/useProfile";
 import { useNavigation } from "@/hooks/useNavigation";
 import { NavigationItem } from "@/types/navigation";
 import { TopNavigationBar } from "@/components/dashboard/TopNavigationBar";
-import { MyLinkCode } from "@/components/people/MyLinkCode";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -103,13 +103,6 @@ const Dashboard = () => {
     );
   };
 
-  // Display link code section for autistic users
-  const renderLinkCodeSection = () => {
-    if (!profile || profile.role !== 'autistic' || viewingUserId) return null;
-    
-    return <MyLinkCode profile={profile} />;
-  };
-
   return (
     <SidebarProvider defaultOpen>
       <div className="flex flex-col min-h-screen bg-background">
@@ -127,11 +120,6 @@ const Dashboard = () => {
               navigationItems={navigationItems} 
               onSignOut={handleSignOut} 
             />
-            
-            {/* Link Code Section for Autistic Users */}
-            <div className="px-4 pt-4">
-              {renderLinkCodeSection()}
-            </div>
             
             <DashboardContent 
               welcomeMessage={getWelcomeMessage()} 

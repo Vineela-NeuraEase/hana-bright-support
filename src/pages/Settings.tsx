@@ -3,8 +3,14 @@ import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Settings as SettingsIcon } from "lucide-react";
 import { NotificationPreferences } from "@/components/settings/NotificationPreferences";
+import { MyLinkCode } from "@/components/people/MyLinkCode";
+import { useAuth } from "@/components/AuthProvider";
+import { useProfile } from "@/hooks/useProfile";
 
 const Settings = () => {
+  const { session } = useAuth();
+  const { profile } = useProfile(session);
+
   return (
     <div className="container max-w-4xl py-8 space-y-6">
       <div className="flex items-center mb-6">
@@ -23,9 +29,10 @@ const Settings = () => {
           <NotificationPreferences />
         </TabsContent>
         
-        <TabsContent value="account">
+        <TabsContent value="account" className="space-y-4">
+          {profile?.role === 'autistic' && <MyLinkCode profile={profile} />}
           <div className="text-muted-foreground">
-            Account settings will be available soon.
+            More account settings will be available soon.
           </div>
         </TabsContent>
         
