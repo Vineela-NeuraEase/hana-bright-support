@@ -10,7 +10,7 @@ const Index = () => {
 
   // Redirect authenticated users to dashboard
   useEffect(() => {
-    if (session || localStorage.getItem('userRole')) {
+    if (session) {
       navigate("/dashboard");
     }
   }, [session, navigate]);
@@ -23,9 +23,6 @@ const Index = () => {
         </h1>
         <p className="text-xl md:text-2xl text-gray-600">
           Your Second Brain for Autism Support
-        </p>
-        <p className="text-md text-gray-600">
-          Supporting neurodivergent individuals, caregivers, and clinicians
         </p>
       </div>
       

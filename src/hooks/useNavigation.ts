@@ -1,5 +1,5 @@
 
-import { Settings, Home, PieChart, User, UserCog, BookText, Heart } from "lucide-react";
+import { Settings, Home, PieChart, User, UserCog, BookText } from "lucide-react";
 import { NavigationItem } from "@/types/navigation";
 
 export const useNavigation = (role?: string): NavigationItem[] => {
@@ -31,9 +31,9 @@ export const useNavigation = (role?: string): NavigationItem[] => {
       return [
         ...defaultItems,
         {
-          title: "Caregiver Dashboard",
-          url: "/caregiver",
-          icon: Heart,
+          title: "Patient Management",
+          url: "/patients",
+          icon: User,
         },
         {
           title: "Journal",

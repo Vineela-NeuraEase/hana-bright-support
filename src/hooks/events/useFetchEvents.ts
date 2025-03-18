@@ -1,3 +1,4 @@
+
 import { useState, useCallback, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Event } from "@/types/event";
@@ -5,7 +6,7 @@ import { useAuth } from "@/components/AuthProvider";
 import { useToast } from "@/hooks/use-toast";
 import { transformDbEventToClient } from "./eventTransformers";
 
-export const useFetchEvents = (specificUserId?: string) => {
+export const useFetchEvents = () => {
   const [events, setEvents] = useState<Event[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { session } = useAuth();
@@ -13,10 +14,6 @@ export const useFetchEvents = (specificUserId?: string) => {
 
   const fetchEvents = useCallback(async () => {
     if (!session?.user) return;
-    
-    // The userId to fetch events for - either the specified user (for caregivers)
-    // or the current logged-in user
-    const userIdToFetch = specificUserId || session.user.id;
     
     try {
       setIsLoading(true);
@@ -31,7 +28,7 @@ export const useFetchEvents = (specificUserId?: string) => {
             priority
           )
         `)
-        .eq("user_id", userIdToFetch)
+        .eq("user_id", session.user.id)
         .order("start_time", { ascending: true });
 
       if (error) {
@@ -51,15 +48,13 @@ export const useFetchEvents = (specificUserId?: string) => {
     } finally {
       setIsLoading(false);
     }
-  }, [session, toast, specificUserId]);
+  }, [session, toast]);
 
   useEffect(() => {
     fetchEvents();
 
     // Set up realtime subscription for events
     if (session?.user) {
-      const userIdToFetch = specificUserId || session.user.id;
-      
       const channel = supabase
         .channel("events-changes")
         .on(
@@ -68,7 +63,7 @@ export const useFetchEvents = (specificUserId?: string) => {
             event: "*",
             schema: "public",
             table: "events",
-            filter: `user_id=eq.${userIdToFetch}`,
+            filter: `user_id=eq.${session.user.id}`,
           },
           () => {
             fetchEvents();
@@ -80,7 +75,7 @@ export const useFetchEvents = (specificUserId?: string) => {
         supabase.removeChannel(channel);
       };
     }
-  }, [session, fetchEvents, specificUserId]);
+  }, [session, fetchEvents]);
 
   return {
     events,

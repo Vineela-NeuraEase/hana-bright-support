@@ -1,5 +1,6 @@
 
-import { Link } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import { Home, Menu, Calendar, CheckSquare, RadioTower, Settings, BookText } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -10,91 +11,158 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useAuth } from "@/hooks/useAuth";
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import { useAuth } from "@/components/AuthProvider";
+import { useNavigation } from "@/hooks/useNavigation";
 import { useProfile } from "@/hooks/useProfile";
-import { MobileNavigation } from "./MobileNavigation";
-import { LogOut } from "lucide-react";
+import { useState, useEffect } from "react";
+import { NavigationItem } from "@/types/navigation";
 
-export const MainNavBar = () => {
-  const { session, signOut } = useAuth();
-  const { profile } = useProfile();
-  
-  // Handle sign out
+interface MainNavBarProps {
+  onSignOut?: () => void;
+}
+
+export const MainNavBar = ({ onSignOut }: MainNavBarProps) => {
+  const { session } = useAuth();
+  const { profile } = useProfile(session);
+  const navigationItems: NavigationItem[] = useNavigation(profile?.role);
+  const location = useLocation();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  // Close the menu when the location changes (user navigates to a new page)
+  useEffect(() => {
+    setIsMenuOpen(false);
+  }, [location.pathname]);
+
   const handleSignOut = async () => {
-    await signOut();
-  };
-  
-  // Get user initials for avatar
-  const getUserInitials = () => {
-    if (profile?.displayName) {
-      return profile.displayName.charAt(0).toUpperCase();
-    } else if (profile?.email) {
-      return profile.email.charAt(0).toUpperCase();
+    if (onSignOut) {
+      onSignOut();
     }
-    return "U";
   };
 
   return (
     <nav className="sticky top-0 z-10 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="flex h-14 items-center px-4 gap-4 justify-between">
         <div className="flex items-center gap-4">
-          {/* Mobile Navigation with Hamburger Menu - always visible on mobile */}
-          <MobileNavigation />
+          {/* Hamburger menu for mobile */}
+          <Sheet open={isMenuOpen} onOpenChange={setIsMenuOpen}>
+            <SheetTrigger asChild>
+              <Button variant="ghost" size="icon" aria-label="Menu" className="md:hidden">
+                <Menu className="h-5 w-5" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="left" className="w-[250px] p-0">
+              <div className="p-4 border-b">
+                <h2 className="text-xl font-bold">Hana</h2>
+              </div>
+              <div className="py-4">
+                {navigationItems.map((item) => (
+                  <Link
+                    key={item.title}
+                    to={item.url}
+                    className="flex items-center gap-3 px-4 py-2 hover:bg-accent"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    <item.icon className="h-5 w-5" />
+                    <span>{item.title}</span>
+                  </Link>
+                ))}
+                <Link
+                  to="/tasks"
+                  className="flex items-center gap-3 px-4 py-2 hover:bg-accent"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  <CheckSquare className="h-5 w-5" />
+                  <span>Tasks</span>
+                </Link>
+                <Link
+                  to="/schedule"
+                  className="flex items-center gap-3 px-4 py-2 hover:bg-accent"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  <Calendar className="h-5 w-5" />
+                  <span>Schedule</span>
+                </Link>
+                <Link
+                  to="/journal"
+                  className="flex items-center gap-3 px-4 py-2 hover:bg-accent"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  <BookText className="h-5 w-5" />
+                  <span>Journal</span>
+                </Link>
+                <Link
+                  to="/tools"
+                  className="flex items-center gap-3 px-4 py-2 hover:bg-accent"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  <RadioTower className="h-5 w-5" />
+                  <span>Tools</span>
+                </Link>
+                <Link
+                  to="/settings"
+                  className="flex items-center gap-3 px-4 py-2 hover:bg-accent"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  <Settings className="h-5 w-5" />
+                  <span>Settings</span>
+                </Link>
+              </div>
+            </SheetContent>
+          </Sheet>
           
-          {/* Hana title, visible on both mobile and desktop */}
           <Link to="/" className="flex items-center gap-2">
             <h2 className="text-lg font-semibold">Hana</h2>
           </Link>
         </div>
 
-        {/* User Avatar */}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 rounded-full">
-              <Avatar className="h-8 w-8">
-                <AvatarFallback>
-                  {getUserInitials()}
-                </AvatarFallback>
-              </Avatar>
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>
-              {profile?.email ?? "User"}
-              {profile?.role && <p className="text-xs text-muted-foreground">{profile.role}</p>}
-            </DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem asChild>
-              <Link to="/dashboard">Dashboard</Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <Link to="/tasks">Tasks</Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <Link to="/schedule">Schedule</Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <Link to="/journal">Journal</Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <Link to="/tools">Tools</Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <Link to="/settings">Settings</Link>
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            {session ? (
-              <DropdownMenuItem onClick={handleSignOut} className="text-red-500">
-                <LogOut className="h-4 w-4 mr-2" />
-                Sign Out
-              </DropdownMenuItem>
-            ) : (
+        {session ? (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="h-8 w-8 rounded-full">
+                <Avatar className="h-8 w-8">
+                  <AvatarFallback>
+                    {session?.user?.email?.charAt(0).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>My Account</DropdownMenuLabel>
+              <DropdownMenuSeparator />
               <DropdownMenuItem asChild>
-                <Link to="/auth">Sign In</Link>
+                <Link to="/dashboard">Dashboard</Link>
               </DropdownMenuItem>
-            )}
-          </DropdownMenuContent>
-        </DropdownMenu>
+              <DropdownMenuItem asChild>
+                <Link to="/tasks">Tasks</Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link to="/schedule">Schedule</Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link to="/journal">Journal</Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link to="/tools">Tools</Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link to="/settings">Settings</Link>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={handleSignOut}>
+                Log out
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        ) : (
+          <Button asChild variant="ghost" size="sm">
+            <Link to="/auth">Login</Link>
+          </Button>
+        )}
       </div>
     </nav>
   );

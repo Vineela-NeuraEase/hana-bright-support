@@ -1,4 +1,5 @@
 
+import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Settings as SettingsIcon } from "lucide-react";
 import { NotificationPreferences } from "@/components/settings/NotificationPreferences";
@@ -11,21 +12,21 @@ const Settings = () => {
         <h1 className="text-2xl font-bold">Settings</h1>
       </div>
       
-      <Tabs defaultValue="account" className="space-y-4">
+      <Tabs defaultValue="notifications" className="space-y-4">
         <TabsList>
-          <TabsTrigger value="account">Account</TabsTrigger>
           <TabsTrigger value="notifications">Notifications</TabsTrigger>
+          <TabsTrigger value="account">Account</TabsTrigger>
           <TabsTrigger value="appearance">Appearance</TabsTrigger>
         </TabsList>
         
-        <TabsContent value="account" className="space-y-4">
-          <div className="text-muted-foreground">
-            Account settings have been disabled as authentication is in guest mode.
-          </div>
-        </TabsContent>
-        
         <TabsContent value="notifications" className="space-y-4">
           <NotificationPreferences />
+        </TabsContent>
+        
+        <TabsContent value="account">
+          <div className="text-muted-foreground">
+            Account settings will be available soon.
+          </div>
         </TabsContent>
         
         <TabsContent value="appearance">

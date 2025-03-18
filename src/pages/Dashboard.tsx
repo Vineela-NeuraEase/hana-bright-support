@@ -1,53 +1,61 @@
 
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { SidebarProvider } from "@/components/ui/sidebar";
+import { useAuth } from "@/components/AuthProvider";
+import { supabase } from "@/integrations/supabase/client";
+import { Sidebar } from "@/components/dashboard/Sidebar";
 import { DashboardContent } from "@/components/dashboard/DashboardContent";
-import { MainLayout } from "@/components/layout/MainLayout";
-import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
+import { useNavigation } from "@/hooks/useNavigation";
+import { NavigationItem } from "@/types/navigation";
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const { session } = useAuth();
-  const { profile, loading: profileLoading } = useProfile();
-  
-  // Redirect to auth if not authenticated
+  const { profile } = useProfile(session);
+
   useEffect(() => {
     if (!session) {
       navigate("/auth");
     }
   }, [session, navigate]);
-  
-  // Redirect caregivers to their specific dashboard
-  useEffect(() => {
-    if (profile?.role === "caregiver" && !profileLoading) {
-      navigate("/caregiver");
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    navigate("/");
+  };
+
+  const navigationItems: NavigationItem[] = useNavigation(profile?.role);
+
+  const getWelcomeMessage = () => {
+    if (!profile) return "Welcome to Hana";
+    switch (profile.role) {
+      case 'autistic':
+        return "Your personal support companion";
+      case 'caregiver':
+        return "Care management dashboard";
+      case 'clinician':
+        return "Clinical management portal";
+      default:
+        return "Welcome to Hana";
     }
-  }, [profile, profileLoading, navigate]);
-
-  if (!session) {
-    return null; // Will redirect via useEffect
-  }
-
-  if (profileLoading) {
-    return (
-      <MainLayout>
-        <div className="container py-6">Loading...</div>
-      </MainLayout>
-    );
-  }
-
-  // Create a welcome message based on the user's displayName or email
-  const welcomeMessage = profile?.displayName 
-    ? `Welcome, ${profile.displayName}!` 
-    : session?.user?.email 
-      ? `Welcome, ${session.user.email}!` 
-      : "Welcome to your Dashboard!";
+  };
 
   return (
-    <MainLayout>
-      <DashboardContent welcomeMessage={welcomeMessage} />
-    </MainLayout>
+    <SidebarProvider defaultOpen>
+      <div className="flex min-h-screen bg-background">
+        <Sidebar
+          navigationItems={navigationItems}
+          onSignOut={handleSignOut}
+        />
+
+        {/* Main Content */}
+        <main className="flex-1">
+          <DashboardContent welcomeMessage={getWelcomeMessage()} />
+        </main>
+      </div>
+    </SidebarProvider>
   );
 };
 

@@ -5,7 +5,7 @@ import ToolsDirectory from "@/pages/tools/Index";
 import FormalizerPage from "@/pages/tools/Formalizer";
 import JudgePage from "@/pages/tools/Judge";
 import { useProfile } from "@/hooks/useProfile";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/components/AuthProvider";
 
 interface DashboardContentProps {
   welcomeMessage: string;
@@ -13,7 +13,7 @@ interface DashboardContentProps {
 
 export const DashboardContent = ({ welcomeMessage }: DashboardContentProps) => {
   const { session } = useAuth();
-  const { profile } = useProfile();
+  const { profile } = useProfile(session);
   const location = useLocation();
 
   // Only show dashboard home on the root dashboard path
@@ -35,13 +35,13 @@ export const DashboardContent = ({ welcomeMessage }: DashboardContentProps) => {
         return [
           { title: "Communication Tools", icon: RadioTower, url: "/dashboard/tools", description: "Access tools for communication support" },
           { title: "Journal", icon: BookText, url: "/journal", description: "Track mood and thoughts of those you care for" },
-          { title: "Care Dashboard", icon: CheckSquare, url: "/caregiver", description: "Monitor care routines and schedules" }
+          { title: "Care Dashboard", icon: CheckSquare, url: "/care", description: "Monitor care routines and schedules" }
         ];
       case 'clinician':
         return [
           { title: "Communication Tools", icon: RadioTower, url: "/dashboard/tools", description: "Access tools for communication support" },
           { title: "Journal", icon: BookText, url: "/journal", description: "Track patient mood and thoughts" },
-          { title: "Clinical Portal", icon: CheckSquare, url: "/patients", description: "Manage patient information and progress" }
+          { title: "Clinical Portal", icon: CheckSquare, url: "/portal", description: "Manage patient information and progress" }
         ];
       default:
         return [

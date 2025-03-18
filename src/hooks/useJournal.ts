@@ -2,88 +2,119 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { JournalEntry, JournalFormData } from "@/types/journal";
+import { toast } from "sonner";
 import { useAuth } from "@/components/AuthProvider";
-import { useToast } from "@/hooks/use-toast";
+
+export const useJournalEntries = () => {
+  const { session } = useAuth();
+
+  return useQuery({
+    queryKey: ['journalEntries'],
+    queryFn: async (): Promise<JournalEntry[]> => {
+      if (!session?.user?.id) {
+        return [];
+      }
+
+      const { data, error } = await supabase
+        .from('journal_entries')
+        .select('*')
+        .eq('user_id', session.user.id)
+        .order('timestamp', { ascending: false });
+
+      if (error) {
+        toast.error("Failed to load journal entries");
+        throw new Error(error.message);
+      }
+
+      return data || [];
+    },
+    enabled: !!session?.user?.id
+  });
+};
+
+export const useJournalEntry = (id?: string) => {
+  const { session } = useAuth();
+
+  return useQuery({
+    queryKey: ['journalEntry', id],
+    queryFn: async (): Promise<JournalEntry | null> => {
+      if (!id || !session?.user?.id) return null;
+
+      const { data, error } = await supabase
+        .from('journal_entries')
+        .select('*')
+        .eq('id', id)
+        .eq('user_id', session.user.id)
+        .maybeSingle();
+
+      if (error) {
+        toast.error("Failed to load journal entry");
+        throw new Error(error.message);
+      }
+
+      return data;
+    },
+    enabled: !!id && !!session?.user?.id
+  });
+};
 
 export const useCreateJournalEntry = () => {
   const queryClient = useQueryClient();
   const { session } = useAuth();
-  const { toast } = useToast();
 
   return useMutation({
-    mutationFn: async (newEntry: JournalFormData) => {
-      if (!session?.user) throw new Error("Not authenticated");
+    mutationFn: async (journalData: JournalFormData) => {
+      if (!session?.user?.id) {
+        throw new Error("User not authenticated");
+      }
+
+      // Call the Supabase Edge Function to analyze sentiment
+      let sentiment = 'neutral';
+      if (journalData.journal_text) {
+        try {
+          // Use the functions.invoke method instead of accessing protected properties
+          const { data, error } = await supabase.functions.invoke("analyze-sentiment", {
+            body: JSON.stringify({ 
+              text: journalData.journal_text 
+            })
+          });
+          
+          if (!error && data) {
+            sentiment = data.sentiment;
+          } else if (error) {
+            console.error('Error analyzing sentiment:', error);
+            // Fallback to determineSentiment if the edge function fails
+            sentiment = determineSentiment(journalData.journal_text);
+          }
+        } catch (error) {
+          console.error('Error analyzing sentiment:', error);
+          // Fallback to determineSentiment if the edge function fails
+          sentiment = determineSentiment(journalData.journal_text);
+        }
+      }
 
       const { data, error } = await supabase
-        .from("journal_entries")
-        .insert([
-          {
-            ...newEntry,
-            user_id: session.user.id,
-          },
-        ])
+        .from('journal_entries')
+        .insert({
+          mood_rating: journalData.mood_rating,
+          journal_text: journalData.journal_text,
+          factors: journalData.factors,
+          sentiment: sentiment,
+          user_id: session.user.id
+        })
         .select()
         .single();
 
       if (error) {
-        throw new Error(`Error creating journal entry: ${error.message}`);
+        toast.error("Failed to save journal entry");
+        throw new Error(error.message);
       }
 
-      return data as JournalEntry;
+      return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["journal-entries"] });
-      toast({
-        title: "Journal entry created",
-        description: "Your new journal entry has been saved.",
-      });
-    },
-    onError: (error: any) => {
-      toast({
-        variant: "destructive",
-        title: "Uh oh! Something went wrong.",
-        description: error.message,
-      });
-    },
-  });
-};
-
-export const useUpdateJournalEntry = () => {
-  const queryClient = useQueryClient();
-  const { session } = useAuth();
-  const { toast } = useToast();
-
-  return useMutation({
-    mutationFn: async ({ id, ...updates }: JournalEntry) => {
-      if (!session?.user) throw new Error("Not authenticated");
-
-      const { data, error } = await supabase
-        .from("journal_entries")
-        .update(updates)
-        .eq("id", id)
-        .eq("user_id", session.user.id)
-        .select()
-        .single();
-
-      if (error) {
-        throw new Error(`Error updating journal entry: ${error.message}`);
-      }
-
-      return data as JournalEntry;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["journal-entries"] });
-      toast({
-        title: "Journal entry updated",
-        description: "Your journal entry has been updated.",
-      });
-    },
-    onError: (error: any) => {
-      toast({
-        variant: "destructive",
-        title: "Uh oh! Something went wrong.",
-        description: error.message,
-      });
+      toast.success("Journal entry saved!");
+      queryClient.invalidateQueries({ queryKey: ['journalEntries'] });
     },
   });
 };
@@ -91,60 +122,53 @@ export const useUpdateJournalEntry = () => {
 export const useDeleteJournalEntry = () => {
   const queryClient = useQueryClient();
   const { session } = useAuth();
-  const { toast } = useToast();
 
   return useMutation({
     mutationFn: async (id: string) => {
-      if (!session?.user) throw new Error("Not authenticated");
+      if (!session?.user?.id) {
+        throw new Error("User not authenticated");
+      }
 
       const { error } = await supabase
-        .from("journal_entries")
+        .from('journal_entries')
         .delete()
-        .eq("id", id)
-        .eq("user_id", session.user.id);
+        .eq('id', id)
+        .eq('user_id', session.user.id);
 
       if (error) {
-        throw new Error(`Error deleting journal entry: ${error.message}`);
+        toast.error("Failed to delete journal entry");
+        throw new Error(error.message);
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["journal-entries"] });
-      toast({
-        title: "Journal entry deleted",
-        description: "Your journal entry has been deleted.",
-      });
-    },
-    onError: (error: any) => {
-      toast({
-        variant: "destructive",
-        title: "Uh oh! Something went wrong.",
-        description: error.message,
-      });
+      toast.success("Journal entry deleted!");
+      queryClient.invalidateQueries({ queryKey: ['journalEntries'] });
     },
   });
 };
 
-export const useJournalEntries = (specificUserId?: string) => {
-  const { session } = useAuth();
-  const userId = specificUserId || (session?.user?.id ?? "");
-
-  return useQuery({
-    queryKey: ["journal-entries", userId],
-    queryFn: async (): Promise<JournalEntry[]> => {
-      if (!userId) return [];
-      
-      const { data, error } = await supabase
-        .from("journal_entries")
-        .select("*")
-        .eq("user_id", userId)
-        .order("timestamp", { ascending: false });
-
-      if (error) {
-        throw new Error(`Error fetching journal entries: ${error.message}`);
-      }
-
-      return data as JournalEntry[];
-    },
-    enabled: !!userId,
+// Simple sentiment analysis function - used as a fallback
+// In a real app, this would be replaced with an AI-powered analysis
+const determineSentiment = (text: string): string => {
+  if (!text) return 'neutral';
+  
+  const positiveWords = ['happy', 'great', 'good', 'excellent', 'wonderful', 'amazing', 'joy', 'love'];
+  const negativeWords = ['sad', 'bad', 'terrible', 'awful', 'angry', 'frustrated', 'stress', 'anxious'];
+  
+  const lowerText = text.toLowerCase();
+  
+  let positiveCount = 0;
+  let negativeCount = 0;
+  
+  positiveWords.forEach(word => {
+    if (lowerText.includes(word)) positiveCount++;
   });
+  
+  negativeWords.forEach(word => {
+    if (lowerText.includes(word)) negativeCount++;
+  });
+  
+  if (positiveCount > negativeCount) return 'positive';
+  if (negativeCount > positiveCount) return 'negative';
+  return 'neutral';
 };
