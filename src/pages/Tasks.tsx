@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Plus } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
@@ -53,7 +54,13 @@ const Tasks = () => {
 
   const onSubmit = async (data: TaskFormData) => {
     try {
-      const { error } = await supabase.from("tasks").insert([data]);
+      const { error } = await supabase
+        .from("tasks")
+        .insert({
+          ...data,
+          user_id: (await supabase.auth.getUser()).data.user?.id
+        });
+      
       if (error) throw error;
 
       toast({
@@ -64,6 +71,7 @@ const Tasks = () => {
       form.reset();
       refetch();
     } catch (error) {
+      console.error("Error creating task:", error);
       toast({
         variant: "destructive",
         title: "Error",
