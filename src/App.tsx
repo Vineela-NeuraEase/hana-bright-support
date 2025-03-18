@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
 import Tasks from "./pages/Tasks";
 import Dashboard from "./pages/Dashboard";
+import Auth from "./pages/Auth"; // Import the Auth page
 import ToolsDirectory from "./pages/tools/Index";
 import FormalizerPage from "./pages/tools/Formalizer";
 import JudgePage from "./pages/tools/Judge";
@@ -21,6 +22,7 @@ const App = () => {
         <Router>
           <Routes>
             <Route path="/" element={<Home />} />
+            <Route path="/auth" element={<Auth />} />
             <Route path="/tasks" element={<Tasks />} />
             <Route path="/dashboard/*" element={<Dashboard />} />
             <Route path="/tools" element={<ToolsDirectory />} />
