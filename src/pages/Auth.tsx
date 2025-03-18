@@ -27,6 +27,8 @@ const Auth = () => {
 
     try {
       if (mode === "signup") {
+        console.log(`Signing up with role: ${role}`);
+        
         // Sign up with role metadata
         const { error: signUpError } = await supabase.auth.signUp({
           email,
@@ -37,11 +39,14 @@ const Auth = () => {
           }
         });
         
-        if (signUpError) throw signUpError;
+        if (signUpError) {
+          console.error("Sign up error:", signUpError);
+          throw signUpError;
+        }
         
         // Show success message
         toast.success("Account created successfully! Please check your email to confirm your registration.");
-
+        
       } else {
         // Sign in
         const { error: signInError } = await supabase.auth.signInWithPassword({
@@ -49,10 +54,14 @@ const Auth = () => {
           password,
         });
         
-        if (signInError) throw signInError;
+        if (signInError) {
+          console.error("Sign in error:", signInError);
+          throw signInError;
+        }
         
         // Navigate on success
         navigate("/dashboard");
+        toast.success("Signed in successfully!");
       }
     } catch (err) {
       console.error("Auth error:", err);
@@ -101,6 +110,7 @@ const Auth = () => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
+              minLength={6}
             />
           </div>
 
