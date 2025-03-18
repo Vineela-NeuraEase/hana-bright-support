@@ -1,6 +1,6 @@
 
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { Home, Menu, Calendar, CheckSquare, RadioTower, Settings, BookText } from "lucide-react";
+import { Home, Menu, Calendar, CheckSquare, RadioTower, Settings, BookText, Users } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -102,6 +102,16 @@ export const MainNavBar = ({ onSignOut }: MainNavBarProps) => {
                     <span>Tools</span>
                   </Link>
                 )}
+                {!navigationItems.some(item => item.url === "/people") && profile?.role === "caregiver" && (
+                  <Link
+                    to="/people"
+                    className="flex items-center gap-3 px-4 py-2 hover:bg-accent"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    <Users className="h-5 w-5" />
+                    <span>People</span>
+                  </Link>
+                )}
                 {!navigationItems.some(item => item.url === "/settings") && (
                   <Link
                     to="/settings"
@@ -148,6 +158,11 @@ export const MainNavBar = ({ onSignOut }: MainNavBarProps) => {
               <DropdownMenuItem asChild>
                 <Link to="/journal">Journal</Link>
               </DropdownMenuItem>
+              {profile?.role === "caregiver" && (
+                <DropdownMenuItem asChild>
+                  <Link to="/people">People</Link>
+                </DropdownMenuItem>
+              )}
               <DropdownMenuItem asChild>
                 <Link to="/tools">Tools</Link>
               </DropdownMenuItem>
