@@ -24,35 +24,35 @@ export const LinkCodeForm = ({ session, onSuccess }: LinkCodeFormProps) => {
     setIsLinking(true);
     try {
       // Find the user with this link code
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
+      const { data: linkData, error: linkError } = await supabase
+        .from('user_links')
+        .select('user_id')
         .eq('link_code', linkCode)
-        .single();
+        .maybeSingle();
 
-      if (error) {
-        throw error;
+      if (linkError) {
+        throw linkError;
       }
 
-      if (!data) {
+      if (!linkData) {
         toast.error("No user found with that link code");
         return;
       }
 
       // Create link in caregiver_links table
-      const { error: linkError } = await supabase
+      const { error: caregiverLinkError } = await supabase
         .from('caregiver_links')
         .insert({
           caregiver_id: session.user.id,
-          user_id: data.id
+          user_id: linkData.user_id
         });
 
-      if (linkError) {
+      if (caregiverLinkError) {
         // Check if it's a duplicate link error
-        if (linkError.code === '23505') { // Unique constraint violation
+        if (caregiverLinkError.code === '23505') { // Unique constraint violation
           toast.error("You are already linked to this user");
         } else {
-          throw linkError;
+          throw caregiverLinkError;
         }
       } else {
         toast.success(`Successfully linked to user`);
