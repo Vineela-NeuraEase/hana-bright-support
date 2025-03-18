@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Task } from "@/types/task";
 import { Button } from "@/components/ui/button";
@@ -163,14 +162,21 @@ export const SubtaskItem = ({
     
     setLoading(true);
     try {
+      // Get the current user session first
+      const { data: sessionData } = await supabase.auth.getSession();
+      if (!sessionData?.session?.user) {
+        throw new Error("User not authenticated");
+      }
+      
       const { error } = await supabase
         .from("tasks")
         .insert({
           title: scheduledTitle,
-          description: `Scheduled from task: ${task.title}`,
+          // Remove description as it's not in the database schema
           status: "pending",
           priority: "medium",
           due_date: scheduledDate.toISOString(),
+          user_id: sessionData.session.user.id
         });
         
       if (error) throw error;

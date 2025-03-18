@@ -6,7 +6,7 @@ export interface Task {
   id: string;
   user_id: string;
   title: string;
-  description?: string; // Adding description to the Task type
+  description?: string; // Already defined here, but the database might not have this column
   status: TaskStatus;
   priority: TaskPriority;
   due_date?: string;

@@ -49,14 +49,21 @@ export function EventDialog({
   
   const createTask = async (title: string, description: string, dueDate: Date) => {
     try {
+      // Get the current user session first
+      const { data: sessionData } = await supabase.auth.getSession();
+      if (!sessionData?.session?.user) {
+        throw new Error("User not authenticated");
+      }
+      
       const { data, error } = await supabase
         .from("tasks")
         .insert({
           title,
-          description,
+          // We don't include description as it's not in the database schema
           status: "pending",
           priority: "medium",
           due_date: dueDate.toISOString(),
+          user_id: sessionData.session.user.id
         })
         .select()
         .single();
