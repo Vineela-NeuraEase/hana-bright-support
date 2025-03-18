@@ -39,8 +39,8 @@ export const MainNavBar = () => {
           {/* Mobile Navigation with Hamburger Menu */}
           <MobileNavigation />
           
-          {/* Only show the Hana title on mobile */}
-          <Link to="/" className="flex items-center gap-2 md:hidden">
+          {/* Hana title, visible on both mobile and desktop */}
+          <Link to="/" className="flex items-center gap-2">
             <h2 className="text-lg font-semibold">Hana</h2>
           </Link>
         </div>

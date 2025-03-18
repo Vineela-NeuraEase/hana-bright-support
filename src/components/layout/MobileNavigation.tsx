@@ -27,7 +27,7 @@ export const MobileNavigation = () => {
   };
 
   return (
-    <div className="md:hidden">
+    <div className="block md:hidden">
       <Sheet open={isMenuOpen} onOpenChange={setIsMenuOpen}>
         <SheetTrigger asChild>
           <Button variant="ghost" size="icon" aria-label="Menu" className="block md:hidden">
