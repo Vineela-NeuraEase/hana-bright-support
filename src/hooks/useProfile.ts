@@ -7,11 +7,20 @@ export type Profile = {
   id: string;
   role: 'autistic' | 'caregiver' | 'clinician';
   link_code?: string;
+  linkedUsers?: LinkedUser[];
+};
+
+export type LinkedUser = {
+  id: string;
+  role: string;
+  link_code?: string;
 };
 
 export const useProfile = (session: Session | null) => {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [linkedUsers, setLinkedUsers] = useState<LinkedUser[]>([]);
+  const [linkedUsersLoading, setLinkedUsersLoading] = useState(false);
 
   useEffect(() => {
     if (!session) {
@@ -51,6 +60,11 @@ export const useProfile = (session: Session | null) => {
             ...profileData,
             link_code: linkData?.link_code || undefined
           });
+
+          // If the user is a caregiver, fetch linked users
+          if (profileData.role === 'caregiver') {
+            fetchLinkedUsers(session.user.id);
+          }
         }
       } catch (error) {
         console.error('Unexpected error fetching profile:', error);
@@ -62,5 +76,67 @@ export const useProfile = (session: Session | null) => {
     getProfile();
   }, [session]);
 
-  return { profile, loading };
+  const fetchLinkedUsers = async (caregiverId: string) => {
+    setLinkedUsersLoading(true);
+    try {
+      // Get the linked user IDs from caregiver_links
+      const { data: linksData, error: linksError } = await supabase
+        .from('caregiver_links')
+        .select('user_id')
+        .eq('caregiver_id', caregiverId);
+      
+      if (linksError) {
+        throw linksError;
+      }
+
+      if (!linksData || linksData.length === 0) {
+        setLinkedUsers([]);
+        return;
+      }
+
+      // Get the profile data for each linked user
+      const userIds = linksData.map(link => link.user_id);
+      const { data: profilesData, error: profilesError } = await supabase
+        .from('profiles')
+        .select('*')
+        .in('id', userIds);
+      
+      if (profilesError) {
+        throw profilesError;
+      }
+
+      // Get link codes for each linked user
+      const { data: linkCodesData, error: linkCodesError } = await supabase
+        .from('user_links')
+        .select('user_id, link_code')
+        .in('user_id', userIds);
+      
+      if (linkCodesError) {
+        throw linkCodesError;
+      }
+
+      // Combine profiles with link codes
+      const linkedUsersWithLinkCodes = profilesData.map(profile => {
+        const linkCodeData = linkCodesData.find(lc => lc.user_id === profile.id);
+        return {
+          ...profile,
+          link_code: linkCodeData?.link_code
+        };
+      });
+
+      setLinkedUsers(linkedUsersWithLinkCodes);
+    } catch (error) {
+      console.error('Error fetching linked users:', error);
+    } finally {
+      setLinkedUsersLoading(false);
+    }
+  };
+
+  return { 
+    profile, 
+    loading, 
+    linkedUsers, 
+    linkedUsersLoading, 
+    refetchLinkedUsers: () => profile?.role === 'caregiver' ? fetchLinkedUsers(profile.id) : null 
+  };
 };

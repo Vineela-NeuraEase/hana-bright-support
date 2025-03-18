@@ -2,6 +2,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { CalendarIcon, CheckSquare, MessageSquareDiff } from "lucide-react";
 
 interface LinkedUser {
   id: string;
@@ -14,13 +15,19 @@ interface LinkedUsersListProps {
   isLoading: boolean;
   onViewDashboard: (userId: string) => void;
   onUnlink: (userId: string) => void;
+  onViewTasks: (userId: string) => void;
+  onViewCalendar: (userId: string) => void;
+  onSendEncouragement: (userId: string) => void;
 }
 
 export const LinkedUsersList = ({ 
   linkedUsers, 
   isLoading, 
   onViewDashboard, 
-  onUnlink 
+  onUnlink,
+  onViewTasks,
+  onViewCalendar,
+  onSendEncouragement
 }: LinkedUsersListProps) => {
   if (isLoading) {
     return (
@@ -55,21 +62,54 @@ export const LinkedUsersList = ({
               </div>
             </div>
           </div>
-          <CardContent className="pt-0 pb-4 flex justify-between">
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={() => onViewDashboard(user.id)}
-            >
-              View Dashboard
-            </Button>
-            <Button 
-              variant="destructive" 
-              size="sm"
-              onClick={() => onUnlink(user.id)}
-            >
-              Unlink
-            </Button>
+          <CardContent className="pt-0 pb-4">
+            <div className="flex flex-wrap gap-2">
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => onViewDashboard(user.id)}
+              >
+                View Dashboard
+              </Button>
+              
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => onViewTasks(user.id)}
+                className="inline-flex items-center"
+              >
+                <CheckSquare className="mr-1 h-4 w-4" />
+                Tasks
+              </Button>
+              
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => onViewCalendar(user.id)}
+                className="inline-flex items-center"
+              >
+                <CalendarIcon className="mr-1 h-4 w-4" />
+                Schedule
+              </Button>
+              
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => onSendEncouragement(user.id)}
+                className="inline-flex items-center"
+              >
+                <MessageSquareDiff className="mr-1 h-4 w-4" />
+                Encourage
+              </Button>
+              
+              <Button 
+                variant="destructive" 
+                size="sm"
+                onClick={() => onUnlink(user.id)}
+              >
+                Unlink
+              </Button>
+            </div>
           </CardContent>
         </Card>
       ))}

@@ -99,6 +99,36 @@ export type Database = {
         }
         Relationships: []
       }
+      caregiver_messages: {
+        Row: {
+          caregiver_id: string
+          created_at: string
+          id: string
+          message: string
+          read_at: string | null
+          tags: string[] | null
+          user_id: string
+        }
+        Insert: {
+          caregiver_id: string
+          created_at?: string
+          id?: string
+          message: string
+          read_at?: string | null
+          tags?: string[] | null
+          user_id: string
+        }
+        Update: {
+          caregiver_id?: string
+          created_at?: string
+          id?: string
+          message?: string
+          read_at?: string | null
+          tags?: string[] | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       data_retention_policies: {
         Row: {
           created_at: string | null
@@ -476,6 +506,8 @@ export type Database = {
       tasks: {
         Row: {
           created_at: string | null
+          created_by: string | null
+          created_by_role: string | null
           due_date: string | null
           id: string
           priority: Database["public"]["Enums"]["task_priority"]
@@ -488,6 +520,8 @@ export type Database = {
         }
         Insert: {
           created_at?: string | null
+          created_by?: string | null
+          created_by_role?: string | null
           due_date?: string | null
           id?: string
           priority?: Database["public"]["Enums"]["task_priority"]
@@ -500,6 +534,8 @@ export type Database = {
         }
         Update: {
           created_at?: string | null
+          created_by?: string | null
+          created_by_role?: string | null
           due_date?: string | null
           id?: string
           priority?: Database["public"]["Enums"]["task_priority"]

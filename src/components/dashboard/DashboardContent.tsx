@@ -1,11 +1,12 @@
 
 import { Link, Routes, Route, useLocation } from "react-router-dom";
-import { Calendar, CheckSquare, BookText, RadioTower } from "lucide-react";
+import { Calendar, CheckSquare, BookText, RadioTower, MessageSquare } from "lucide-react";
 import ToolsDirectory from "@/pages/tools/Index";
 import FormalizerPage from "@/pages/tools/Formalizer";
 import JudgePage from "@/pages/tools/Judge";
 import { useProfile } from "@/hooks/useProfile";
 import { useAuth } from "@/components/AuthProvider";
+import { EncouragementList } from "@/components/messages/EncouragementList";
 
 interface DashboardContentProps {
   welcomeMessage: string;
@@ -29,13 +30,15 @@ export const DashboardContent = ({ welcomeMessage }: DashboardContentProps) => {
           { title: "Tasks", icon: CheckSquare, url: "/tasks", description: "Manage and organize your tasks" },
           { title: "Schedule", icon: Calendar, url: "/schedule", description: "View and update your daily schedule" },
           { title: "Journal", icon: BookText, url: "/journal", description: "Record your thoughts and feelings" },
+          { title: "Messages", icon: MessageSquare, url: "/messages", description: "View encouragement messages from caregivers" },
           { title: "Communication Tools", icon: RadioTower, url: "/dashboard/tools", description: "Access tools for communication support" }
         ];
       case 'caregiver':
         return [
           { title: "Communication Tools", icon: RadioTower, url: "/dashboard/tools", description: "Access tools for communication support" },
           { title: "Journal", icon: BookText, url: "/journal", description: "Track mood and thoughts of those you care for" },
-          { title: "Care Dashboard", icon: CheckSquare, url: "/care", description: "Monitor care routines and schedules" }
+          { title: "Care Dashboard", icon: CheckSquare, url: "/care", description: "Monitor care routines and schedules" },
+          { title: "People Management", icon: MessageSquare, url: "/people", description: "Manage linked users and send encouragement" }
         ];
       case 'clinician':
         return [
@@ -57,6 +60,14 @@ export const DashboardContent = ({ welcomeMessage }: DashboardContentProps) => {
         <Route path="/" element={
           <div>
             <h1 className="text-2xl font-bold mb-6">{welcomeMessage}</h1>
+            
+            {/* Only show messages for autistic users */}
+            {profile?.role === 'autistic' && (
+              <div className="mb-6">
+                <EncouragementList />
+              </div>
+            )}
+            
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {getToolsForRole().map((tool) => (
                 <Link to={tool.url} key={tool.title} className="block">

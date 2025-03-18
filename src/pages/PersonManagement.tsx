@@ -1,140 +1,183 @@
-
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { Container } from "@/components/ui/container";
 import { useAuth } from "@/components/AuthProvider";
 import { useProfile } from "@/hooks/useProfile";
-import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
 import { LinkCodeForm } from "@/components/people/LinkCodeForm";
-import { MyLinkCode } from "@/components/people/MyLinkCode";
 import { LinkedUsersList } from "@/components/people/LinkedUsersList";
-
-// Define a simple interface for LinkedUser
-interface LinkedUser {
-  id: string;
-  role: string;
-  link_code?: string;
-}
+import { MyLinkCode } from "@/components/people/MyLinkCode";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import { TaskMonitoring } from "@/components/caregiver/TaskMonitoring";
+import { SharedCalendar } from "@/components/caregiver/SharedCalendar";
+import { EncouragementMessage } from "@/components/caregiver/EncouragementMessage";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { ArrowLeft } from "lucide-react";
 
 const PersonManagement = () => {
-  const navigate = useNavigate();
   const { session } = useAuth();
-  const { profile, loading } = useProfile(session);
-  const [linkedUsers, setLinkedUsers] = useState<LinkedUser[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-
-  useEffect(() => {
-    if (!session) {
-      navigate("/auth");
-      return;
-    }
-
-    if (profile && profile.role !== 'caregiver' && profile.role !== 'clinician') {
-      navigate("/dashboard");
-      return;
-    }
-
-    fetchLinkedUsers();
-  }, [session, profile, navigate]);
-
-  const fetchLinkedUsers = async () => {
-    if (!session) return;
-    
-    setIsLoading(true);
-    try {
-      // Get all users this caregiver is linked to
-      const { data: links, error: linksError } = await supabase
-        .from('caregiver_links')
-        .select('user_id')
-        .eq('caregiver_id', session.user.id);
-
-      if (linksError) throw linksError;
-
-      if (links && links.length > 0) {
-        // Get profiles for all linked users
-        const userIds = links.map(link => link.user_id);
-        
-        // Get profiles
-        const { data: profiles, error: profilesError } = await supabase
-          .from('profiles')
-          .select('id, role')
-          .in('id', userIds);
-
-        if (profilesError) throw profilesError;
-        
-        // Get link codes from user_links
-        const { data: userLinks, error: userLinksError } = await supabase
-          .from('user_links')
-          .select('user_id, link_code')
-          .in('user_id', userIds);
-        
-        if (userLinksError) throw userLinksError;
-        
-        // Combine the data
-        const combinedData = profiles.map(profile => {
-          const userLink = userLinks?.find(link => link.user_id === profile.id);
-          return {
-            ...profile,
-            link_code: userLink?.link_code
-          };
-        });
-        
-        setLinkedUsers(combinedData || []);
-      } else {
-        setLinkedUsers([]);
-      }
-    } catch (error) {
-      console.error('Error fetching linked users:', error);
-      toast.error("Failed to load linked users");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleUnlinkUser = async (userId: string) => {
-    if (!session) return;
-    
-    try {
-      const { error } = await supabase
-        .from('caregiver_links')
-        .delete()
-        .eq('caregiver_id', session.user.id)
-        .eq('user_id', userId);
-
-      if (error) throw error;
-      
-      toast.success("User unlinked successfully");
-      fetchLinkedUsers();
-    } catch (error) {
-      console.error('Error unlinking user:', error);
-      toast.error("Failed to unlink user");
-    }
-  };
-
+  const { profile, loading, linkedUsers, linkedUsersLoading, refetchLinkedUsers } = useProfile(session);
+  const { toast } = useToast();
+  const navigate = useNavigate();
+  
+  const [viewSection, setViewSection] = useState<"list" | "tasks" | "calendar" | "encourage">("list");
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
+  
   const handleViewDashboard = (userId: string) => {
     navigate(`/dashboard?viewAs=${userId}`);
   };
-
-  return (
-    <div className="container max-w-4xl mx-auto py-8 px-4">
-      <h1 className="text-3xl font-bold mb-8">Person Management</h1>
-
-      {/* Link New User Card */}
-      <LinkCodeForm session={session} onSuccess={fetchLinkedUsers} />
-
-      {/* My Link Code Card */}
-      <MyLinkCode profile={profile} />
-
-      {/* Linked Users */}
-      <h2 className="text-2xl font-semibold mb-4">Linked People</h2>
+  
+  const handleUnlink = async (userId: string) => {
+    if (!session) return;
+    
+    try {
+      // Delete the caregiver_link entry
+      const { error } = await supabase
+        .from('caregiver_links')
+        .delete()
+        .match({ caregiver_id: session.user.id, user_id: userId });
       
-      <LinkedUsersList 
-        linkedUsers={linkedUsers}
-        isLoading={isLoading}
-        onViewDashboard={handleViewDashboard}
-        onUnlink={handleUnlinkUser}
-      />
-    </div>
+      if (error) throw error;
+      
+      toast({
+        title: "Unlinked successfully",
+        description: "The user has been unlinked from your account."
+      });
+      
+      // Refresh the list of linked users
+      if (refetchLinkedUsers) refetchLinkedUsers();
+    } catch (error) {
+      console.error("Error unlinking user:", error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to unlink the user. Please try again."
+      });
+    }
+  };
+  
+  const handleViewTasks = (userId: string) => {
+    setSelectedUserId(userId);
+    setViewSection("tasks");
+  };
+  
+  const handleViewCalendar = (userId: string) => {
+    setSelectedUserId(userId);
+    setViewSection("calendar");
+  };
+  
+  const handleSendEncouragement = (userId: string) => {
+    setSelectedUserId(userId);
+    setViewSection("encourage");
+  };
+  
+  const renderContent = () => {
+    if (viewSection === "list") {
+      return (
+        <div className="space-y-8">
+          <MyLinkCode profile={profile} />
+          
+          <div>
+            <h2 className="text-xl font-semibold mb-4">Link to a Person</h2>
+            <LinkCodeForm onSuccess={refetchLinkedUsers} />
+          </div>
+          
+          <div>
+            <h2 className="text-xl font-semibold mb-4">Linked People</h2>
+            <LinkedUsersList 
+              linkedUsers={linkedUsers || []} 
+              isLoading={linkedUsersLoading}
+              onViewDashboard={handleViewDashboard}
+              onUnlink={handleUnlink}
+              onViewTasks={handleViewTasks}
+              onViewCalendar={handleViewCalendar}
+              onSendEncouragement={handleSendEncouragement}
+            />
+          </div>
+        </div>
+      );
+    }
+    
+    if (!selectedUserId) {
+      return (
+        <Card>
+          <CardContent className="p-8 text-center">
+            No user selected. Please select a user first.
+          </CardContent>
+        </Card>
+      );
+    }
+    
+    if (viewSection === "tasks") {
+      return (
+        <div>
+          <Button 
+            variant="outline" 
+            onClick={() => setViewSection("list")}
+            className="mb-6"
+          >
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back to Linked People
+          </Button>
+          <TaskMonitoring userId={selectedUserId} />
+        </div>
+      );
+    }
+    
+    if (viewSection === "calendar") {
+      return (
+        <div>
+          <Button 
+            variant="outline" 
+            onClick={() => setViewSection("list")}
+            className="mb-6"
+          >
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back to Linked People
+          </Button>
+          <SharedCalendar userId={selectedUserId} />
+        </div>
+      );
+    }
+    
+    if (viewSection === "encourage") {
+      return (
+        <div>
+          <Button 
+            variant="outline" 
+            onClick={() => setViewSection("list")}
+            className="mb-6"
+          >
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back to Linked People
+          </Button>
+          
+          <Card>
+            <CardHeader>
+              <CardTitle>Send Encouragement</CardTitle>
+              <CardDescription>
+                Send a supportive message to this user
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <EncouragementMessage userId={selectedUserId} />
+            </CardContent>
+          </Card>
+        </div>
+      );
+    }
+    
+    return null;
+  };
+  
+  return (
+    <Container>
+      <div className="py-8">
+        <h1 className="text-2xl font-bold mb-6">Person Management</h1>
+        {renderContent()}
+      </div>
+    </Container>
   );
 };
 
