@@ -11,6 +11,7 @@ import { Carousel, CarouselContent, CarouselItem, type CarouselApi } from "@/com
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { MoodFactors } from "@/components/journal/MoodFactors";
+import { MoodInput } from "@/components/journal/MoodInput";
 
 const Journal = () => {
   const { session } = useAuth();
@@ -52,7 +53,7 @@ const Journal = () => {
   const renderCarouselDots = () => {
     if (!carouselApi) return null;
     
-    const slides = [0, 1, 2]; // Three slides now (removed "How You're Feeling")
+    const slides = [0, 1, 2, 3]; // Four slides (added back "How You're Feeling")
     return (
       <div className="flex justify-center gap-2 mt-4">
         {slides.map((index) => (
@@ -97,10 +98,11 @@ const Journal = () => {
 
       <div className="relative">
         <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full mb-4">
-          <TabsList className="w-full grid grid-cols-3">
-            <TabsTrigger value="0">Mood Factors</TabsTrigger>
-            <TabsTrigger value="1">Mood Trends</TabsTrigger>
-            <TabsTrigger value="2">Journal Entries</TabsTrigger>
+          <TabsList className="w-full grid grid-cols-4">
+            <TabsTrigger value="0">How You're Feeling</TabsTrigger>
+            <TabsTrigger value="1">Mood Factors</TabsTrigger>
+            <TabsTrigger value="2">Mood Trends</TabsTrigger>
+            <TabsTrigger value="3">Journal Entries</TabsTrigger>
           </TabsList>
         </Tabs>
 
@@ -114,7 +116,22 @@ const Journal = () => {
           orientation="horizontal"
         >
           <CarouselContent>
-            {/* Page 1: Mood Factors */}
+            {/* Page 1: How You're Feeling */}
+            <CarouselItem className="basis-full">
+              {showForm ? (
+                <Card>
+                  <CardContent className="p-4">
+                    <MoodInput />
+                  </CardContent>
+                </Card>
+              ) : (
+                <div className="flex justify-center items-center h-40">
+                  <p>Click "New Entry" to add a mood entry</p>
+                </div>
+              )}
+            </CarouselItem>
+
+            {/* Page 2: Mood Factors */}
             <CarouselItem className="basis-full">
               {showForm ? (
                 <Card>
@@ -129,7 +146,7 @@ const Journal = () => {
               )}
             </CarouselItem>
 
-            {/* Page 2: Mood Trends Chart */}
+            {/* Page 3: Mood Trends Chart */}
             <CarouselItem className="basis-full">
               <Card className="border-0 shadow-none">
                 <CardContent className="p-1">
@@ -138,7 +155,7 @@ const Journal = () => {
               </Card>
             </CarouselItem>
 
-            {/* Page 3: Journal Entries List */}
+            {/* Page 4: Journal Entries List */}
             <CarouselItem className="basis-full">
               <Card className="border-0 shadow-none">
                 <CardContent className="p-1">
