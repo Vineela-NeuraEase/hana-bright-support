@@ -6,7 +6,7 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 import { AuthProvider } from "@/components/AuthProvider";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 
-import MainLayout from "@/components/layout/MainLayout";
+import { MainLayout } from "@/components/layout/MainLayout"; // Fixed import
 import Home from "@/pages/Home";
 import Dashboard from "@/pages/Dashboard";
 import Journal from "@/pages/Journal";

@@ -10,10 +10,10 @@ interface JournalEntriesListProps {
 }
 
 export const JournalEntriesList = ({ entries, isMobile }: JournalEntriesListProps) => {
-  const deleteEntry = useDeleteJournalEntry();
+  const deleteEntryMutation = useDeleteJournalEntry();
 
-  const handleDelete = (id: string) => {
-    deleteEntry.mutate(id);
+  const handleDelete = async (id: string) => {
+    await deleteEntryMutation.mutateAsync(id);
   };
 
   if (entries.length === 0) {
@@ -28,7 +28,7 @@ export const JournalEntriesList = ({ entries, isMobile }: JournalEntriesListProp
         <JournalEntryCard 
           key={entry.id} 
           entry={entry} 
-          onDelete={handleDelete} 
+          onDelete={() => handleDelete(entry.id)} 
           isMobile={isMobile}
         />
       ))}

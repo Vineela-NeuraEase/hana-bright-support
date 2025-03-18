@@ -1,3 +1,4 @@
+
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { JournalEntry, JournalFormData } from "@/types/journal";
@@ -9,8 +10,8 @@ export const useCreateJournalEntry = () => {
   const { session } = useAuth();
   const { toast } = useToast();
 
-  return useMutation(
-    async (newEntry: JournalFormData) => {
+  return useMutation({
+    mutationFn: async (newEntry: JournalFormData) => {
       if (!session?.user) throw new Error("Not authenticated");
 
       const { data, error } = await supabase
@@ -30,23 +31,21 @@ export const useCreateJournalEntry = () => {
 
       return data as JournalEntry;
     },
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ["journal-entries"] });
-        toast({
-          title: "Journal entry created",
-          description: "Your new journal entry has been saved.",
-        });
-      },
-      onError: (error: any) => {
-        toast({
-          variant: "destructive",
-          title: "Uh oh! Something went wrong.",
-          description: error.message,
-        });
-      },
-    }
-  );
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["journal-entries"] });
+      toast({
+        title: "Journal entry created",
+        description: "Your new journal entry has been saved.",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        variant: "destructive",
+        title: "Uh oh! Something went wrong.",
+        description: error.message,
+      });
+    },
+  });
 };
 
 export const useUpdateJournalEntry = () => {
@@ -54,8 +53,8 @@ export const useUpdateJournalEntry = () => {
   const { session } = useAuth();
   const { toast } = useToast();
 
-  return useMutation(
-    async ({ id, ...updates }: JournalEntry) => {
+  return useMutation({
+    mutationFn: async ({ id, ...updates }: JournalEntry) => {
       if (!session?.user) throw new Error("Not authenticated");
 
       const { data, error } = await supabase
@@ -72,23 +71,21 @@ export const useUpdateJournalEntry = () => {
 
       return data as JournalEntry;
     },
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ["journal-entries"] });
-        toast({
-          title: "Journal entry updated",
-          description: "Your journal entry has been updated.",
-        });
-      },
-      onError: (error: any) => {
-        toast({
-          variant: "destructive",
-          title: "Uh oh! Something went wrong.",
-          description: error.message,
-        });
-      },
-    }
-  );
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["journal-entries"] });
+      toast({
+        title: "Journal entry updated",
+        description: "Your journal entry has been updated.",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        variant: "destructive",
+        title: "Uh oh! Something went wrong.",
+        description: error.message,
+      });
+    },
+  });
 };
 
 export const useDeleteJournalEntry = () => {
@@ -96,8 +93,8 @@ export const useDeleteJournalEntry = () => {
   const { session } = useAuth();
   const { toast } = useToast();
 
-  return useMutation(
-    async (id: string) => {
+  return useMutation({
+    mutationFn: async (id: string) => {
       if (!session?.user) throw new Error("Not authenticated");
 
       const { error } = await supabase
@@ -110,23 +107,21 @@ export const useDeleteJournalEntry = () => {
         throw new Error(`Error deleting journal entry: ${error.message}`);
       }
     },
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ["journal-entries"] });
-        toast({
-          title: "Journal entry deleted",
-          description: "Your journal entry has been deleted.",
-        });
-      },
-      onError: (error: any) => {
-        toast({
-          variant: "destructive",
-          title: "Uh oh! Something went wrong.",
-          description: error.message,
-        });
-      },
-    }
-  );
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["journal-entries"] });
+      toast({
+        title: "Journal entry deleted",
+        description: "Your journal entry has been deleted.",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        variant: "destructive",
+        title: "Uh oh! Something went wrong.",
+        description: error.message,
+      });
+    },
+  });
 };
 
 export const useJournalEntries = (specificUserId?: string) => {

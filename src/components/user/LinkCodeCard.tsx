@@ -1,9 +1,8 @@
-
 import React, { useEffect, useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { InfoIcon, CopyIcon, RefreshIcon, CheckIcon } from "lucide-react";
+import { InfoIcon, CopyIcon, RefreshCw, CheckIcon } from "lucide-react"; // Fixed import
 import { useAuth } from "@/components/AuthProvider";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -169,7 +168,7 @@ export const LinkCodeCard: React.FC = () => {
                 onClick={generateNewLinkCode}
                 disabled={refreshing}
               >
-                <RefreshIcon className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
+                <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
               </Button>
             </div>
             
