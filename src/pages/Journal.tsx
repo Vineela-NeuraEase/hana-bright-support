@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useJournalEntries } from "@/hooks/useJournal";
 import { JournalForm } from "@/components/journal/JournalForm";
 import { JournalEntriesList } from "@/components/journal/JournalEntriesList";
@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { PlusCircle, X } from "lucide-react";
 import { useAuth } from "@/components/AuthProvider";
 import { Navigate } from "react-router-dom";
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious, type CarouselApi } from "@/components/ui/carousel";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -17,15 +17,37 @@ const Journal = () => {
   const [showForm, setShowForm] = useState(true);
   const { data: entries = [], isLoading, error } = useJournalEntries();
   const [activeTab, setActiveTab] = useState("0");
+  const [carouselApi, setCarouselApi] = useState<CarouselApi>();
 
   // Redirect if not logged in
   if (!session) {
     return <Navigate to="/auth" />;
   }
 
+  // Handle tab change from tab clicks
   const handleTabChange = (value: string) => {
     setActiveTab(value);
+    // Synchronize the carousel with the tab selection
+    if (carouselApi) {
+      carouselApi.scrollTo(parseInt(value));
+    }
   };
+
+  // Handle carousel change event
+  useEffect(() => {
+    if (!carouselApi) return;
+
+    const onSelect = () => {
+      setActiveTab(String(carouselApi.selectedScrollSnap()));
+    };
+
+    carouselApi.on("select", onSelect);
+    
+    // Cleanup
+    return () => {
+      carouselApi.off("select", onSelect);
+    };
+  }, [carouselApi]);
 
   return (
     <div className="container py-6 max-w-4xl mx-auto">
@@ -58,13 +80,13 @@ const Journal = () => {
           </TabsList>
         </Tabs>
 
-        <Carousel className="w-full" 
+        <Carousel 
+          className="w-full"
           opts={{ 
             align: "start",
             loop: false,
           }}
-          onSlideChange={(index) => setActiveTab(String(index))}
-          value={parseInt(activeTab)}
+          setApi={setCarouselApi}
           orientation="horizontal"
         >
           <CarouselContent>
