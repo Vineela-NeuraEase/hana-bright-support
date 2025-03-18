@@ -72,20 +72,19 @@ export const useCreateJournalEntry = () => {
       let sentiment = 'neutral';
       if (journalData.journal_text) {
         try {
-          const response = await fetch(`${supabase.supabaseUrl}/functions/v1/analyze-sentiment`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${supabase.supabaseKey}`
-            },
+          // Use the functions.invoke method instead of accessing protected properties
+          const { data, error } = await supabase.functions.invoke("analyze-sentiment", {
             body: JSON.stringify({ 
               text: journalData.journal_text 
             })
           });
           
-          if (response.ok) {
-            const result = await response.json();
-            sentiment = result.sentiment;
+          if (!error && data) {
+            sentiment = data.sentiment;
+          } else if (error) {
+            console.error('Error analyzing sentiment:', error);
+            // Fallback to determineSentiment if the edge function fails
+            sentiment = determineSentiment(journalData.journal_text);
           }
         } catch (error) {
           console.error('Error analyzing sentiment:', error);
