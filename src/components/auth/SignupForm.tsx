@@ -11,10 +11,7 @@ import { CardContent } from "@/components/ui/card";
 import FormFields from "./form-components/FormFields";
 import RoleSelector from "./form-components/RoleSelector";
 import TermsAgreement from "./form-components/TermsAgreement";
-import { createUserWithEmailAndPassword } from "firebase/auth";
-import { auth } from "@/integrations/firebase/client";
-import { doc, setDoc } from "firebase/firestore";
-import { db } from "@/integrations/firebase/client";
+import { signUp } from "@/services/auth/firebaseAuth";
 
 // Sign up form schema
 const signupSchema = z.object({
@@ -51,20 +48,8 @@ const SignupForm = () => {
   const handleSignup = async (data: SignupFormValues) => {
     setIsLoading(true);
     try {
-      // Store the selected role in localStorage for profile creation
-      localStorage.setItem('userRole', data.role);
-      
-      // Create the user with Firebase Auth
-      const userCredential = await createUserWithEmailAndPassword(auth, data.email, data.password);
-      const { user } = userCredential;
-      
-      // Create user profile in Firestore
-      await setDoc(doc(db, "users", user.uid), {
-        email: user.email,
-        role: data.role,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      });
+      // Sign up with Firebase Auth service
+      await signUp(data.email, data.password, data.role);
       
       toast({
         title: "Account created",

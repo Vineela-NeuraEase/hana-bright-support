@@ -11,13 +11,13 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/hooks/useAuth";
-import { useFirebaseProfile } from "@/hooks/useFirebaseProfile";
+import { useProfile } from "@/hooks/useProfile";
 import { MobileNavigation } from "./MobileNavigation";
 import { LogOut } from "lucide-react";
 
 export const MainNavBar = () => {
   const { session, signOut } = useAuth();
-  const { profile } = useFirebaseProfile();
+  const { profile } = useProfile();
   
   // Handle sign out
   const handleSignOut = async () => {
@@ -26,8 +26,10 @@ export const MainNavBar = () => {
   
   // Get user initials for avatar
   const getUserInitials = () => {
-    if (session?.user?.email) {
-      return session.user.email.charAt(0).toUpperCase();
+    if (profile?.displayName) {
+      return profile.displayName.charAt(0).toUpperCase();
+    } else if (profile?.email) {
+      return profile.email.charAt(0).toUpperCase();
     }
     return "U";
   };
@@ -58,7 +60,7 @@ export const MainNavBar = () => {
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>
-              {session ? session.user?.email : "User"}
+              {profile?.email ?? "User"}
               {profile?.role && <p className="text-xs text-muted-foreground">{profile.role}</p>}
             </DropdownMenuLabel>
             <DropdownMenuSeparator />

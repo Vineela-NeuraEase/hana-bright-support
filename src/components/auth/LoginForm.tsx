@@ -10,8 +10,7 @@ import { Form } from "@/components/ui/form";
 import { CardContent } from "@/components/ui/card";
 import LoginFields from "./form-components/LoginFields";
 import RoleSelector from "./form-components/RoleSelector";
-import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from "@/integrations/firebase/client";
+import { signIn } from "@/services/auth/firebaseAuth";
 
 // Login form schema
 const loginSchema = z.object({
@@ -43,7 +42,7 @@ const LoginForm = () => {
       localStorage.setItem('userRole', data.role);
       
       // Sign in the user with Firebase
-      await signInWithEmailAndPassword(auth, data.email, data.password);
+      await signIn(data.email, data.password);
       
       toast({
         title: "Welcome back",
