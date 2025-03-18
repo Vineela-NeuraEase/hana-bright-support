@@ -11,6 +11,9 @@ const Settings = () => {
   const { session } = useAuth();
   const { profile } = useProfile(session);
 
+  // Debug the profile data
+  console.log("Settings profile:", profile);
+
   return (
     <div className="container max-w-4xl py-8 space-y-6">
       <div className="flex items-center mb-6">
@@ -18,7 +21,7 @@ const Settings = () => {
         <h1 className="text-2xl font-bold">Settings</h1>
       </div>
       
-      <Tabs defaultValue="notifications" className="space-y-4">
+      <Tabs defaultValue="account" className="space-y-4">
         <TabsList>
           <TabsTrigger value="notifications">Notifications</TabsTrigger>
           <TabsTrigger value="account">Account</TabsTrigger>
@@ -30,7 +33,7 @@ const Settings = () => {
         </TabsContent>
         
         <TabsContent value="account" className="space-y-4">
-          {profile?.role === 'autistic' && <MyLinkCode profile={profile} />}
+          {profile && <MyLinkCode profile={profile} />}
           <div className="text-muted-foreground">
             More account settings will be available soon.
           </div>

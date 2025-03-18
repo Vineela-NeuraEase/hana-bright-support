@@ -10,7 +10,17 @@ interface MyLinkCodeProps {
 }
 
 export const MyLinkCode = ({ profile }: MyLinkCodeProps) => {
-  if (!profile) return null;
+  if (!profile) {
+    console.log("MyLinkCode: No profile provided");
+    return null;
+  }
+  
+  console.log("MyLinkCode profile:", profile);
+  console.log("MyLinkCode role:", profile.role);
+  console.log("MyLinkCode link_code:", profile.link_code);
+  
+  // Show for all users, or specifically for autistic users
+  // if (profile.role !== 'autistic') return null;
   
   const copyToClipboard = () => {
     if (profile.link_code) {

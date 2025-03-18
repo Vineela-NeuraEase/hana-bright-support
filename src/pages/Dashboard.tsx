@@ -23,6 +23,9 @@ const Dashboard = () => {
   const [viewingUserId, setViewingUserId] = useState<string | null>(null);
   const [viewingUserProfile, setViewingUserProfile] = useState<any>(null);
 
+  // Debug profile data
+  console.log("Dashboard profile:", profile);
+
   // Parse the viewAs parameter from the URL
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
