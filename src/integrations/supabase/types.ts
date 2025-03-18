@@ -78,27 +78,6 @@ export type Database = {
         }
         Relationships: []
       }
-      caregiver_links: {
-        Row: {
-          caregiver_id: string
-          created_at: string | null
-          id: string
-          user_id: string
-        }
-        Insert: {
-          caregiver_id: string
-          created_at?: string | null
-          id?: string
-          user_id: string
-        }
-        Update: {
-          caregiver_id?: string
-          created_at?: string | null
-          id?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
       data_retention_policies: {
         Row: {
           created_at: string | null
@@ -551,27 +530,6 @@ export type Database = {
         }
         Relationships: []
       }
-      user_links: {
-        Row: {
-          created_at: string | null
-          id: string
-          link_code: string
-          user_id: string
-        }
-        Insert: {
-          created_at?: string | null
-          id?: string
-          link_code: string
-          user_id: string
-        }
-        Update: {
-          created_at?: string | null
-          id?: string
-          link_code?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
       wearable_devices: {
         Row: {
           battery_level: number | null
@@ -682,10 +640,6 @@ export type Database = {
       cleanup_location_history: {
         Args: Record<PropertyKey, never>
         Returns: undefined
-      }
-      generate_link_code: {
-        Args: Record<PropertyKey, never>
-        Returns: string
       }
       predict_stress_level: {
         Args: {
