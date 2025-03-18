@@ -21,10 +21,18 @@ const Home = () => {
       
       <div className="w-full max-w-md space-y-4">
         <Button 
-          className="w-full h-12 text-lg bg-primary hover:bg-primary/90 transition-all duration-300"
+          className="w-full h-12 text-lg bg-primary hover:bg-primary/90 transition-all duration-300 mb-3"
+          onClick={() => navigate("/dashboard")}
+        >
+          Go to Dashboard
+        </Button>
+        
+        <Button 
+          variant="outline"
+          className="w-full h-12 text-lg transition-all duration-300"
           onClick={() => navigate("/tasks")}
         >
-          Get Started with Tasks
+          View Tasks
         </Button>
       </div>
     </div>

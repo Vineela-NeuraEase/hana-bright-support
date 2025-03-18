@@ -1,5 +1,5 @@
 
-import { BookText, Calendar, CheckSquare, Home, LogIn, LogOut, RadioTower } from "lucide-react";
+import { BookText, Calendar, CheckSquare, Home, LogIn, Layout, RadioTower } from "lucide-react";
 import { useLocation, Link } from "react-router-dom";
 import { useAuth } from "./AuthProvider";
 import { supabase } from "@/integrations/supabase/client";
@@ -67,13 +67,23 @@ const MobileNav = () => {
   return (
     <nav className="fixed bottom-0 left-0 right-0 h-16 bg-white/80 backdrop-blur-lg border-t border-gray-200 flex items-center justify-around md:hidden">
       <Link
-        to="/dashboard"
+        to="/"
         className={`flex flex-col items-center space-y-1 ${
-          location.pathname === "/dashboard" ? "text-primary" : "text-gray-500"
+          location.pathname === "/" ? "text-primary" : "text-gray-500"
         }`}
       >
         <Home size={20} />
         <span className="text-xs">Home</span>
+      </Link>
+
+      <Link
+        to="/dashboard"
+        className={`flex flex-col items-center space-y-1 ${
+          location.pathname.startsWith("/dashboard") ? "text-primary" : "text-gray-500"
+        }`}
+      >
+        <Layout size={20} />
+        <span className="text-xs">Dashboard</span>
       </Link>
 
       <Link
@@ -94,16 +104,6 @@ const MobileNav = () => {
       >
         <Calendar size={20} />
         <span className="text-xs">Schedule</span>
-      </Link>
-
-      <Link
-        to="/journal"
-        className={`flex flex-col items-center space-y-1 ${
-          location.pathname === "/journal" ? "text-primary" : "text-gray-500"
-        }`}
-      >
-        <BookText size={20} />
-        <span className="text-xs">Journal</span>
       </Link>
 
       <Link
