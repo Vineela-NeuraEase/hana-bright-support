@@ -6,6 +6,8 @@ import { useAuth } from "@/components/AuthProvider";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { BookText, Calendar, CheckSquare, Cog, Home, LogOut, RadioTower, UserCircle } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 type Profile = {
   id: string;
@@ -77,6 +79,20 @@ const Dashboard = () => {
 
   const navigationItems = profile ? getNavigationItems(profile.role) : [];
 
+  const getWelcomeMessage = () => {
+    if (!profile) return "Welcome to Hana";
+    switch (profile.role) {
+      case 'autistic':
+        return "Your personal support companion";
+      case 'caregiver':
+        return "Care management dashboard";
+      case 'clinician':
+        return "Clinical management portal";
+      default:
+        return "Welcome to Hana";
+    }
+  };
+
   return (
     <SidebarProvider defaultOpen>
       <div className="flex min-h-screen bg-background">
@@ -112,13 +128,41 @@ const Dashboard = () => {
         </Sidebar>
 
         {/* Main Content */}
-        <main className="flex-1 px-4 py-8">
-          <h1 className="text-2xl font-bold">Welcome to Hana</h1>
-          <p className="mt-2 text-muted-foreground">
-            {profile?.role === 'autistic' && "Your personal support companion"}
-            {profile?.role === 'caregiver' && "Care management dashboard"}
-            {profile?.role === 'clinician' && "Clinical management portal"}
-          </p>
+        <main className="flex-1">
+          {/* Top Navigation Bar */}
+          <nav className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+            <div className="flex h-14 items-center px-4 gap-4 justify-between">
+              <h2 className="text-lg font-semibold md:hidden">Hana</h2>
+              
+              {/* Profile Menu */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="ml-auto h-8 w-8 rounded-full">
+                    <Avatar className="h-8 w-8">
+                      <AvatarFallback>
+                        {session?.user.email?.charAt(0).toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem>Profile</DropdownMenuItem>
+                  <DropdownMenuItem>Settings</DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleSignOut}>
+                    Log out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          </nav>
+
+          {/* Page Content */}
+          <div className="flex-1 px-4 py-8">
+            <h1 className="text-2xl font-bold">{getWelcomeMessage()}</h1>
+          </div>
         </main>
       </div>
     </SidebarProvider>

@@ -3,7 +3,6 @@ import { BookText, Calendar, CheckSquare, Home, LogIn, LogOut, RadioTower } from
 import { useLocation, Link } from "react-router-dom";
 import { useAuth } from "./AuthProvider";
 import { supabase } from "@/integrations/supabase/client";
-import { Button } from "./ui/button";
 import { useEffect, useState } from "react";
 
 type Profile = {
@@ -31,10 +30,6 @@ const MobileNav = () => {
       getProfile();
     }
   }, [session]);
-
-  const handleSignOut = async () => {
-    await supabase.auth.signOut();
-  };
 
   // Only show nav items for autistic users on mobile
   const showNavItems = profile?.role === 'autistic';
