@@ -1,5 +1,5 @@
 
-import { Link } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Home, Menu, Calendar, CheckSquare, RadioTower } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -19,6 +19,7 @@ import {
 import { useAuth } from "@/components/AuthProvider";
 import { useNavigation } from "@/hooks/useNavigation";
 import { useProfile } from "@/hooks/useProfile";
+import { useState, useEffect } from "react";
 
 interface MainNavBarProps {
   onSignOut?: () => void;
@@ -28,6 +29,13 @@ export const MainNavBar = ({ onSignOut }: MainNavBarProps) => {
   const { session } = useAuth();
   const { profile } = useProfile(session);
   const navigationItems = useNavigation(profile?.role);
+  const location = useLocation();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  // Close the menu when the location changes (user navigates to a new page)
+  useEffect(() => {
+    setIsMenuOpen(false);
+  }, [location.pathname]);
 
   const handleSignOut = async () => {
     if (onSignOut) {
@@ -40,7 +48,7 @@ export const MainNavBar = ({ onSignOut }: MainNavBarProps) => {
       <div className="flex h-14 items-center px-4 gap-4 justify-between">
         <div className="flex items-center gap-4">
           {/* Hamburger menu for mobile */}
-          <Sheet>
+          <Sheet open={isMenuOpen} onOpenChange={setIsMenuOpen}>
             <SheetTrigger asChild>
               <Button variant="ghost" size="icon" aria-label="Menu" className="md:hidden">
                 <Menu className="h-5 w-5" />
@@ -56,6 +64,7 @@ export const MainNavBar = ({ onSignOut }: MainNavBarProps) => {
                     key={item.title}
                     to={item.url}
                     className="flex items-center gap-3 px-4 py-2 hover:bg-accent"
+                    onClick={() => setIsMenuOpen(false)}
                   >
                     <item.icon className="h-5 w-5" />
                     <span>{item.title}</span>
@@ -64,6 +73,7 @@ export const MainNavBar = ({ onSignOut }: MainNavBarProps) => {
                 <Link
                   to="/tasks"
                   className="flex items-center gap-3 px-4 py-2 hover:bg-accent"
+                  onClick={() => setIsMenuOpen(false)}
                 >
                   <CheckSquare className="h-5 w-5" />
                   <span>Tasks</span>
@@ -71,6 +81,7 @@ export const MainNavBar = ({ onSignOut }: MainNavBarProps) => {
                 <Link
                   to="/schedule"
                   className="flex items-center gap-3 px-4 py-2 hover:bg-accent"
+                  onClick={() => setIsMenuOpen(false)}
                 >
                   <Calendar className="h-5 w-5" />
                   <span>Schedule</span>
@@ -78,6 +89,7 @@ export const MainNavBar = ({ onSignOut }: MainNavBarProps) => {
                 <Link
                   to="/tools"
                   className="flex items-center gap-3 px-4 py-2 hover:bg-accent"
+                  onClick={() => setIsMenuOpen(false)}
                 >
                   <RadioTower className="h-5 w-5" />
                   <span>Tools</span>

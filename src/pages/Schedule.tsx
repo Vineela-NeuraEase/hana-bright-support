@@ -38,8 +38,11 @@ const Schedule = () => {
     if (selectedTime) {
       setSelectedTime(selectedTime);
     } else {
-      // Default to current time if no time selected
-      setSelectedTime(new Date());
+      // Use the selected date with current time when adding without a specific time
+      const now = new Date();
+      const dateToUse = new Date(selectedDate);
+      dateToUse.setHours(now.getHours(), now.getMinutes());
+      setSelectedTime(dateToUse);
     }
     setIsDialogOpen(true);
   };
