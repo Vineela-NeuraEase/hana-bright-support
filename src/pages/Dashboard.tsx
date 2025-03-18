@@ -5,9 +5,10 @@ import { Sidebar, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuItem, S
 import { useAuth } from "@/components/AuthProvider";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { BookText, Calendar, CheckSquare, Cog, Home, Info, LogOut, RadioTower, UserCircle, FilePenLine } from "lucide-react";
+import { BookText, Calendar, CheckSquare, Cog, Home, Info, LogOut, RadioTower, UserCircle, FilePenLine, Menu } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import FormalizerPage from "./tools/Formalizer";
 import JudgePage from "./tools/Judge";
 import ToolsDirectory from "./tools/Index";
@@ -21,6 +22,7 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const { session } = useAuth();
   const [profile, setProfile] = useState<Profile | null>(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     if (!session) {
@@ -137,7 +139,44 @@ const Dashboard = () => {
           {/* Top Navigation Bar */}
           <nav className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
             <div className="flex h-14 items-center px-4 gap-4 justify-between">
-              <h2 className="text-lg font-semibold md:hidden">Hana</h2>
+              {/* Mobile Hamburger Menu */}
+              <div className="flex items-center gap-4">
+                <Sheet>
+                  <SheetTrigger asChild className="md:hidden">
+                    <Button variant="ghost" size="icon" aria-label="Menu">
+                      <Menu className="h-5 w-5" />
+                    </Button>
+                  </SheetTrigger>
+                  <SheetContent side="left" className="w-[250px] p-0">
+                    <div className="p-4 border-b">
+                      <h2 className="text-xl font-bold">Hana</h2>
+                    </div>
+                    <div className="py-4">
+                      {navigationItems.map((item) => (
+                        <a
+                          key={item.title}
+                          href={item.url}
+                          className="flex items-center gap-3 px-4 py-2 hover:bg-accent"
+                        >
+                          <item.icon className="h-5 w-5" />
+                          <span>{item.title}</span>
+                        </a>
+                      ))}
+                    </div>
+                    <div className="p-4 mt-auto border-t">
+                      <Button 
+                        variant="ghost" 
+                        className="w-full justify-start gap-2" 
+                        onClick={handleSignOut}
+                      >
+                        <LogOut className="h-4 w-4" />
+                        <span>Sign Out</span>
+                      </Button>
+                    </div>
+                  </SheetContent>
+                </Sheet>
+                <h2 className="text-lg font-semibold">Hana</h2>
+              </div>
               
               {/* Profile Menu */}
               <DropdownMenu>
