@@ -1,14 +1,15 @@
 
 import { useState, useEffect } from "react";
 import { useAuth } from "@/components/AuthProvider";
-import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { 
+  fetchLinkedUsers,
+  linkUserWithCode,
+  unlinkUser
+} from "@/services/caregiverLinks/caregiverLinksService";
+import { LinkedUser } from "@/services/caregiverLinks/types";
 
-export type LinkedUser = {
-  id: string;
-  linkId: string;
-  email?: string;
-};
+export type { LinkedUser };
 
 export const useCaregiverLinks = () => {
   const { session } = useAuth();
@@ -21,37 +22,13 @@ export const useCaregiverLinks = () => {
 
   // Fetch linked users
   useEffect(() => {
-    const fetchLinkedUsers = async () => {
+    const loadLinkedUsers = async () => {
       if (!session) return;
 
       try {
         setLoading(true);
-        const { data, error } = await supabase
-          .from("caregiver_links")
-          .select("id, user_id")
-          .eq("caregiver_id", session.user.id);
-
-        if (error) throw error;
-
-        // Fetch emails for each linked user
-        const usersWithEmails = await Promise.all(
-          data.map(async (link) => {
-            // We can't directly fetch auth.users emails, so we'll fetch what we can
-            const { data: userData } = await supabase
-              .from("profiles")
-              .select("id")
-              .eq("id", link.user_id)
-              .single();
-
-            return {
-              id: link.user_id,
-              linkId: link.id,
-              email: userData ? `User ${userData.id.slice(0, 8)}...` : "Unknown user"
-            };
-          })
-        );
-
-        setLinkedUsers(usersWithEmails);
+        const result = await fetchLinkedUsers(session);
+        setLinkedUsers(result.linkedUsers);
       } catch (error) {
         console.error("Error fetching linked users:", error);
         toast({
@@ -64,7 +41,7 @@ export const useCaregiverLinks = () => {
       }
     };
 
-    fetchLinkedUsers();
+    loadLinkedUsers();
   }, [session, toast]);
 
   // Handle linking with a link code
@@ -74,70 +51,26 @@ export const useCaregiverLinks = () => {
     try {
       setIsLinking(true);
 
-      // Find user with the provided link code
-      const { data: userData, error: userError } = await supabase
-        .from("user_links")
-        .select("user_id")
-        .eq("link_code", linkCode)
-        .single();
-
-      if (userError) {
-        toast({
-          title: "Invalid Link Code",
-          description: "The link code you entered is invalid or doesn't exist",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      // Check if already linked
-      const { data: existingLink } = await supabase
-        .from("caregiver_links")
-        .select("id")
-        .eq("caregiver_id", session.user.id)
-        .eq("user_id", userData.user_id)
-        .maybeSingle();
-
-      if (existingLink) {
-        toast({
-          title: "Already Linked",
-          description: "You are already linked to this user",
-        });
-        return;
-      }
-
-      // Create the link
-      const { error: linkError } = await supabase
-        .from("caregiver_links")
-        .insert([
-          { user_id: userData.user_id, caregiver_id: session.user.id },
-        ]);
-
-      if (linkError) throw linkError;
+      const result = await linkUserWithCode(linkCode, session);
 
       toast({
-        title: "Success",
-        description: "Successfully linked with the user",
+        title: result.success ? "Success" : "Error",
+        description: result.message,
+        variant: result.success ? "default" : "destructive",
       });
 
-      // Refresh linked users
-      const { data: newLink } = await supabase
-        .from("caregiver_links")
-        .select("id, user_id")
-        .eq("caregiver_id", session.user.id)
-        .eq("user_id", userData.user_id)
-        .single();
-
-      if (newLink) {
+      if (result.success && result.newLink) {
         setLinkedUsers([...linkedUsers, {
-          id: newLink.user_id,
-          linkId: newLink.id,
-          email: `User ${newLink.user_id.slice(0, 8)}...`
+          id: result.newLink.user_id,
+          linkId: result.newLink.id,
+          email: `User ${result.newLink.user_id.slice(0, 8)}...`
         }]);
       }
 
-      // Clear the link code
-      setLinkCode("");
+      // Clear the link code if successful
+      if (result.success) {
+        setLinkCode("");
+      }
     } catch (error) {
       console.error("Error linking user:", error);
       toast({
@@ -159,25 +92,28 @@ export const useCaregiverLinks = () => {
     }
 
     try {
-      const { error } = await supabase
-        .from("caregiver_links")
-        .delete()
-        .eq("id", linkId)
-        .eq("caregiver_id", session.user.id);
+      const result = await unlinkUser(linkId, session);
 
-      if (error) throw error;
+      if (result.success) {
+        const userToRemove = linkedUsers.find(user => user.linkId === linkId);
+        setLinkedUsers(linkedUsers.filter(user => user.linkId !== linkId));
 
-      setLinkedUsers(linkedUsers.filter(user => user.linkId !== linkId));
+        // If the unlinked user was selected, deselect it
+        if (selectedUserId && userToRemove && userToRemove.id === selectedUserId) {
+          setSelectedUserId(null);
+        }
 
-      // If the unlinked user was selected, deselect it
-      if (selectedUserId && linkedUsers.find(u => u.linkId === linkId)?.id === selectedUserId) {
-        setSelectedUserId(null);
+        toast({
+          title: "Success",
+          description: result.message,
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: result.message || "Failed to unlink user",
+          variant: "destructive",
+        });
       }
-
-      toast({
-        title: "Success",
-        description: "User has been unlinked",
-      });
     } catch (error) {
       console.error("Error unlinking user:", error);
       toast({
