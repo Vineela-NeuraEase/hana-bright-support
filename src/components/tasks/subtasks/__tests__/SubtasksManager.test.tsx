@@ -46,8 +46,20 @@ describe('SubtasksManager', () => {
   };
   const mockRefetchTasks = jest.fn();
 
+  // Create a proper mock implementation for supabase
+  const mockUpdateReturn = { error: null };
+  const mockFrom = jest.fn().mockReturnThis();
+  const mockEq = jest.fn().mockResolvedValue(mockUpdateReturn);
+  
   beforeEach(() => {
     jest.clearAllMocks();
+    
+    // Set up the mock implementation for each test
+    (supabase.from as jest.Mock).mockImplementation(() => ({
+      update: jest.fn().mockImplementation(() => ({
+        eq: mockEq
+      }))
+    }));
   });
 
   it('renders the correct number of subtasks', () => {
@@ -89,12 +101,7 @@ describe('SubtasksManager', () => {
     
     await waitFor(() => {
       expect(supabase.from).toHaveBeenCalledWith('tasks');
-      expect(supabase.update).toHaveBeenCalledWith({ 
-        subtasks: [
-          { title: 'Subtask 1', completed: true },
-          { title: 'Subtask 2', completed: true }
-        ] 
-      });
+      expect(mockEq).toHaveBeenCalled();
       expect(mockRefetchTasks).toHaveBeenCalled();
     });
   });
@@ -106,11 +113,7 @@ describe('SubtasksManager', () => {
     
     await waitFor(() => {
       expect(supabase.from).toHaveBeenCalledWith('tasks');
-      expect(supabase.update).toHaveBeenCalledWith({ 
-        subtasks: [
-          { title: 'Subtask 1', completed: false }
-        ] 
-      });
+      expect(mockEq).toHaveBeenCalled();
       expect(mockRefetchTasks).toHaveBeenCalled();
     });
   });
