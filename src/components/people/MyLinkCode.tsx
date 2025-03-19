@@ -34,18 +34,9 @@ export const MyLinkCode = ({ profile }: MyLinkCodeProps) => {
     
     setIsRegenerating(true);
     try {
-      // Delete old link code
-      await supabase
-        .from('user_links')
-        .delete()
-        .eq('user_id', profile.id);
-      
-      // Generate new link code by updating the profile
-      // This will trigger the create_user_link_code trigger
+      // Instead of trying to delete/update directly, use the regenerate_link_code function
       const { error } = await supabase
-        .from('profiles')
-        .update({ updated_at: new Date().toISOString() })
-        .eq('id', profile.id);
+        .rpc('regenerate_link_code', { user_id: profile.id });
       
       if (error) throw error;
       
