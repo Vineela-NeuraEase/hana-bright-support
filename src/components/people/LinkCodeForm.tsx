@@ -27,19 +27,19 @@ export const LinkCodeForm = ({ session, onSuccess }: LinkCodeFormProps) => {
       console.log("Attempting to link with code:", linkCode);
       
       // Step 1: Find the user with this link code
-      const { data: userData, error: userError } = await supabase
+      const { data: linkData, error: linkError } = await supabase
         .from('user_links')
         .select('user_id')
         .eq('link_code', linkCode)
         .maybeSingle();
 
-      console.log("User lookup result:", userData, userError);
+      console.log("User lookup result:", linkData, linkError);
 
-      if (userError) {
-        throw userError;
+      if (linkError) {
+        throw linkError;
       }
 
-      if (!userData) {
+      if (!linkData || !linkData.user_id) {
         toast({
           variant: "destructive",
           title: "Error",
@@ -54,7 +54,7 @@ export const LinkCodeForm = ({ session, onSuccess }: LinkCodeFormProps) => {
         .from('caregiver_links')
         .select('*')
         .eq('caregiver_id', session.user.id)
-        .eq('user_id', userData.user_id)
+        .eq('user_id', linkData.user_id)
         .maybeSingle();
         
       console.log("Existing link check:", existingLink, existingLinkError);
@@ -74,7 +74,7 @@ export const LinkCodeForm = ({ session, onSuccess }: LinkCodeFormProps) => {
         .from('caregiver_links')
         .insert({
           caregiver_id: session.user.id,
-          user_id: userData.user_id
+          user_id: linkData.user_id
         })
         .select();
 
