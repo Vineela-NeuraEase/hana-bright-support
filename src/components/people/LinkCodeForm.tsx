@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { AlertCircle, Loader2 } from "lucide-react"; 
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface LinkCodeFormProps {
   session: Session | null;
@@ -15,6 +17,7 @@ interface LinkCodeFormProps {
 export const LinkCodeForm = ({ session, onSuccess }: LinkCodeFormProps) => {
   const [linkCode, setLinkCode] = useState("");
   const [isLinking, setIsLinking] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
 
   const handleLinkUser = async (e: React.FormEvent) => {
@@ -23,9 +26,9 @@ export const LinkCodeForm = ({ session, onSuccess }: LinkCodeFormProps) => {
     if (!linkCode.trim() || !session) return;
     
     setIsLinking(true);
+    setError(null);
+    
     try {
-      console.log("Attempting to link with code:", linkCode);
-      
       // Step 1: Find the user with this link code
       const { data: linkData, error: linkError } = await supabase
         .from('user_links')
@@ -33,18 +36,12 @@ export const LinkCodeForm = ({ session, onSuccess }: LinkCodeFormProps) => {
         .eq('link_code', linkCode)
         .maybeSingle();
 
-      console.log("User lookup result:", linkData, linkError);
-
       if (linkError) {
         throw linkError;
       }
 
       if (!linkData || !linkData.user_id) {
-        toast({
-          variant: "destructive",
-          title: "Error",
-          description: "No user found with that link code"
-        });
+        setError("No user found with that link code");
         setIsLinking(false);
         return;
       }
@@ -57,28 +54,24 @@ export const LinkCodeForm = ({ session, onSuccess }: LinkCodeFormProps) => {
         .eq('user_id', linkData.user_id)
         .maybeSingle();
         
-      console.log("Existing link check:", existingLink, existingLinkError);
+      if (existingLinkError && existingLinkError.code !== 'PGRST116') {
+        // Only throw if it's not the "no rows returned" error
+        throw existingLinkError;
+      }
       
       if (existingLink) {
-        toast({
-          variant: "destructive",
-          title: "Error",
-          description: "You are already linked to this user"
-        });
+        setError("You are already linked to this user");
         setIsLinking(false);
         return;
       }
 
       // Step 3: Create link in caregiver_links table
-      const { data: newLink, error: caregiverLinkError } = await supabase
+      const { error: caregiverLinkError } = await supabase
         .from('caregiver_links')
         .insert({
           caregiver_id: session.user.id,
           user_id: linkData.user_id
-        })
-        .select();
-
-      console.log("New link creation result:", newLink, caregiverLinkError);
+        });
 
       if (caregiverLinkError) {
         throw caregiverLinkError;
@@ -92,11 +85,7 @@ export const LinkCodeForm = ({ session, onSuccess }: LinkCodeFormProps) => {
       onSuccess();
     } catch (error: any) {
       console.error('Error linking user:', error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: error.message || "Failed to link user"
-      });
+      setError(error.message || "Failed to link user");
     } finally {
       setIsLinking(false);
     }
@@ -111,7 +100,13 @@ export const LinkCodeForm = ({ session, onSuccess }: LinkCodeFormProps) => {
         </CardDescription>
       </CardHeader>
       <form onSubmit={handleLinkUser}>
-        <CardContent>
+        <CardContent className="space-y-4">
+          {error && (
+            <Alert variant="destructive">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
           <div className="flex gap-4">
             <Input
               placeholder="Enter link code (e.g., AB12CD34)"
@@ -119,9 +114,15 @@ export const LinkCodeForm = ({ session, onSuccess }: LinkCodeFormProps) => {
               onChange={e => setLinkCode(e.target.value)}
               className="flex-1"
               maxLength={8}
+              disabled={isLinking}
             />
             <Button type="submit" disabled={isLinking || !linkCode.trim()}>
-              {isLinking ? "Linking..." : "Link User"}
+              {isLinking ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Linking...
+                </>
+              ) : "Link User"}
             </Button>
           </div>
         </CardContent>

@@ -5,20 +5,24 @@ import { LinkedUsersList } from "@/components/people/LinkedUsersList";
 import { useAuth } from "@/components/AuthProvider";
 import { useProfile } from "@/hooks/useProfile";
 import { useToast } from "@/hooks/use-toast";
-import { User } from "lucide-react";
+import { User, AlertCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { MyLinkCode } from "@/components/people/MyLinkCode";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 const PersonManagement = () => {
   const { session } = useAuth();
-  const { profile, linkedUsers, linkedUsersLoading, refetchLinkedUsers } = useProfile(session);
+  const { 
+    profile, 
+    linkedUsers, 
+    linkedUsersLoading, 
+    error: profileError,
+    refetchLinkedUsers 
+  } = useProfile(session);
+  const [unlinkError, setUnlinkError] = useState<string | null>(null);
   const { toast } = useToast();
   const navigate = useNavigate();
-
-  // Debug data
-  console.log("Profile:", profile);
-  console.log("Linked users:", linkedUsers);
 
   const handleLinkSuccess = () => {
     if (refetchLinkedUsers) {
@@ -36,6 +40,8 @@ const PersonManagement = () => {
 
   const handleUnlink = async (userId: string) => {
     if (!session || !profile) return;
+    
+    setUnlinkError(null);
     
     try {
       const { error } = await supabase
@@ -59,6 +65,8 @@ const PersonManagement = () => {
       }
       
     } catch (error: any) {
+      console.error("Error unlinking person:", error);
+      setUnlinkError(error.message || "Failed to unlink person");
       toast({
         variant: "destructive",
         title: "Error",
@@ -86,6 +94,14 @@ const PersonManagement = () => {
         <h1 className="text-2xl font-bold">People Management</h1>
       </div>
       
+      {profileError && (
+        <Alert variant="destructive" className="mb-6">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Error</AlertTitle>
+          <AlertDescription>{profileError}</AlertDescription>
+        </Alert>
+      )}
+      
       <div className="space-y-8">
         {profile?.role === 'caregiver' && (
           <>
@@ -99,6 +115,7 @@ const PersonManagement = () => {
               <LinkedUsersList 
                 linkedUsers={linkedUsers} 
                 isLoading={linkedUsersLoading}
+                error={unlinkError}
                 onViewDashboard={handleViewDashboard}
                 onUnlink={handleUnlink}
                 onViewTasks={handleViewTasks}
@@ -116,7 +133,7 @@ const PersonManagement = () => {
           </section>
         )}
         
-        {!profile && (
+        {!profile && !profileError && (
           <div className="text-center py-10">
             <p className="text-muted-foreground">Loading profile data...</p>
           </div>

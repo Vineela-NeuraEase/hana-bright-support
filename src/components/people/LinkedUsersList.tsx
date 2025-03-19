@@ -2,7 +2,8 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { CalendarIcon, CheckSquare, MessageSquareDiff, Loader2 } from "lucide-react";
+import { CalendarIcon, CheckSquare, MessageSquareDiff, Loader2, AlertCircle } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 interface LinkedUser {
   id: string;
@@ -13,6 +14,7 @@ interface LinkedUser {
 interface LinkedUsersListProps {
   linkedUsers: LinkedUser[];
   isLoading: boolean;
+  error?: string;
   onViewDashboard: (userId: string) => void;
   onUnlink: (userId: string) => void;
   onViewTasks: (userId: string) => void;
@@ -23,12 +25,23 @@ interface LinkedUsersListProps {
 export const LinkedUsersList = ({ 
   linkedUsers, 
   isLoading, 
+  error,
   onViewDashboard, 
   onUnlink,
   onViewTasks,
   onViewCalendar,
   onSendEncouragement
 }: LinkedUsersListProps) => {
+  if (error) {
+    return (
+      <Alert variant="destructive">
+        <AlertCircle className="h-4 w-4" />
+        <AlertTitle>Error</AlertTitle>
+        <AlertDescription>{error}</AlertDescription>
+      </Alert>
+    );
+  }
+  
   if (isLoading) {
     return (
       <Card>

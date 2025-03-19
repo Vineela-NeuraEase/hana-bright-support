@@ -2,8 +2,10 @@
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { Profile } from "@/hooks/useProfile";
 import { Button } from "@/components/ui/button";
-import { Copy, Link } from "lucide-react";
+import { Copy, Link, RefreshCw } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 interface MyLinkCodeProps {
   profile: Profile | null;
@@ -11,6 +13,7 @@ interface MyLinkCodeProps {
 
 export const MyLinkCode = ({ profile }: MyLinkCodeProps) => {
   const { toast } = useToast();
+  const [isRegenerating, setIsRegenerating] = useState(false);
   
   if (!profile) {
     return null;
@@ -23,6 +26,43 @@ export const MyLinkCode = ({ profile }: MyLinkCodeProps) => {
         title: "Success", 
         description: "Link code copied to clipboard"
       });
+    }
+  };
+
+  const regenerateLinkCode = async () => {
+    if (!profile.id) return;
+    
+    setIsRegenerating(true);
+    try {
+      // Delete old link code
+      await supabase
+        .from('user_links')
+        .delete()
+        .eq('user_id', profile.id);
+      
+      // Generate new link code (this relies on the create_user_link_code trigger)
+      const { error } = await supabase.rpc('regenerate_link_code', {
+        user_id: profile.id
+      });
+      
+      if (error) throw error;
+      
+      toast({
+        title: "Success",
+        description: "Your link code has been regenerated. Please refresh the page to see it."
+      });
+
+      // Force refresh page to show new code
+      window.location.reload();
+    } catch (error: any) {
+      console.error('Error regenerating link code:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error.message || "Failed to regenerate link code"
+      });
+    } finally {
+      setIsRegenerating(false);
     }
   };
 
@@ -68,8 +108,28 @@ export const MyLinkCode = ({ profile }: MyLinkCodeProps) => {
           </Button>
         </div>
       </CardContent>
-      <CardFooter className="text-sm text-muted-foreground">
-        Keep this code private and only share with trusted caregivers.
+      <CardFooter className="flex justify-between items-center">
+        <span className="text-sm text-muted-foreground">
+          Keep this code private and only share with trusted caregivers.
+        </span>
+        <Button 
+          size="sm" 
+          variant="outline" 
+          onClick={regenerateLinkCode}
+          disabled={isRegenerating}
+        >
+          {isRegenerating ? (
+            <>
+              <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+              Regenerating...
+            </>
+          ) : (
+            <>
+              <RefreshCw className="mr-2 h-4 w-4" />
+              Regenerate
+            </>
+          )}
+        </Button>
       </CardFooter>
     </Card>
   );
