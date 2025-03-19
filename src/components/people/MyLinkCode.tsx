@@ -40,10 +40,12 @@ export const MyLinkCode = ({ profile }: MyLinkCodeProps) => {
         .delete()
         .eq('user_id', profile.id);
       
-      // Generate new link code (this relies on the create_user_link_code trigger)
-      const { error } = await supabase.rpc('regenerate_link_code', {
-        user_id: profile.id
-      });
+      // Generate new link code by updating the profile
+      // This will trigger the create_user_link_code trigger
+      const { error } = await supabase
+        .from('profiles')
+        .update({ updated_at: new Date().toISOString() })
+        .eq('id', profile.id);
       
       if (error) throw error;
       
