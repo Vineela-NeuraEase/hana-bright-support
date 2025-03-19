@@ -34,9 +34,11 @@ export const MyLinkCode = ({ profile }: MyLinkCodeProps) => {
     
     setIsRegenerating(true);
     try {
-      // Instead of trying to delete/update directly, use the regenerate_link_code function
-      const { error } = await supabase
-        .rpc('regenerate_link_code', { user_id: profile.id });
+      // Use a POST request to call the function directly
+      // This avoids TypeScript errors with rpc() function names
+      const { error } = await supabase.functions.invoke('regenerate-link-code', {
+        body: { userId: profile.id }
+      });
       
       if (error) throw error;
       

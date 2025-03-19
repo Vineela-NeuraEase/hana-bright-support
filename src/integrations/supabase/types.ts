@@ -729,6 +729,12 @@ export type Database = {
         }
         Returns: number
       }
+      regenerate_link_code: {
+        Args: {
+          user_id: string
+        }
+        Returns: undefined
+      }
     }
     Enums: {
       app_role: "autistic" | "caregiver" | "clinician"
