@@ -74,7 +74,7 @@ export const DashboardContent = ({ welcomeMessage, profile, linkedUsers = [], ca
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Alert variant="info" className="mb-4">
+            <Alert className="mb-4">
               <AlertCircle className="h-4 w-4 text-blue-500" />
               <AlertDescription>
                 Use a link code provided by an autistic individual to establish a connection and provide support.
@@ -170,7 +170,7 @@ export const DashboardContent = ({ welcomeMessage, profile, linkedUsers = [], ca
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Alert variant="info" className="mb-4">
+            <Alert className="mb-4">
               <AlertCircle className="h-4 w-4 text-blue-500" />
               <AlertDescription>
                 Share your link code with trusted caregivers to allow them to support you.
@@ -212,7 +212,7 @@ export const DashboardContent = ({ welcomeMessage, profile, linkedUsers = [], ca
                     <Badge variant="outline">{caregiver.role}</Badge>
                   </TableCell>
                   <TableCell>
-                    <Badge variant="success" className="bg-green-100 text-green-800 hover:bg-green-200">
+                    <Badge className="bg-green-100 text-green-800 hover:bg-green-200">
                       Connected
                     </Badge>
                   </TableCell>
