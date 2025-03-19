@@ -12,14 +12,21 @@ import { NavigationItem } from "@/types/navigation";
 import { TopNavigationBar } from "@/components/dashboard/TopNavigationBar";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Copy } from "lucide-react";
+import { Copy, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { session } = useAuth();
-  const { profile, loading } = useProfile(session);
+  const { 
+    profile, 
+    loading, 
+    linkedUsers, 
+    linkedUsersLoading,
+    caregivers,
+    caregiversLoading
+  } = useProfile(session);
   const [viewingUserId, setViewingUserId] = useState<string | null>(null);
   const [viewingUserProfile, setViewingUserProfile] = useState<any>(null);
 
@@ -146,6 +153,15 @@ const Dashboard = () => {
     );
   };
 
+  if (loading || linkedUsersLoading || caregiversLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <span className="ml-2">Loading dashboard...</span>
+      </div>
+    );
+  }
+
   return (
     <SidebarProvider defaultOpen>
       <div className="flex flex-col min-h-screen bg-background">
@@ -172,6 +188,8 @@ const Dashboard = () => {
             <DashboardContent 
               welcomeMessage={getWelcomeMessage()} 
               profile={profile}
+              linkedUsers={linkedUsers}
+              caregivers={caregivers}
             />
           </main>
         </div>
