@@ -1,12 +1,14 @@
 
 import { Link } from "react-router-dom";
-import { Calendar, CheckSquare, BookText, RadioTower, MessageSquare, Users, LinkIcon } from "lucide-react";
+import { Calendar, CheckSquare, BookText, RadioTower, MessageSquare, Users, LinkIcon, AlertCircle } from "lucide-react";
 import { useAuth } from "@/components/AuthProvider";
 import { EncouragementList } from "@/components/messages/EncouragementList";
 import { Profile, LinkedUser } from "@/hooks/useProfile";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface DashboardContentProps {
   welcomeMessage: string;
@@ -72,9 +74,17 @@ export const DashboardContent = ({ welcomeMessage, profile, linkedUsers = [], ca
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Link to="/people" className="text-sm text-primary hover:underline">
-              Go to People Management
-            </Link>
+            <Alert variant="info" className="mb-4">
+              <AlertCircle className="h-4 w-4 text-blue-500" />
+              <AlertDescription>
+                Use a link code provided by an autistic individual to establish a connection and provide support.
+              </AlertDescription>
+            </Alert>
+            <Button asChild variant="default" size="sm">
+              <Link to="/people">
+                Go to People Management
+              </Link>
+            </Button>
           </CardContent>
         </Card>
       );
@@ -88,7 +98,7 @@ export const DashboardContent = ({ welcomeMessage, profile, linkedUsers = [], ca
             Connected People
           </CardTitle>
           <CardDescription>
-            You are connected with the following people:
+            You're connected with the following people and can view their information:
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -108,21 +118,37 @@ export const DashboardContent = ({ welcomeMessage, profile, linkedUsers = [], ca
                   </TableCell>
                   <TableCell>{user.link_code || "N/A"}</TableCell>
                   <TableCell>
-                    <Link 
-                      to={`/dashboard?viewAs=${user.id}`} 
-                      className="text-sm text-primary hover:underline"
-                    >
-                      View Dashboard
-                    </Link>
+                    <div className="flex space-x-2">
+                      <Button 
+                        asChild
+                        variant="outline" 
+                        size="sm"
+                      >
+                        <Link to={`/dashboard?viewAs=${user.id}`}>
+                          View Dashboard
+                        </Link>
+                      </Button>
+                      <Button 
+                        asChild
+                        variant="outline" 
+                        size="sm"
+                      >
+                        <Link to={`/tasks?viewAs=${user.id}`}>
+                          Tasks
+                        </Link>
+                      </Button>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
           <div className="mt-4">
-            <Link to="/people" className="text-sm text-primary hover:underline">
-              Manage Connections
-            </Link>
+            <Button asChild variant="default" size="sm">
+              <Link to="/people">
+                Manage Connections
+              </Link>
+            </Button>
           </div>
         </CardContent>
       </Card>
@@ -144,9 +170,17 @@ export const DashboardContent = ({ welcomeMessage, profile, linkedUsers = [], ca
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Link to="/people" className="text-sm text-primary hover:underline">
-              Manage Your Link Code
-            </Link>
+            <Alert variant="info" className="mb-4">
+              <AlertCircle className="h-4 w-4 text-blue-500" />
+              <AlertDescription>
+                Share your link code with trusted caregivers to allow them to support you.
+              </AlertDescription>
+            </Alert>
+            <Button asChild variant="default" size="sm">
+              <Link to="/people">
+                Manage Your Link Code
+              </Link>
+            </Button>
           </CardContent>
         </Card>
       );
@@ -160,7 +194,7 @@ export const DashboardContent = ({ welcomeMessage, profile, linkedUsers = [], ca
             Your Caregivers
           </CardTitle>
           <CardDescription>
-            The following caregivers can access your information:
+            The following caregivers are connected to you and can access your information:
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -168,7 +202,7 @@ export const DashboardContent = ({ welcomeMessage, profile, linkedUsers = [], ca
             <TableHeader>
               <TableRow>
                 <TableHead>Role</TableHead>
-                <TableHead>Link Code</TableHead>
+                <TableHead>Status</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -177,15 +211,21 @@ export const DashboardContent = ({ welcomeMessage, profile, linkedUsers = [], ca
                   <TableCell>
                     <Badge variant="outline">{caregiver.role}</Badge>
                   </TableCell>
-                  <TableCell>{caregiver.link_code || "N/A"}</TableCell>
+                  <TableCell>
+                    <Badge variant="success" className="bg-green-100 text-green-800 hover:bg-green-200">
+                      Connected
+                    </Badge>
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
           <div className="mt-4">
-            <Link to="/people" className="text-sm text-primary hover:underline">
-              Manage Connections
-            </Link>
+            <Button asChild variant="default" size="sm">
+              <Link to="/people">
+                Manage Connections
+              </Link>
+            </Button>
           </div>
         </CardContent>
       </Card>
@@ -197,8 +237,10 @@ export const DashboardContent = ({ welcomeMessage, profile, linkedUsers = [], ca
       <div>
         <h1 className="text-2xl font-bold mb-6">{welcomeMessage}</h1>
         
-        {profile?.role === 'caregiver' && renderLinkedUsers()}
+        {/* Link Code Section is now handled in Dashboard.tsx */}
         
+        {/* Connection Information Sections */}
+        {profile?.role === 'caregiver' && renderLinkedUsers()}
         {profile?.role === 'autistic' && renderCaregiverConnections()}
         
         {/* Only show messages for autistic users */}

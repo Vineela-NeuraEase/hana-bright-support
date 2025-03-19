@@ -12,8 +12,9 @@ import { NavigationItem } from "@/types/navigation";
 import { TopNavigationBar } from "@/components/dashboard/TopNavigationBar";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Copy, Loader2 } from "lucide-react";
+import { Copy, Loader2, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -29,9 +30,6 @@ const Dashboard = () => {
   } = useProfile(session);
   const [viewingUserId, setViewingUserId] = useState<string | null>(null);
   const [viewingUserProfile, setViewingUserProfile] = useState<any>(null);
-
-  // Debug profile data
-  console.log("Dashboard profile:", profile);
 
   // Parse the viewAs parameter from the URL
   useEffect(() => {
@@ -82,7 +80,7 @@ const Dashboard = () => {
 
   const getWelcomeMessage = () => {
     if (viewingUserProfile) {
-      return `Viewing Dashboard for Person (Role: ${viewingUserProfile.role})`;
+      return `Viewing Dashboard for ${viewingUserProfile.role === 'autistic' ? 'Individual' : viewingUserProfile.role} (Role: ${viewingUserProfile.role})`;
     }
     
     if (!profile) return "Welcome to Hannah";
@@ -105,7 +103,7 @@ const Dashboard = () => {
     return (
       <div className="bg-secondary/20 py-2 px-4 text-center">
         <p className="text-sm">
-          You are viewing a person's dashboard. 
+          You are viewing an individual's dashboard. 
           <button 
             onClick={() => navigate('/dashboard')} 
             className="ml-2 underline font-medium"
@@ -135,6 +133,12 @@ const Dashboard = () => {
           </CardDescription>
         </CardHeader>
         <CardContent>
+          <Alert variant="info" className="mb-4">
+            <AlertCircle className="h-4 w-4 text-blue-500" />
+            <AlertDescription>
+              Give this code to trusted caregivers who need to support you. They will use it to link with your account.
+            </AlertDescription>
+          </Alert>
           <div className="flex items-center gap-2">
             <div className="p-3 bg-muted rounded-md font-mono text-center flex-1">
               {profile.link_code}
@@ -187,7 +191,7 @@ const Dashboard = () => {
             
             <DashboardContent 
               welcomeMessage={getWelcomeMessage()} 
-              profile={profile}
+              profile={viewingUserProfile || profile}
               linkedUsers={linkedUsers}
               caregivers={caregivers}
             />
