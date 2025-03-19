@@ -23,10 +23,15 @@ export const LinkCodeForm = ({ session, onSuccess }: LinkCodeFormProps) => {
   const handleLinkUser = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!linkCode.trim() || !session) return;
+    if (!linkCode.trim() || !session) {
+      setError("Please enter a valid link code");
+      return;
+    }
     
     setIsLinking(true);
     setError(null);
+    
+    console.log(`Attempting to link with code: ${linkCode}`);
     
     try {
       // Step 1: Find the user with this link code
@@ -36,15 +41,19 @@ export const LinkCodeForm = ({ session, onSuccess }: LinkCodeFormProps) => {
         .eq('link_code', linkCode)
         .maybeSingle();
 
+      console.log('Link data search result:', linkData, linkError);
+
       if (linkError) {
         throw linkError;
       }
 
       if (!linkData || !linkData.user_id) {
-        setError("No user found with that link code");
+        setError("No user found with that link code. Please check and try again.");
         setIsLinking(false);
         return;
       }
+      
+      console.log(`Found user with ID: ${linkData.user_id}`);
 
       // Step 2: Check if this link already exists
       const { data: existingLink, error: existingLinkError } = await supabase
@@ -54,6 +63,8 @@ export const LinkCodeForm = ({ session, onSuccess }: LinkCodeFormProps) => {
         .eq('user_id', linkData.user_id)
         .maybeSingle();
         
+      console.log('Existing link check result:', existingLink, existingLinkError);
+      
       if (existingLinkError && existingLinkError.code !== 'PGRST116') {
         // Only throw if it's not the "no rows returned" error
         throw existingLinkError;
@@ -65,13 +76,25 @@ export const LinkCodeForm = ({ session, onSuccess }: LinkCodeFormProps) => {
         return;
       }
 
+      // Check if trying to link to self
+      if (linkData.user_id === session.user.id) {
+        setError("You cannot link to yourself");
+        setIsLinking(false);
+        return;
+      }
+
+      console.log(`Creating caregiver link: caregiver=${session.user.id}, user=${linkData.user_id}`);
+
       // Step 3: Create link in caregiver_links table
-      const { error: caregiverLinkError } = await supabase
+      const { data: insertResult, error: caregiverLinkError } = await supabase
         .from('caregiver_links')
         .insert({
           caregiver_id: session.user.id,
           user_id: linkData.user_id
-        });
+        })
+        .select();
+
+      console.log('Insert result:', insertResult, caregiverLinkError);
 
       if (caregiverLinkError) {
         throw caregiverLinkError;
@@ -85,7 +108,7 @@ export const LinkCodeForm = ({ session, onSuccess }: LinkCodeFormProps) => {
       onSuccess();
     } catch (error: any) {
       console.error('Error linking user:', error);
-      setError(error.message || "Failed to link user");
+      setError(error.message || "Failed to link user. Please try again.");
     } finally {
       setIsLinking(false);
     }
